@@ -1,0 +1,61 @@
+# Dependências e ambientes locais
+node_modules/
+.venv/
+venv/
+
+# Builds e caches
+dist/
+build/
+.vite/
+*.tsbuildinfo
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Resultados de testes e cobertura
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+
+# Configurações privadas (preservar exemplos versionáveis)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+
+# Bancos locais e arquivos auxiliares do SQLite
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Sistema operacional e configurações pessoais de IDE
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/

@@ -1,0 +1,486 @@
+{
+  "missing_personal": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "SOLAR_PARTICLE_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "missing_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": true,
+      "personal_reading_available": false
+    },
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "CHECK_PERSONAL",
+      "available_count": 2,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "ATTENTION",
+          "reason": "SOLAR_EVENT"
+        },
+        {
+          "id": "personal",
+          "state": "MISSING",
+          "reason": "PERSONAL_MISSING"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "missing_personal_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "SOLAR_PARTICLE_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "missing_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": true,
+      "personal_reading_available": false
+    },
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "CHECK_PERSONAL",
+      "available_count": 2,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "ATTENTION",
+          "reason": "SOLAR_EVENT"
+        },
+        {
+          "id": "personal",
+          "state": "MISSING",
+          "reason": "PERSONAL_MISSING"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "revision": 2
+  },
+  "solar_review": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "SOLAR_PARTICLE_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "solar_review",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": true,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "ATTENTION",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "REVIEW_SOLAR_EVENT",
+      "available_count": 3,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "ATTENTION",
+          "reason": "SOLAR_EVENT"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "solar_review_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "SOLAR_PARTICLE_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "solar_review",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": true,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "ATTENTION",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "FOLLOW_UP",
+      "available_count": 3,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "ATTENTION",
+          "reason": "SOLAR_EVENT"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "revision": 2
+  },
+  "complete": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "complete",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "AVAILABLE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "RECORD_REVIEW",
+      "available_count": 3,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "complete_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_RECORDED",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "complete",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "AVAILABLE",
+      "review_state": "RECORDED",
+      "requires_attention": false,
+      "next_action": "NONE",
+      "available_count": 3,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "revision": 2
+  },
+  "missing_environment": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "missing_environment",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": false,
+      "solar_event_flagged": false,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "CHECK_ENVIRONMENT",
+      "available_count": 2,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "MISSING",
+          "reason": "ENVIRONMENT_CONTEXT_MISSING"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [
+      "ENVIRONMENT_CONTEXT"
+    ],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "missing_environment_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "missing_environment",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": false,
+      "solar_event_flagged": false,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "CHECK_ENVIRONMENT",
+      "available_count": 2,
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "MISSING",
+          "reason": "ENVIRONMENT_CONTEXT_MISSING"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [
+      "ENVIRONMENT_CONTEXT"
+    ],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "revision": 2
+  },
+  "missing_context": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": null,
+    "scenario_id": "missing_context",
+    "inputs": {
+      "activity_available": false,
+      "environment_context_available": false,
+      "solar_event_flagged": false,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "CONFIRM_ACTIVITY",
+      "available_count": 1,
+      "steps": [
+        {
+          "id": "context",
+          "state": "MISSING",
+          "reason": "ACTIVITY_MISSING"
+        },
+        {
+          "id": "radiological",
+          "state": "MISSING",
+          "reason": "ENVIRONMENT_CONTEXT_MISSING"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [
+      "ACTIVITY_CONTEXT",
+      "ENVIRONMENT_CONTEXT"
+    ],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "missing_context_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": null,
+    "scenario_id": "missing_context",
+    "inputs": {
+      "activity_available": false,
+      "environment_context_available": false,
+      "solar_event_flagged": false,
+      "personal_reading_available": true
+    },
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "CONFIRM_ACTIVITY",
+      "available_count": 1,
+      "steps": [
+        {
+          "id": "context",
+          "state": "MISSING",
+          "reason": "ACTIVITY_MISSING"
+        },
+        {
+          "id": "radiological",
+          "state": "MISSING",
+          "reason": "ENVIRONMENT_CONTEXT_MISSING"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [
+      "ACTIVITY_CONTEXT",
+      "ENVIRONMENT_CONTEXT"
+    ],
+    "personal_reading_available": true,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "revision": 2
+  }
+}
