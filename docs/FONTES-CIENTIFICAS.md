@@ -2,7 +2,7 @@
 
 > Última revisão documental: **15/11/2026**. Este catálogo cobre as fontes consultadas nas pesquisas do NASA Space Apps Challenge 2026 e candidatas às próximas etapas. **Estar listado aqui não significa que a fonte já esteja conectada ao software.**
 >
-> **Situação da V0.7:** a interface exibe dados **sintéticos locais** de `shared/demo.ts` em modo Simulação. A FastAPI já contém contratos e respostas vazias, mas **nenhuma API da NASA, NOAA ou CSA está integrada**. Os quatro tripulantes e retratos são fictícios. Não há dosímetro, relógio físico ou monitor médico pareado.
+> **Situação atual:** o modo Simulação ainda usa dados sintéticos locais. A coleta manual da FastAPI já consulta RadLab, NOAA, CCMC REleASE e DONKI SEP; CSA e OSDR fisiológico permanecem referências de pesquisa. Os tripulantes são fictícios. Não há dosímetro, relógio físico ou monitor médico pareado.
 
 Consulte também:
 
@@ -15,23 +15,23 @@ Consulte também:
 - **Dados candidatos:** fonte que pode fornecer medições, previsão ou eventos para uma integração futura, sujeita à confirmação dos campos, qualidade, direitos de uso e cobertura temporal.
 - **Referência científica:** justifica fenômenos, modelos e requisitos, mas **não é API de leituras em tempo real**.
 - **Acesso restrito:** documentação pública pode existir, mas o software/modelo ou certos dados requerem autorização.
-- **Sem integração:** nenhuma das fontes externas abaixo alimenta atualmente o Mustach; a coluna "Uso" descreve o destino **planejado**.
+- **Integrada:** há consulta reproduzível, parser, SQLite e teste. A coleta é explícita, sem atualização automática garantida.
 
 ## 1. Dados e serviços candidatos à integração
 
 | ID | Fonte oficial | Dados / natureza | Uso planejado no Mustach | Estado |
 |---|---|---|---|---|
-| **D01** | [NASA OSDR RadLab — documentação da API](https://visualization.osdr.nasa.gov/radlab/gui/data-api/) · [explorador](https://visualization.osdr.nasa.gov/radlab/gui/overview/) | Séries históricas de detectores de radiação espacial; variáveis e unidades dependem de instrumento e missão | Taxa de dose, séries temporais, identificação do instrumento e contexto da medição | Candidata; **não conectada** |
-| **D02** | [NOAA SWPC — GOES Proton Flux](https://www.swpc.noaa.gov/products/goes-proton-flux) · [serviços de dados](https://services.swpc.noaa.gov/json/goes/primary/) | Fluxo de prótons observado perto da Terra, por energia e tempo; **pfu não é dose pessoal** | Atividade solar e registro de eventos observados | Candidata; **não conectada** |
-| **D03** | [NOAA SWPC — alertas JSON](https://services.swpc.noaa.gov/products/alerts.json) · [escala NOAA de eventos solares](https://www.swpc.noaa.gov/noaa-scales-explanation) | Alertas, avisos e categorias operacionais de clima espacial | Linha de eventos e notificações externas contextualizadas | Candidata; **não conectada** |
-| **D04** | [NASA CCMC — SEP Scoreboard](https://ccmc.gsfc.nasa.gov/scoreboards/sep/) · [ferramentas/API CCMC](https://ccmc.gsfc.nasa.gov/tools/API/) | Previsões por modelo: ocorrência, intensidade, janela e evolução de eventos SEP | Categorias **A / B / C** do painel solar e do Wearable | Candidata; **não conectada** |
-| **D05** | [NASA Open APIs — DONKI](https://api.nasa.gov/) | Eventos SEP, flares solares, CME e notificações, conforme endpoints e período | Contexto histórico dos eventos; não calcular dose individual | Candidata; **não conectada** |
+| **D01** | [NASA OSDR RadLab — documentação da API](https://visualization.osdr.nasa.gov/radlab/gui/data-api/) · [DosTel1](https://visualization.osdr.nasa.gov/radlab/gui/knowledgebase/dostel1) | Série histórica DosTel1/ISS; `absorbed_dose_rate` em µGy/h e `flux` em cm⁻² sr⁻¹ s⁻¹ | Histórico instrumental, sem dosimetria individual | **Integrada e testada** para DosTel1 |
+| **D02** | [NOAA SWPC — GOES Proton Flux](https://www.swpc.noaa.gov/products/goes-proton-flux) · [JSON GOES](https://services.swpc.noaa.gov/json/goes/primary/integral-protons-6-hour.json) · [probabilidades](https://services.swpc.noaa.gov/json/solar_probabilities.json) | Fluxo integral observado em ≥10, ≥50, ≥100 MeV; probabilidade S1+ para três dias | Série observada e A do painel solar | **Integrada e testada** |
+| **D03** | [NOAA SWPC — alertas JSON](https://services.swpc.noaa.gov/products/alerts.json) · [escala NOAA](https://www.swpc.noaa.gov/noaa-scales-explanation) | Alertas e avisos oficiais; não são alertas clínicos | Avisos internos no cabeçalho | **Integrada e testada** |
+| **D04** | [NASA CCMC — SEP Scoreboard](https://ccmc.gsfc.nasa.gov/scoreboards/sep/) · [API ISWA](https://ccmc.gsfc.nasa.gov/tools/ISWA/) | REleASE: fluxo diferencial previsto, canal, local e janela; não fornece A neste produto | B/C do mesmo painel solar por modelo selecionado | **Integrada e testada** para REleASE |
+| **D05** | [NASA Open APIs — DONKI](https://api.nasa.gov/) | Catálogo SEP e eventos vinculados; sem causalidade inferida | Contexto histórico via API, não dosimetria | **Integrada e testada** para SEP; FLR/CME não integrados |
 | **D06** | [NASA Environmental Data Application (EDA)](https://visualization.osdr.nasa.gov/eda/) | Dados ambientais históricos de missões e condições na ISS, quando disponíveis | Estudos de exposição acumulada e comparação contextual de ambientes | Candidata; **não conectada** |
 | **D07** | [NASA Open Science Data Repository (OSDR)](https://osdr.nasa.gov/) | Metadados e estudos biológicos/ambientais em missões espaciais | Fundamentação e pesquisa; não gerar diagnóstico de astronauta | Candidata para pesquisa; **não conectada** |
 | **D08** | [NASA MSL/RAD — CDAWeb](https://cdaweb.gsfc.nasa.gov/cgi-bin/eval2.cgi?dataset=MSL_RAD_OBS-L2&index=sp_phys) · [registro NASA](https://data.nasa.gov/dataset/mars-science-laboratory-msl-radiation-assessment-detector-rad-level-2-observation-dosimetr-e2695) | Observações históricas de radiação associadas ao rover Curiosity em Marte | Cenário marciano de pesquisa; não corresponde a dose de pessoa dentro de habitat | Futuro; **não conectada** |
 | **D09** | [NASA LRO/CRaTER — PDS](https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn:nasa:pds:lro-crater) | Observações de partículas/radiação na órbita lunar | Cenário lunar histórico; não equivale diretamente à dose em solo lunar | Futuro; **não conectada** |
 
-**Atenção ao formato:** links de exploradores e diretórios não garantem que um endpoint de produção, token, período, cobertura ou contrato de campos já estejam aprovados. Antes de implementar, consultar documentação do instrumento, testar chamadas e registrar um exemplo reproduzível em `docs/RASTREABILIDADE-DADOS.md`.
+**Atenção ao formato:** a integração atual cobre somente produtos e períodos explicitados em [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md); não representa aprovação para uso clínico ou operacional.
 
 ### 1.1. Ligações entre as fontes
 
@@ -84,4 +84,4 @@ Consulte também:
 
 Para cada nova integração, preencher antes a entrada respectiva em [RASTREABILIDADE-DADOS.md](RASTREABILIDADE-DADOS.md): ID da fonte; variável e unidade original; local/instrumento; cobertura histórica; latência; formato/API; autorização e cotas; direitos/licença; qualidade/incerteza; tratamento de falhas; ligação a componente; teste com amostra reproduzível; data da revisão. Somente então mudar o estado **Candidata → Integrada e testada**.
 
-Na documentação e no software, usar terminologia consistente: `OBSERVED` (medido), `FORECAST` (previsto), `SIMULATED` (fictício). **Nenhuma fonte externa foi implementada na V0.7.**
+Na documentação e no software, usar terminologia consistente: `OBSERVED` (medido), `FORECAST` (previsto), `SIMULATED` (fictício). As integrações científicas atuais são explícitas, não telemetria continuamente sincronizada.
