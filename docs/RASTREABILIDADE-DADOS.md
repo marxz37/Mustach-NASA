@@ -74,3 +74,12 @@ Data de revisão / responsável:
 3. Integrar **D04 CCMC** para A/B/C com modelo, horizonte e localização; adicionar **D05 DONKI** para contexto dos eventos.
 4. Persistir medições/metadata de forma versionada em banco, registrar origem e coberturas e adicionar testes de unidade científica.
 5. Somente após obter dosimetria pessoal e método adequado avaliar o estado de saúde, EVA real e exposição por órgãos.
+
+
+## V2 refinada — Ocorrência individual compartilhada
+
+`backend/app/measurements.py` define o contrato de medição reaproveitado pelo motor. A ocorrência `DEMO-EVT-001 / EVA-01`, associada a Maya Bennett, guarda evidências pessoais e ambientais sintéticas com identidade, instrumento, unidade, horário, missão/local e qualidade. `backend/app/operational.py` valida utilizabilidade e contexto; `backend/app/db.py` preserva conteúdo/revisão e reconcilia expiração.
+
+A Visão geral apresenta resumo e painel lateral; o Wearable consome a mesma evidência individual. O antigo sinal ambiental independente do relógio deixou de representar a avaliação individual. Gráficos da missão, séries de perfil e sinais vitais permanecem ilustrativos e não alimentam decisões clínicas nem esta avaliação automaticamente.
+
+`POST /api/v1/demo/operational-event/personal-measurement` demonstra recebimento e resolução de disponibilidade na mesma ocorrência. Os exemplos ficam no snapshot operacional, nunca misturados à tabela de observações. Nenhuma API externa, detector ou protocolo médico foi acrescentado. Detalhes e limitações estão em [CONTRATOS.md](CONTRATOS.md).

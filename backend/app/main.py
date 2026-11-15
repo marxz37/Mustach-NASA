@@ -8,20 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
 
 from .db import get_demo_event, get_measurements, init_db, update_demo_event
-from .operational import SCENARIOS, OperationalAssessment, ScenarioId, ScenarioInputs, assess_preparation
-
-
-class Measurement(BaseModel):
-    id: str
-    source: str
-    provenance: Literal["OBSERVED", "FORECAST", "SIMULATED"]
-    instrument: str
-    measured_at: datetime
-    quantity: str
-    value: float = Field(ge=0)
-    unit: str
-    mission: str
-    region: str | None = None
+from . import operational as op
+from .operational import OperationalAssessment, ScenarioId, ScenarioInputs
+from .measurements import Measurement
 
 
 class ApiStatus(BaseModel):
@@ -175,6 +164,13 @@ def wearable_connection():
     )
 
 
+class InputSummary(BaseModel):
+    activity_available: bool
+    environment_context_available: bool
+    solar_event_flagged: bool
+    personal_reading_available: bool
+
+
 class DemoOperationalEvent(BaseModel):
     id: Literal['DEMO-EVT-001'] = 'DEMO-EVT-001'
     provenance: Literal['SIMULATED'] = 'SIMULATED'
@@ -186,7 +182,10 @@ class DemoOperationalEvent(BaseModel):
     scenario_at: datetime = datetime(2026, 11, 15, 12, tzinfo=timezone.utc)
     scheduled_at: datetime | None
     scenario_id: ScenarioId
-    inputs: ScenarioInputs
+    inputs: InputSummary
+    evidence: ScenarioInputs
+    evaluated_at: datetime
+    reading_received_at: datetime | None
     assessment: OperationalAssessment
     missing_data: list[Literal['PERSONAL_DOSIMETER_READING', 'ACTIVITY_CONTEXT', 'ENVIRONMENT_CONTEXT']]
     personal_reading_available: bool
@@ -218,8 +217,11 @@ class DemoAcknowledgement(DemoRevision):
 @app.get('/api/v1/demo/operational-event', response_model=DemoOperationalEvent)
 def demo_operational_event():
     row = get_demo_event()
-    inputs = SCENARIOS[row['scenario_id']]
-    assessment = assess_preparation(inputs, row['acknowledged_at'] is not None)
+    evidence, assessment = row['_context'], row['_assessment']
+    inputs = InputSummary(activity_available=evidence.activity is not None,
+        environment_context_available=assessment.environment_check.state == 'USABLE',
+        solar_event_flagged=evidence.solar_event is not None,
+        personal_reading_available=assessment.personal_check.state == 'USABLE')
     missing = []
     if not inputs.activity_available:
         missing.append('ACTIVITY_CONTEXT')
@@ -228,10 +230,11 @@ def demo_operational_event():
     if not inputs.personal_reading_available:
         missing.append('PERSONAL_DOSIMETER_READING')
     return DemoOperationalEvent(
-        scenario_id=row['scenario_id'], inputs=inputs, assessment=assessment,
+        scenario_id=row['scenario_id'], inputs=inputs, evidence=evidence, assessment=assessment,
+        evaluated_at=row['_evaluated_at'], reading_received_at=row['reading_received_at'],
         status='REVIEW_PENDING' if assessment.requires_attention else 'REVIEW_RECORDED',
         fact='SOLAR_PARTICLE_EVENT' if inputs.solar_event_flagged else 'NO_FLAGGED_EVENT',
-        scheduled_at=datetime(2026, 11, 15, 14, tzinfo=timezone.utc) if inputs.activity_available else None,
+        scenario_at=evidence.scenario_at, scheduled_at=evidence.activity.scheduled_at if evidence.activity else None,
         personal_reading_available=inputs.personal_reading_available, missing_data=missing,
         acknowledged_at=row['acknowledged_at'], revision=row['revision'],
     )
@@ -251,5 +254,27 @@ def change_demo_scenario(body: DemoScenarioUpdate):
 @app.post('/api/v1/demo/operational-event/acknowledge', response_model=DemoOperationalEvent)
 def acknowledge_demo_event(body: DemoAcknowledgement):
     # Acknowledgement records a check, never grants EVA clearance or fills a missing measurement.
-    require_current_demo(update_demo_event(body.expected_revision, acknowledged_at=datetime.now(timezone.utc).isoformat()))
+    require_current_demo(update_demo_event(body.expected_revision, acknowledged_at=op.current_time().isoformat()))
+    return demo_operational_event()
+
+
+class DemoMeasurementUpdate(DemoRevision):
+    measurement: Measurement | None = None
+
+    @model_validator(mode='after')
+    def simulated_only(self):
+        if self.measurement is not None and self.measurement.provenance != 'SIMULATED':
+            raise ValueError('The demonstration endpoint accepts SIMULATED evidence only.')
+        return self
+
+
+@app.post('/api/v1/demo/operational-event/personal-measurement', response_model=DemoOperationalEvent)
+def receive_demo_measurement(body: DemoMeasurementUpdate):
+    row = get_demo_event()
+    require_current_demo(row['revision'] == body.expected_revision)
+    activity = row['_context'].activity
+    if body.measurement is None and activity is None:
+        raise HTTPException(status_code=409, detail='Activity context is required to generate demo evidence.')
+    measurement = body.measurement or op.personal_fixture(activity, op.current_time())
+    require_current_demo(update_demo_event(body.expected_revision, measurement=measurement))
     return demo_operational_event()

@@ -7,14 +7,14 @@
 ```text
 Mustach Web — frontend/ (React + TypeScript + Vite, porta 5173)
               \
-               +--> FastAPI — backend/ (porta 8000) --> SQLite local (sem medições)
+               +--> FastAPI — backend/ (porta 8000) --> SQLite local (observações vazias; evidências da demonstração)
               /
 Mustach Wearable — wearable/ (React + TypeScript + Vite, porta 5174)
 
 shared/ --> i18n EN/PT/ES, contratos solares, cálculo temporal e dados de demonstração
 ```
 
-Ambas as aplicações front-end são independentes e consomem a **mesma API**. A V0.9 compartilha uma ocorrência pré-EVA e sua avaliação determinística, calculada em `backend/app/operational.py`, separada das medições científicas. O Web exibe o fluxo e o painel lateral; o Wearable apresenta apenas um aviso passivo dentro do relógio. Cenário, revisão e consulta ficam no SQLite, com polling de três segundos. O Wearable atual é **uma prévia web**, não uma aplicação instalada em um relógio físico. As séries sintéticas são locais ao navegador, separadas das respostas observadas da API e não gravadas no SQLite.
+Ambas as aplicações front-end são independentes e consomem a **mesma API**. A V2 refinada compartilha uma ocorrência pré-EVA e sua avaliação determinística de evidências estruturadas, calculada em `backend/app/operational.py`. O contrato original de medição foi centralizado em `backend/app/measurements.py`; a evidência demonstrativa fica separada da tabela de observações. O Web exibe o fluxo e o painel lateral; o Wearable apresenta apenas um aviso passivo dentro do relógio. Cenário, revisão e consulta ficam no SQLite, com polling de três segundos. O Wearable atual é **uma prévia web**, não uma aplicação instalada em um relógio físico. As séries sintéticas são locais ao navegador, separadas das respostas observadas da API e não gravadas no SQLite.
 
 ## 1. Tecnologias encontradas no código
 
@@ -32,7 +32,7 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. A
 | Navegação Web | React Router 7 | **Usado** na navegação superior | `frontend/src/App.tsx` |
 | Estado | React Context / Hooks | **Usado** na seleção de origem, idioma, EVA, amostras | `frontend/src/context/AppContext.tsx` |
 | Utilitários de UI | `clsx`, `tailwind-merge`, `class-variance-authority` | **Declarados**; verificar uso efetivo por componente | `frontend/package.json`, `frontend/src/lib/` |
-| Back-end | Python 3.10+ + FastAPI (faixa `>=0.115,<1.0`) | **Esqueleto executável e contratos existentes** | `backend/requirements.txt`, `backend/app/main.py` |
+| Back-end | Python 3.10+ + FastAPI (faixa `>=0.115,<1.0`) | **API local, contratos e verificação de evidências** | `backend/requirements.txt`, `backend/app/main.py` |
 | Servidor ASGI | Uvicorn com extras standard (faixa `>=0.34,<1.0`) | **Declarado** | `backend/requirements.txt`, scripts `.bat` |
 | Validação | Pydantic 2 (faixa `>=2.10,<3.0`) | **Usado** nos modelos da API | `backend/app/main.py` |
 | Banco local | SQLite | **Inicializado**, sem dados científicos carregados | `backend/app/db.py` |

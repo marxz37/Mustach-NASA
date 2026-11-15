@@ -16,12 +16,68 @@
       "solar_event_flagged": true,
       "personal_reading_available": false
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": null,
+      "solar_event": {
+        "id": "DEMO-SOLAR-01",
+        "source": "MUSTACH SYNTHETIC EVENT",
+        "provenance": "SIMULATED",
+        "activity_id": "EVA-01",
+        "issued_at": "2026-11-15T12:00:00Z"
+      }
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "INCOMPLETE",
+      "radiological_state": "REMOTE_EVENT_REVIEW",
       "review_state": "PENDING",
       "requires_attention": true,
       "next_action": "CHECK_PERSONAL",
       "available_count": 2,
+      "personal_check": {
+        "state": "MISSING",
+        "issues": [
+          "NO_READING"
+        ],
+        "measurement_id": null,
+        "age_seconds": null,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -65,12 +121,68 @@
       "solar_event_flagged": true,
       "personal_reading_available": false
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": null,
+      "solar_event": {
+        "id": "DEMO-SOLAR-01",
+        "source": "MUSTACH SYNTHETIC EVENT",
+        "provenance": "SIMULATED",
+        "activity_id": "EVA-01",
+        "issued_at": "2026-11-15T12:00:00Z"
+      }
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "INCOMPLETE",
+      "radiological_state": "REMOTE_EVENT_REVIEW",
       "review_state": "RECORDED",
       "requires_attention": true,
       "next_action": "CHECK_PERSONAL",
       "available_count": 2,
+      "personal_check": {
+        "state": "MISSING",
+        "issues": [
+          "NO_READING"
+        ],
+        "measurement_id": null,
+        "age_seconds": null,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -94,7 +206,7 @@
     ],
     "personal_reading_available": false,
     "next_check": "DEMO-RAD-01",
-    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
     "revision": 2
   },
   "solar_review": {
@@ -114,12 +226,82 @@
       "solar_event_flagged": true,
       "personal_reading_available": true
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": {
+        "id": "DEMO-SOLAR-01",
+        "source": "MUSTACH SYNTHETIC EVENT",
+        "provenance": "SIMULATED",
+        "activity_id": "EVA-01",
+        "issued_at": "2026-11-15T12:00:00Z"
+      }
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "ATTENTION",
+      "radiological_state": "REMOTE_EVENT_REVIEW",
       "review_state": "PENDING",
       "requires_attention": true,
       "next_action": "REVIEW_SOLAR_EVENT",
       "available_count": 3,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -161,12 +343,82 @@
       "solar_event_flagged": true,
       "personal_reading_available": true
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": {
+        "id": "DEMO-SOLAR-01",
+        "source": "MUSTACH SYNTHETIC EVENT",
+        "provenance": "SIMULATED",
+        "activity_id": "EVA-01",
+        "issued_at": "2026-11-15T12:00:00Z"
+      }
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "ATTENTION",
+      "radiological_state": "REMOTE_EVENT_REVIEW",
       "review_state": "RECORDED",
       "requires_attention": true,
       "next_action": "FOLLOW_UP",
       "available_count": 3,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -188,7 +440,7 @@
     "missing_data": [],
     "personal_reading_available": true,
     "next_check": "DEMO-RAD-01",
-    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
     "revision": 2
   },
   "complete": {
@@ -208,12 +460,76 @@
       "solar_event_flagged": false,
       "personal_reading_available": true
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "AVAILABLE",
+      "radiological_state": "INDIVIDUAL_READING_AVAILABLE",
       "review_state": "PENDING",
       "requires_attention": true,
       "next_action": "RECORD_REVIEW",
       "available_count": 3,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -255,12 +571,76 @@
       "solar_event_flagged": false,
       "personal_reading_available": true
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "AVAILABLE",
+      "radiological_state": "INDIVIDUAL_READING_AVAILABLE",
       "review_state": "RECORDED",
       "requires_attention": false,
       "next_action": "NONE",
       "available_count": 3,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -282,7 +662,7 @@
     "missing_data": [],
     "personal_reading_available": true,
     "next_check": "DEMO-RAD-01",
-    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
     "revision": 2
   },
   "missing_environment": {
@@ -302,12 +682,62 @@
       "solar_event_flagged": false,
       "personal_reading_available": true
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": null,
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_AVAILABLE",
       "review_state": "PENDING",
       "requires_attention": true,
       "next_action": "CHECK_ENVIRONMENT",
       "available_count": 2,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "MISSING",
+        "issues": [
+          "NO_READING"
+        ],
+        "measurement_id": null,
+        "age_seconds": null,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -351,12 +781,62 @@
       "solar_event_flagged": false,
       "personal_reading_available": true
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": null,
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_AVAILABLE",
       "review_state": "RECORDED",
       "requires_attention": true,
       "next_action": "CHECK_ENVIRONMENT",
       "available_count": 2,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "MISSING",
+        "issues": [
+          "NO_READING"
+        ],
+        "measurement_id": null,
+        "age_seconds": null,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -380,7 +860,7 @@
     ],
     "personal_reading_available": true,
     "next_check": "DEMO-RAD-01",
-    "acknowledged_at": "2026-11-15T12:01:00Z",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
     "revision": 2
   },
   "missing_context": {
@@ -398,14 +878,58 @@
       "activity_available": false,
       "environment_context_available": false,
       "solar_event_flagged": false,
-      "personal_reading_available": true
+      "personal_reading_available": false
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": null,
+      "environment_measurement": null,
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
       "review_state": "PENDING",
       "requires_attention": true,
       "next_action": "CONFIRM_ACTIVITY",
-      "available_count": 1,
+      "available_count": 0,
+      "personal_check": {
+        "state": "INCOMPATIBLE",
+        "issues": [
+          "NO_ACTIVITY"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "MISSING",
+        "issues": [
+          "NO_READING"
+        ],
+        "measurement_id": null,
+        "age_seconds": null,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -419,16 +943,17 @@
         },
         {
           "id": "personal",
-          "state": "AVAILABLE",
-          "reason": "PERSONAL_AVAILABLE"
+          "state": "ATTENTION",
+          "reason": "PERSONAL_INCOMPATIBLE"
         }
       ]
     },
     "missing_data": [
       "ACTIVITY_CONTEXT",
-      "ENVIRONMENT_CONTEXT"
+      "ENVIRONMENT_CONTEXT",
+      "PERSONAL_DOSIMETER_READING"
     ],
-    "personal_reading_available": true,
+    "personal_reading_available": false,
     "next_check": "DEMO-RAD-01",
     "acknowledged_at": null,
     "revision": 1
@@ -448,14 +973,58 @@
       "activity_available": false,
       "environment_context_available": false,
       "solar_event_flagged": false,
-      "personal_reading_available": true
+      "personal_reading_available": false
     },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": null,
+      "environment_measurement": null,
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
     "assessment": {
       "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
       "review_state": "RECORDED",
       "requires_attention": true,
       "next_action": "CONFIRM_ACTIVITY",
-      "available_count": 1,
+      "available_count": 0,
+      "personal_check": {
+        "state": "INCOMPATIBLE",
+        "issues": [
+          "NO_ACTIVITY"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "MISSING",
+        "issues": [
+          "NO_READING"
+        ],
+        "measurement_id": null,
+        "age_seconds": null,
+        "max_age_seconds": 900
+      },
       "steps": [
         {
           "id": "context",
@@ -469,18 +1038,826 @@
         },
         {
           "id": "personal",
-          "state": "AVAILABLE",
-          "reason": "PERSONAL_AVAILABLE"
+          "state": "ATTENTION",
+          "reason": "PERSONAL_INCOMPATIBLE"
         }
       ]
     },
     "missing_data": [
       "ACTIVITY_CONTEXT",
-      "ENVIRONMENT_CONTEXT"
+      "ENVIRONMENT_CONTEXT",
+      "PERSONAL_DOSIMETER_READING"
     ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
+    "revision": 2
+  },
+  "stale_personal": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "stale_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": false
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:44:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "REFRESH_PERSONAL",
+      "available_count": 2,
+      "personal_check": {
+        "state": "STALE",
+        "issues": [
+          "READING_TOO_OLD"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 960.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "ATTENTION",
+          "reason": "PERSONAL_STALE"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "stale_personal_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "stale_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": false
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:44:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "REFRESH_PERSONAL",
+      "available_count": 2,
+      "personal_check": {
+        "state": "STALE",
+        "issues": [
+          "READING_TOO_OLD"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 960.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "ATTENTION",
+          "reason": "PERSONAL_STALE"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
+    "revision": 2
+  },
+  "wrong_personal": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "wrong_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": false
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "alex",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "CHECK_ASSOCIATION",
+      "available_count": 2,
+      "personal_check": {
+        "state": "INCOMPATIBLE",
+        "issues": [
+          "WRONG_ASTRONAUT"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "ATTENTION",
+          "reason": "PERSONAL_INCOMPATIBLE"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "wrong_personal_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "wrong_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": false
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "alex",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "CHECK_ASSOCIATION",
+      "available_count": 2,
+      "personal_check": {
+        "state": "INCOMPATIBLE",
+        "issues": [
+          "WRONG_ASTRONAUT"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "ATTENTION",
+          "reason": "PERSONAL_INCOMPATIBLE"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
+    "revision": 2
+  },
+  "quality_review": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "quality_review",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": false
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "REVIEW_REQUIRED"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "CHECK_QUALITY",
+      "available_count": 2,
+      "personal_check": {
+        "state": "REVIEW_REQUIRED",
+        "issues": [
+          "QUALITY_REVIEW"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "ATTENTION",
+          "reason": "PERSONAL_QUALITY_REVIEW"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": null,
+    "revision": 1
+  },
+  "quality_review_recorded": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "NO_FLAGGED_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "quality_review",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": false,
+      "personal_reading_available": false
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "REVIEW_REQUIRED"
+      },
+      "solar_event": null
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": null,
+    "assessment": {
+      "data_state": "INCOMPLETE",
+      "radiological_state": "INDIVIDUAL_READING_UNUSABLE",
+      "review_state": "RECORDED",
+      "requires_attention": true,
+      "next_action": "CHECK_QUALITY",
+      "available_count": 2,
+      "personal_check": {
+        "state": "REVIEW_REQUIRED",
+        "issues": [
+          "QUALITY_REVIEW"
+        ],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "AVAILABLE",
+          "reason": "RADIOLOGICAL_DATA_AVAILABLE"
+        },
+        {
+          "id": "personal",
+          "state": "ATTENTION",
+          "reason": "PERSONAL_QUALITY_REVIEW"
+        }
+      ]
+    },
+    "missing_data": [
+      "PERSONAL_DOSIMETER_READING"
+    ],
+    "personal_reading_available": false,
+    "next_check": "DEMO-RAD-01",
+    "acknowledged_at": "2026-11-15T12:00:00Z",
+    "revision": 2
+  },
+  "personal_received": {
+    "id": "DEMO-EVT-001",
+    "provenance": "SIMULATED",
+    "activity": "EVA-01",
+    "phase": "PREPARATION",
+    "status": "REVIEW_PENDING",
+    "fact": "SOLAR_PARTICLE_EVENT",
+    "source": "DEMO-SOLAR-01",
+    "scenario_at": "2026-11-15T12:00:00Z",
+    "scheduled_at": "2026-11-15T14:00:00Z",
+    "scenario_id": "missing_personal",
+    "inputs": {
+      "activity_available": true,
+      "environment_context_available": true,
+      "solar_event_flagged": true,
+      "personal_reading_available": true
+    },
+    "evidence": {
+      "scenario_at": "2026-11-15T12:00:00Z",
+      "activity": {
+        "id": "EVA-01",
+        "astronaut_id": "maya",
+        "astronaut_name": "Maya Bennett",
+        "mission": "HORIZON-01",
+        "location": "DEMO-EVA-ZONE",
+        "phase": "PREPARATION",
+        "scheduled_at": "2026-11-15T14:00:00Z"
+      },
+      "environment_measurement": {
+        "id": "DEMO-ENV-001",
+        "source": "MUSTACH SYNTHETIC ENVIRONMENT",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-ENV-01",
+        "measured_at": "2026-11-15T11:58:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.43,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "ENVIRONMENTAL",
+        "astronaut_id": null,
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "personal_measurement": {
+        "id": "DEMO-PERSONAL-001",
+        "source": "MUSTACH SYNTHETIC DOSIMETER",
+        "provenance": "SIMULATED",
+        "instrument": "DEMO-PD-01",
+        "measured_at": "2026-11-15T12:00:00Z",
+        "quantity": "dose_equivalent_rate",
+        "value": 0.47,
+        "unit": "µSv/h",
+        "mission": "HORIZON-01",
+        "region": null,
+        "scope": "PERSONAL",
+        "astronaut_id": "maya",
+        "activity_id": "EVA-01",
+        "location": "DEMO-EVA-ZONE",
+        "quality": "VALID"
+      },
+      "solar_event": {
+        "id": "DEMO-SOLAR-01",
+        "source": "MUSTACH SYNTHETIC EVENT",
+        "provenance": "SIMULATED",
+        "activity_id": "EVA-01",
+        "issued_at": "2026-11-15T12:00:00Z"
+      }
+    },
+    "evaluated_at": "2026-11-15T12:00:00Z",
+    "reading_received_at": "2026-11-15T12:00:00Z",
+    "assessment": {
+      "data_state": "ATTENTION",
+      "radiological_state": "REMOTE_EVENT_REVIEW",
+      "review_state": "PENDING",
+      "requires_attention": true,
+      "next_action": "REVIEW_SOLAR_EVENT",
+      "available_count": 3,
+      "personal_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-PERSONAL-001",
+        "age_seconds": 0.0,
+        "max_age_seconds": 900
+      },
+      "environment_check": {
+        "state": "USABLE",
+        "issues": [],
+        "measurement_id": "DEMO-ENV-001",
+        "age_seconds": 120.0,
+        "max_age_seconds": 900
+      },
+      "steps": [
+        {
+          "id": "context",
+          "state": "AVAILABLE",
+          "reason": "ACTIVITY_SCHEDULED"
+        },
+        {
+          "id": "radiological",
+          "state": "ATTENTION",
+          "reason": "SOLAR_EVENT"
+        },
+        {
+          "id": "personal",
+          "state": "AVAILABLE",
+          "reason": "PERSONAL_AVAILABLE"
+        }
+      ]
+    },
+    "missing_data": [],
     "personal_reading_available": true,
     "next_check": "DEMO-RAD-01",
-    "acknowledged_at": "2026-11-15T12:01:00Z",
-    "revision": 2
+    "acknowledged_at": null,
+    "revision": 3
   }
 }

@@ -8,6 +8,6 @@ export function OperationalNotice({ language, event, stale }: { language: Langua
   if (!stale && !event?.assessment.requires_attention) return null;
   const c = (key: Parameters<typeof operationalCopy>[1]) => operationalCopy(language, key);
   return <div className="watch-operational-notice" role="status" aria-label={c('title')} data-event-id={event?.id}>
-    <AlertTriangle size={15}/><div><strong>{c(event?.assessment.requires_attention ? 'watchPending' : 'watchUnknown')}</strong><span>{stale && event ? `${c('stale')} · ` : ''}{c('watchBoard')}</span></div>
+    <AlertTriangle size={15}/><div><strong>{c(event?.assessment.requires_attention ? 'watchPending' : 'watchUnknown')}</strong><span>{stale && event ? `${c('stale')} · ` : event ? `${c(event.assessment.next_action)} · ` : ''}{c('watchBoard')}</span></div>
   </div>;
 }

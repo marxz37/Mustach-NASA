@@ -1,6 +1,6 @@
 # Mustach — NASA Space Apps Challenge 2026
 
-Protótipo de monitoramento da radiação espacial e de apresentação de dados individuais. Não é dispositivo médico.
+Protótipo de acompanhamento de informações de exposição radiológica individual e ambiental, relacionadas à preparação de uma atividade. Não é dispositivo médico nem mecanismo de autorização de EVA.
 
 ## Documentação do projeto
 
@@ -18,19 +18,21 @@ Toda a pesquisa científica, rastreabilidade e stack ficam no GitHub, **não em 
 
 **Situação real das integrações:** os gráficos e os perfis demonstrativos usam dados gerados no navegador; as APIs externas da NASA/NOAA/CCMC/CSA ainda **não estão conectadas**, e a FastAPI mantém contratos de dados e uma avaliação demonstrativa de preparação. Nenhum valor sintético é apresentado como medição real.
 
-## V0.9 — Preparação visual da EVA
+## V2 refinada — Evidências de exposição individual
 
-- A verificação completa fica somente na Visão geral do computador de bordo: cartão da atividade, três estados visuais e próxima verificação em destaque.
-- Contexto, informações radiológicas e leitura individual são avaliados automaticamente pela FastAPI. A contagem mostra **informações disponíveis**, não etapas aprovadas. `Normal / Atenção / Elevado` continuam descrevendo somente a faixa fictícia do sinal ambiental.
-- O roteiro `DEMO-RAD-01` abre num painel lateral. Um único botão registra a consulta, sem checkboxes, sem preencher dados ausentes e sem autorizar a EVA.
-- O Wearable exibe somente um aviso passivo **dentro do relógio**, nas duas telas: revisão pendente e orientação para consultar o painel de bordo. Não há formulário, painel externo ou ação de conferência no relógio.
-- Web e Wearable consultam a mesma ocorrência `DEMO-EVT-001 / EVA-01` a cada três segundos. A API persiste cenário, revisão e consulta em SQLite, separados das medições.
-- Cinco variações do mesmo roteiro demonstram ausência de leitura individual, evento remoto com leituras disponíveis, informações completas, falta de associação ambiental e falta de contexto da atividade. O seletor fica recolhido nos detalhes do Web.
-- Registrar uma consulta mantém lacunas e eventos sinalizados. Somente no cenário sem pendências de dados/evento, após o registro, deixa de haver aviso automático. Isso significa consulta registrada, nunca liberação da EVA.
-- Falhas identificam o último estado conhecido; gravação fica bloqueada. Não há fila offline. Migração aditiva preserva os registros da V0.8.
-- Acumulados, cobertura, histórico, mapa, tripulantes e cronômetro mantêm os cálculos existentes. Nenhum sensor, integração externa, modelo físico ou IA foi acrescentado.
+- A verificação da Visão geral acompanha `DEMO-EVT-001 / EVA-01`, associada à tripulante fictícia Maya Bennett. O painel lateral mostra as medições efetivamente consideradas, seus vínculos, fonte, instrumento, valor/unidade, horário e qualidade.
+- A FastAPI distingue leitura utilizável, ausente, desatualizada, incompatível e com qualidade a revisar. Os booleanos de disponibilidade da resposta são derivados dessas verificações; não determinam a avaliação.
+- “Receber leitura simulada”, no painel lateral, entrega uma medição estruturada à **mesma ocorrência**. A disponibilidade individual pode ser resolvida sem trocar o cenário; eventos remotos continuam sinalizados. Não representa integração com sensor.
+- O registro de consulta persiste e não resolve lacunas. Nova evidência, mudança de cenário ou expiração relevante invalidam a consulta anterior e atualizam a revisão. Gravações contra uma revisão antiga são rejeitadas.
+- O Wearable apresenta estado da leitura pessoal, horário da medição, revisão e próxima verificação da mesma resposta da API. Não calcula uma classificação operacional local nem substitui leitura ausente por uma taxa ambiental sintética. Continua passivo, sem formulários.
+- As faixas `Normal / Atenção / Elevado` no computador descrevem somente o sinal ambiental demonstrativo. Informações ambientais, leitura pessoal e evento remoto são dimensões diferentes; nenhum desses rótulos declara saúde, segurança clínica ou aptidão.
+- O seletor existente acrescenta exemplos de leitura antiga, de outro tripulante e com qualidade a revisar. São variações do mesmo roteiro, sem páginas ou módulos de simulação novos.
+- A janela de atualização padrão é **900 segundos**, configurável por `MUSTACH_DEMO_MAX_READING_AGE_SECONDS` no ambiente da API. É uma regra de engenharia demonstrativa, não limite médico da NASA. A avaliação usa o relógio UTC da API e o horário persistido da medição; reiniciar o serviço não renova artificialmente a leitura.
+- As séries dos gráficos e os sinais vitais dos perfis continuam sintéticos e independentes. Frequência, SpO₂ e sono não influenciam a verificação radiológica. Um único ponto pessoal não é apresentado como histórico ou dose acumulada.
 
-O evento do roteiro é independente da previsão `SYN-SEP / 01`: não é derivado da probabilidade nem do fluxo solar. [Contratos](docs/CONTRATOS.md), [implementação e verificação](docs/AJUSTES-V2.md).
+O motor funciona na API local sem chamadas à Terra ou fontes externas. **Isso não é suporte offline quando a API local está indisponível**: o último estado conhecido é identificado e gravações são bloqueadas. Fontes NASA/NOAA e hardware continuam sem integração.
+
+[Contratos](docs/CONTRATOS.md) · [Decisões, testes executados e limitações](docs/AJUSTES-V2.md).
 
 ## Aplicações
 
@@ -91,13 +93,13 @@ As portas 5173 e 5174 encaminham `/api` para a FastAPI local na porta 8000. Em o
 - **Saúde (histórico V0.5):** havia um painel de indicadores ilustrativos no dashboard, mas **na versão atual os dados específicos dos tripulantes ficam exclusivamente na aba Tripulantes**. Não são avaliação médica nem indicador validado de segurança radiológica.
 - **EVA:** mantém cronômetro independente, controles de pausa e reset e cálculo sintético de dose da sessão quando possível. Adicionamos um registro de EVA anterior **100% fictício** apenas para preencher a experiência de demonstração.
 - **Atividade solar:** no modo simulação, A/B/C são preenchidos com **um único cenário solar fictício** local, com sinalização explícita `SYNTHETIC FIXTURE`. Nenhum prognóstico da NOAA, CCMC ou NASA foi inventado como dado real.
-- **Mustach Wearable (histórico V0.5):** a primeira versão da prévia mostrava perfis fictícios. **A versão atual removeu nome/foto/seletor de tripulantes do relógio** e mostra coração, status demonstrativo e taxa; a segunda tela resume o clima solar. Não existe conexão com smartwatch físico.
+- **Mustach Wearable (histórico V0.5):** a primeira versão da prévia mostrava perfis fictícios. Na V0.6, o relógio passou a mostrar uma faixa sintética ambiental. Na V2 refinada, a primeira tela acompanha a leitura pessoal associada à atividade e a avaliação compartilhada; a segunda resume o clima solar. Não existe conexão com smartwatch físico.
 - **Conexão:** os horários de última consulta à API e última medição são distintos. O Wearable continua enviando batimentos de presença da **prévia web** para a API, e isso não representa um relógio físico pareado.
 - **Três idiomas:** inglês (padrão), português e espanhol, inclusive os textos novos dos estados demonstrativos. Cada aplicativo guarda sua preferência no próprio navegador.
 - **Mapa de calor:** continua 2D e sem porcentagens. Na V0.6, o gradiente passou a reagir às taxas sintéticas em **faixas fictícias**; isso não é uma estimativa de dose em órgãos nem um limiar de saúde.
 - **Telemetria orbital:** não exibida no MVP porque exige vincular localização e momento de medição ao instrumento que gerou o registro.
 
-Os retratos em `frontend/public/crew/` e `wearable/public/crew/` foram gerados artificialmente para perfis fictícios. O módulo `shared/demo.ts` concentra os dados e as séries para o **modo demonstrativo da interface**, e `shared/demoCopy.ts` concentra as respectivas legendas EN/PT/ES. As séries dosimétricas sintéticas não são gravadas no SQLite; somente o registro operacional demonstrativo possui persistência própria na V0.8.
+Os retratos em `frontend/public/crew/` e `wearable/public/crew/` foram gerados artificialmente para perfis fictícios. O módulo `shared/demo.ts` concentra os dados e as séries para o **modo demonstrativo da interface**, e `shared/demoCopy.ts` concentra as respectivas legendas EN/PT/ES. As séries sintéticas dos gráficos não são gravadas no SQLite. A ocorrência persiste suas evidências demonstrativas estruturadas em campo separado; a tabela de medições observadas não recebe esses exemplos.
 
 A antiga prévia HTML estática foi retirada porque não reproduz as atualizações. Execute os aplicativos pelo Vite nas portas indicadas acima.
 
@@ -143,7 +145,7 @@ cd backend
 
 ## Verificação no Windows antes do commit
 
-Execute `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` e `npm run test:e2e` em `frontend/` e `wearable/`. No back-end, execute `pytest -q`. O código V0.5 passou na checagem estática de TypeScript e ESLint dos dois front-ends e nos 9 testes existentes da API, mas os testes do Vite/Vitest e a compilação final não puderam ser executados no ambiente Linux de elaboração por falta do binário nativo Rollup; confirme-os no Windows antes de integrar à `main`.
+Execute `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` e `npm run test:e2e` em `frontend/` e `wearable/`. No back-end, execute `pytest -q`. Nesta revisão, typecheck, lint, builds e 22 testes unitários dos front-ends passaram. No backend, 39 testes síncronos de regras/contratos/persistência passaram; a suíte HTTP não pôde ser concluída por restrição de socketpair do ambiente. Foram executados 35 cenários Chrome com transporte simulado, incluindo o fluxo entre aplicativos. Isso não valida comunicação HTTP real; detalhes em [AJUSTES-V2.md](docs/AJUSTES-V2.md).
 
 
 ## V0.6 — Refinamento de interface (sem novas integrações)
@@ -152,6 +154,6 @@ Execute `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run buil
 - A série de demonstração é atualizada no navegador a cada **2 segundos**. O gráfico mostra o horário da amostra mais recente; nenhum sensor real foi conectado nesta etapa.
 - O mapa de calor 2D acompanha as variações **exclusivamente da simulação**. Em `shared/demoBands.ts`, os índices sintéticos usam faixas (`< 0,45`, `< 0,58`, `>= 0,58`) e fatores fictícios por região. Esses limites NÃO são limites de dose, riscos clínicos, condições seguras ou dose recebida por órgãos.
 - Ao selecionar **Dados reais** ou **Sem dados**, as regiões corporais ficam neutras enquanto não existir dosimetria específica e critérios radiológicos validados. Nunca inferir uma dose de órgão a partir de taxa ambiental do RadLab ou fluxo NOAA.
-- No Wearable, a primeira tela mostra coração, **faixa demonstrativa**, **taxa atual** e **horário da última amostra**, não perfis de tripulantes. A segunda apresenta somente ocorrência, intensidade e horário previsto do pico solar. Não há dispositivo físico pareado.
+- Na V0.6, o Wearable mostrava coração e faixa ambiental sintética. A V2 refinada substitui esse resumo por estado da leitura pessoal e revisão da mesma ocorrência do painel de bordo. A segunda tela mantém a previsão solar independente; ambas podem exibir a próxima verificação compartilhada. Não há dispositivo físico pareado.
 - A seleção global de origem continua identificando os valores fictícios, sem repetir diversos avisos em cada painel. Documentar explicitamente o caráter não clínico da classificação de demonstração.
 - Continua previsto para uma etapa posterior: critérios radiológicos científicos por grandeza/unidade, calibração dos sensores, dados pessoais autorizados, tratamento de amostras defasadas, proveniência e integração de APIs/banco de dados.

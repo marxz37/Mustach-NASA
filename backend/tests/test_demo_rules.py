@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from pydantic import ValidationError
 
 from app.db import get_demo_event, get_measurements, init_db, update_demo_event
-from app.operational import SCENARIOS, assess_preparation
+from app.operational import SCENARIO_IDS, ScenarioInputs, build_scenario, assess_preparation
 from app.main import (
     DemoAcknowledgement, DemoScenarioUpdate, acknowledge_demo_event,
     change_demo_scenario, demo_operational_event,
@@ -80,22 +80,25 @@ def test_invalid_or_incomplete_check_is_rejected_by_contract():
     ('solar_review', 'ATTENTION', 'REVIEW_SOLAR_EVENT', ['AVAILABLE', 'ATTENTION', 'AVAILABLE']),
     ('complete', 'AVAILABLE', 'RECORD_REVIEW', ['AVAILABLE', 'AVAILABLE', 'AVAILABLE']),
     ('missing_environment', 'INCOMPLETE', 'CHECK_ENVIRONMENT', ['AVAILABLE', 'MISSING', 'AVAILABLE']),
-    ('missing_context', 'INCOMPLETE', 'CONFIRM_ACTIVITY', ['MISSING', 'MISSING', 'AVAILABLE']),
+    ('missing_context', 'INCOMPLETE', 'CONFIRM_ACTIVITY', ['MISSING', 'MISSING', 'ATTENTION']),
+    ('stale_personal', 'INCOMPLETE', 'REFRESH_PERSONAL', ['AVAILABLE', 'AVAILABLE', 'ATTENTION']),
+    ('wrong_personal', 'INCOMPLETE', 'CHECK_ASSOCIATION', ['AVAILABLE', 'AVAILABLE', 'ATTENTION']),
+    ('quality_review', 'INCOMPLETE', 'CHECK_QUALITY', ['AVAILABLE', 'AVAILABLE', 'ATTENTION']),
 ])
 def test_assessment_is_derived_from_activity_and_available_information(scenario, state, action, steps):
-    result = assess_preparation(SCENARIOS[scenario], False)
+    result = assess_preparation(build_scenario(scenario), False)
     assert result.data_state == state
     assert result.next_action == action
     assert [step.state for step in result.steps] == steps
-    assert result.available_count == sum(step != 'MISSING' for step in steps)
+    assert result.available_count == int(result.steps[0].state == 'AVAILABLE') + int(result.environment_check.state == 'USABLE') + int(result.personal_check.state == 'USABLE')
     assert result.review_state == 'PENDING'
     assert result.requires_attention is True
 
 
-@pytest.mark.parametrize('scenario', list(SCENARIOS))
+@pytest.mark.parametrize('scenario', SCENARIO_IDS)
 def test_recording_never_changes_data_availability_or_erases_a_remote_event(scenario):
-    before = assess_preparation(SCENARIOS[scenario], False)
-    after = assess_preparation(SCENARIOS[scenario], True)
+    before = assess_preparation(build_scenario(scenario), False)
+    after = assess_preparation(build_scenario(scenario), True)
     assert before.steps == after.steps
     assert before.data_state == after.data_state
     assert after.review_state == 'RECORDED'
@@ -118,7 +121,7 @@ def test_complete_scenario_records_consultation_without_eva_clearance():
     assert get_measurements() == []
 
 
-def test_additive_migration_preserves_previous_consultation_and_availability():
+def test_additive_migration_preserves_scenario_but_invalidates_a_consultation_without_evidence():
     import sqlite3
     from app.db import database_path
     with sqlite3.connect(database_path()) as connection:
@@ -128,10 +131,10 @@ def test_additive_migration_preserves_previous_consultation_and_availability():
     init_db()  # Idempotent, including an existing V0.8 database.
     event = demo_operational_event()
     assert event.scenario_id == 'solar_review'
-    assert event.revision == 7
-    assert event.acknowledged_at is not None
+    assert event.revision == 8
+    assert event.acknowledged_at is None
     assert event.assessment.data_state == 'ATTENTION'
-    assert event.assessment.review_state == 'RECORDED'
+    assert event.assessment.review_state == 'PENDING'
     assert event.status == 'REVIEW_PENDING'
 
 
@@ -146,5 +149,5 @@ def test_shared_browser_fixtures_match_server_assessment_without_a_second_rule_e
     from pathlib import Path
     fixture_path = Path(__file__).resolve().parents[2] / 'shared/testing/operational-events.json'
     for key, event in json.loads(fixture_path.read_text(encoding='utf-8')).items():
-        assessment = assess_preparation(SCENARIOS[event['scenario_id']], key.endswith('_recorded'))
+        assessment = assess_preparation(ScenarioInputs.model_validate(event['evidence']), event['acknowledged_at'] is not None)
         assert event['assessment'] == assessment.model_dump()

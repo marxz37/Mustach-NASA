@@ -1,82 +1,80 @@
-# Mustach — Ajustes V2 e verificação
+# Mustach — Refinamento funcional da V2
 
-Referência principal: `Mustach_V2_Critica_Tecnica_Linguagem_Interpretacao.md`, revisão de 15/11/2026. As diretrizes desta implementação prevalecem onde permitem manter classificações intuitivas e centralizar a identificação da simulação.
+## Correção principal
 
-## Confronto com a implementação
+A avaliação pré-EVA agora utiliza evidências radiológicas estruturadas, com associação à tripulante fictícia Maya Bennett e à atividade EVA-01. Fonte, instrumento, valor/unidade, grandeza, horário, missão/local, proveniência e qualidade sustentam a verificação. Os antigos booleanos são apenas resumos derivados.
 
-A cópia de trabalho já continha alterações locais em andamento, preservadas e completadas nesta entrega. A inspeção considerou tanto esses arquivos quanto a base Git `f5da94f`.
+A função `assess_preparation` permanece única no backend. Nenhuma regra clínica, conversão de fluxo em dose, integração física, página, LLM ou voz foi acrescentada. O layout dos dois aplicativos foi preservado.
 
-| Crítica | Conferência no código | Resultado |
-| --- | --- | --- |
-| Faixas fictícias parecem avaliação de saúde | `demonstrationBand` realmente usa cortes de demonstração | Mantido `Normal`; descrição no topo explicita as faixas fictícias. Categoria superior passa a `Elevado` e título a faixa do cenário. Sem classificação automática em dados reais |
-| Gráfico sintético usa “Ao vivo” | Presente na base; correção parcial já iniciada localmente | Simulação ativa; leitura recente depende do horário. Registro antigo expõe horário desatualizado e não recebe indicador pulsante |
-| API online sugere telemetria | Endpoint consulta somente a FastAPI local | API local conectada/indisponível, separada da presença da prévia e da ausência de dispositivo físico |
-| Medição e sincronização confundem horários | Amostras sintéticas são geradas no navegador; presença vem de heartbeat | Última amostra simulada, consulta à API e contato da prévia com API local possuem rótulos distintos |
-| Falta percurso de interpretação e registro | Ausente na base; fluxo já parcialmente criado localmente | Um cenário pré-EVA com fato, fonte, horário de referência, leitura individual ausente/disponível, próxima verificação e conferência persistida |
-| Web e Wearable têm estado independente | Séries sintéticas continuam locais, como previsto | Somente ocorrência/conferência compartilham ID, revisão e SQLite via API; consultas a cada três segundos |
-| Total de 24 h pode parecer dose pessoal completa | Integração original é compatível, mas título não expõe cobertura | Ambiente e horas cobertas próximos ao total; histórico pessoal/ambiental separado e janela parcial indicada |
-| Gráfico acumulado pode divergir do total | Recorte anterior removia amostra que atravessa a borda; linha ligava lacunas | Recorte e integração coerentes com o total; linha interrompida onde não há intervalo válido |
-| Retenção por contagem perde sete dias | Base descartava pontos antigos a cada atualização | Grade histórica preservada, detalhes recentes limitados e amostras da sessão EVA retidas |
-| Termos de previsão, mapa e EVA | “Pico”, “Mapa de exposição” e “Preparado” eram ambíguos | Pico estimado, mapa corporal ilustrativo e cronômetro pronto; modelo junto à probabilidade resumida |
+## Comportamento demonstrado
 
-## V0.9 — Fluxo visual no painel de bordo
+| Situação | Resultado |
+| --- | --- |
+| Leitura pessoal ausente | Dados incompletos; conferir leitura individual |
+| Consulta registrada sem leitura | A consulta persiste; a ausência permanece |
+| Leitura sintética válida recebida | A mesma ocorrência recebe o registro, resolve a disponibilidade pessoal, invalida a consulta anterior e atualiza a revisão |
+| Evento remoto sinalizado | Continua exigindo revisão, inclusive com uma leitura pessoal utilizável |
+| Leitura antiga | Estado desatualizado e próxima verificação de leitura recente |
+| Pessoa, atividade, missão/local ou unidade incorretos | Incompatibilidade explicitada; não é informação suficiente |
+| Qualidade desconhecida/a revisar | Acompanhamento de qualidade, sem concluir sobre condição clínica |
+| Expiração com API aberta | Reavaliação no polling; consulta invalidada e revisão incrementada uma única vez por mudança semântica |
+| API local indisponível | Avaliação indisponível ou último estado identificado; gravações bloqueadas |
 
-A referência visual foi aplicada preservando o design: dois cartões com contexto e fluxo de preparação, estados com ícone e rótulo, contagem de informações disponíveis e uma ação principal. O rótulo “Apto” da referência não foi reproduzido. Disponibilidade dos dados e registro de consulta possuem indicadores distintos.
+No painel lateral, “Receber leitura simulada” substitui a dependência exclusiva de trocar cenários para resolver a informação individual. Trata-se explicitamente de um exemplo gerado pela API local, não de sensor conectado. Os exemplos de leitura antiga, de outro tripulante e de qualidade a revisar usam o seletor já existente.
 
-1. Abrir a Visão geral do Web, em Simulação, com a API local iniciada.
-2. Observar os estados automáticos de contexto, informações radiológicas e leitura individual. No cenário padrão há duas informações disponíveis, um evento para revisão e uma leitura individual ausente.
-3. Abrir o roteiro da equipe. O painel lateral destaca a próxima verificação, mostra fonte, horário, limites e evidências do cenário. As três etapas também abrem diretamente seus detalhes.
-4. Registrar a consulta com um único botão. Isso não preenche lacunas, encerra evento sinalizado nem inicia o cronômetro. O painel lateral fecha com Escape, botão ou clique no fundo e devolve o foco.
-5. Em “Cenário demonstrativo”, escolher uma das cinco variações. Os estados e a próxima verificação vêm da FastAPI; a mudança invalida a consulta anterior.
-6. No Wearable, ver somente o aviso passivo dentro do relógio, nas duas páginas. Sem formulário, checkboxes ou ação de conferência. A indicação orienta a consultar o painel de bordo.
-7. Informações completas, sem evento e com consulta registrada removem o aviso automático; isso não é autorização de EVA. Falha de consulta mantém o estado anterior identificado ou informa indisponibilidade.
+O Wearable resume **a mesma evidência pessoal e avaliação**: estado da leitura, valor quando utilizável, horário, tripulante, revisão e próxima verificação. O sinal ambiental independente deixou de representar seu estado individual. O relógio continua passivo; detalhes e gravações ficam no computador de bordo.
 
-Regras centralizadas em `backend/app/operational.py`; persistência e polling existentes reaproveitados. `shared/operational.ts` é apenas contrato e cliente. As fixtures de teste compartilhadas são respostas serializadas da API, verificadas contra a função de avaliação para evitar um segundo classificador.
+## Decisões de dados e persistência
 
-## Validação
+- O contrato original `Measurement` foi centralizado em `backend/app/measurements.py`, reaproveitado pela API de observações e pelas evidências demonstrativas. Campos adicionais são apenas metadados de associação/qualidade.
+- A tabela científica `measurements` continua separada dos exemplos. A ocorrência existente recebe `context_json`, `assessment_signature` e `reading_received_at`, sem novo banco ou plataforma.
+- `personal_reading_available` não determina o resultado; ele é calculado a partir do conteúdo da medição. O seletor booleano legado continua aceito somente como escolha de fixture estruturada.
+- A idade da leitura é calculada pelo relógio UTC real da API, sem relógio ou classificador paralelo nos clientes. O limite padrão de 900 s é configurável por `MUSTACH_DEMO_MAX_READING_AGE_SECONDS`: política de engenharia, não critério médico da NASA.
+- Reiniciar a API preserva dados e consultas. Não renova timestamps antigos. Na migração da versão anterior, consultas sem a nova evidência são invalidadas uma única vez, preservando o cenário.
+- Nova evidência ou estado temporal incompatível invalida consultas antigas. A transação reconcilia expiração antes de conferir a revisão enviada, impedindo confirmação de contexto antigo.
+- Receber uma leitura pessoal não altera o evento remoto, o ID da ocorrência ou a fonte ambiental. Em demonstrações longas, o ambiente também pode expirar; o seletor existente recria esse contexto quando necessário.
+
+## Testes executados
 
 | Verificação | Resultado |
 | --- | --- |
-| Web: `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` | Aprovados; 20 testes unitários |
-| Wearable: mesmos quatro comandos | Aprovados; 2 testes unitários |
-| Regras/persistência: `python -m pytest -q tests/test_demo_rules.py` | 19 testes aprovados: prioridades, estados, consulta separada dos dados, migração, persistência, concorrência e contrato das fixtures |
-| Python: `python -m compileall -q app tests` | Aprovado |
-| Playwright Web em Chrome | 17 cenários aprovados: fluxo automático, painel lateral, consulta sem checkboxes, foco, cenário, falhas, conflitos e regressões |
-| Playwright Wearable em Chrome | 11 cenários aprovados; aviso passivo, atualização por polling e layout das duas páginas em 320 px nos três idiomas |
-| Fluxo entre interfaces | 1 cenário adicional aprovado com os dois builds: mudanças no Web atualizam o aviso passivo; nenhuma gravação sai do Wearable |
-| Revisão visual | Capturas desktop Web, painel lateral e Wearable inspecionadas; overflow e separação entre conteúdo/aviso testados em 320 px |
-| `git diff --check` | Aprovado |
+| Web: typecheck, lint, `npm test`, build | Aprovados; 20 testes unitários |
+| Wearable: typecheck, lint, `npm test`, build | Aprovados; 2 testes unitários |
+| Backend: `pytest -q tests/test_demo_rules.py tests/test_structured_evidence.py` | 39 testes aprovados |
+| Python: `compileall -q app tests` | Aprovado |
+| Playwright Web | 21 cenários aprovados contra build local com API simulada |
+| Playwright Wearable | 13 cenários aprovados, incluindo layout das duas telas em 320 px nos três idiomas |
+| Fluxo Web → Wearable | 1 teste adicional aprovado com os dois builds e uma resposta compartilhada simulada; inclui recebimento de medição pessoal sem trocar o cenário |
+| Revisão visual | Capturas Web e Wearable inspecionadas; estados de ausência/desatualização e evidências verificados |
 
-O ambiente bloqueou conexões locais (`connect EACCES 127.0.0.1`), impedindo o servidor de teste padrão do Playwright. A suíte de UI foi então executada no Chrome com os mesmos testes, fornecendo HTML/CSS/JS dos builds locais por `page.route`, além de respostas simuladas da API. Essa execução verifica o comportamento das interfaces e a propagação de uma resposta compartilhada simulada, **não a comunicação HTTP real entre navegadores e FastAPI**. Nenhuma fonte externa foi conectada para testar.
+Os testes do backend cobrem conteúdo/associação, tempo, qualidade, ausência, ambiente, evento remoto, separação de proveniência, recebimento, persistência, concorrência, expiração e contratos. As fixtures usadas pelos navegadores são exportadas dos handlers e verificadas contra o motor; não há um segundo classificador de teste.
 
-A tentativa da suíte completa `pytest -q` ficou bloqueada no primeiro `TestClient`: o loop de eventos do Python 3.10 precisa de um `socketpair` local que este ambiente não permite. A execução foi interrompida; os 13 testes HTTP de `test_api.py` e `test_operational_event.py` permanecem **sem resultado de execução neste ambiente**. Os 19 testes síncronos exercitam os handlers, os modelos e o SQLite sem esse canal. A suíte completa e a comunicação real precisam ser executadas num terminal local com conexões permitidas.
+**Limitação de execução:** a suíte HTTP completa não foi aprovada neste ambiente. A tentativa dos testes HTTP existentes parou no primeiro `TestClient`, com timeout na criação de `socketpair`/loop asyncio do Python 3.10 no Windows restrito. O novo caso HTTP do recebimento também precisa ser executado fora dessa restrição. Os 39 testes síncronos exercitam handlers/modelos/SQLite, mas não substituem validação do transporte HTTP real.
 
-Uma expectativa antiga do teste EVA procurava exclusivamente a palavra `synthetic`, embora a interface use `simulated` após obter dose de sessão. Foi corrigida para verificar a indicação efetiva de taxa simulada e aguardar um intervalo válido antes de finalizar a sessão.
+O Playwright foi executado no Chrome com HTML/CSS/JS locais fornecidos por interceptação de rotas e respostas simuladas da API, pois conexões locais estão restritas. Portanto, o comportamento e a consistência entre interfaces foram testados; a comunicação real navegador–FastAPI continua sem verificação neste ambiente. Permanece o aviso existente de tamanho do bundle ECharts; nenhum erro de build foi ocultado.
 
-O CI também passa a verificar build, lint e testes unitários do Wearable, além do Web e do back-end. O workflow foi editado, mas não foi executado no GitHub nesta entrega. Nesta atualização, o ESLint terminou sem erros nem novos avisos; permanece apenas o aviso de tamanho do bundle ECharts no build Web.
+Para regenerar as fixtures no diretório `backend`, usando o ambiente já instalado:
 
-## Arquivos da entrega
+```powershell
+.\.venv\Scripts\python.exe -c "import runpy; runpy.run_path('tests/export_operational_fixtures.py',run_name='__main__')"
+```
 
-Inclui alterações locais já existentes que foram preservadas e concluídas. Não inclui builds, capturas ou o adaptador temporário de testes.
+## Arquivos desta atualização
 
 | Área | Arquivos |
 | --- | --- |
-| Contrato, textos e cálculo compartilhados | `shared/operational.ts`, `shared/operationalCopy.ts`, `shared/testing/operational-events.json`, `shared/i18n.ts`, `shared/radiation.ts`, `shared/demo.ts` |
-| API e persistência | `backend/app/main.py`, `backend/app/db.py`, `backend/app/operational.py` |
-| Web | `frontend/src/App.tsx`, `frontend/src/context/AppContext.tsx`, `frontend/src/pages/Overview.tsx`, `frontend/src/pages/Crew.tsx`, `frontend/src/index.css` |
-| Componentes Web | `frontend/src/components/monitoring/OperationalCheck.tsx`, `DoseHistory.tsx`, `EVAClock.tsx`, `LiveRateChart.tsx` no mesmo diretório; `frontend/src/components/dashboard/SolarActivityPanel.tsx` |
-| Wearable | `wearable/src/App.tsx`, `wearable/src/OperationalCheck.tsx`, `wearable/src/style.css` |
-| Testes Web | `frontend/e2e/dashboard.spec.ts`, `frontend/playwright.config.ts`, `frontend/src/lib/demo.test.ts`, `frontend/src/lib/radiation.test.ts` |
-| Testes Wearable | `wearable/e2e/watch.spec.ts`, `wearable/playwright.config.ts` |
-| Testes Python | `backend/tests/conftest.py`, `backend/tests/test_demo_rules.py`, `backend/tests/test_operational_event.py` |
-| Documentação e CI | `README.md`, `docs/CONTRATOS.md`, `docs/TECNOLOGIAS.md`, `docs/AJUSTES-V2.md`, `.github/workflows/checks.yml` |
+| API e evidências | `backend/app/measurements.py` (novo), `operational.py`, `main.py`, `db.py` |
+| Regras e contratos testados | `backend/tests/test_structured_evidence.py` (novo), `test_demo_rules.py`, `test_operational_event.py`, `conftest.py`, `export_operational_fixtures.py` (novo) |
+| Contratos/traduções comuns | `shared/operational.ts`, `operationalCopy.ts`, `radiation.ts`, `i18n.ts`, `demoCopy.ts`, `shared/testing/operational-events.json` |
+| Web | `frontend/src/components/monitoring/OperationalCheck.tsx`, `frontend/src/types/domain.ts`, `frontend/src/index.css`, `frontend/e2e/dashboard.spec.ts` |
+| Wearable | `wearable/src/App.tsx`, `wearable/src/OperationalCheck.tsx`, `wearable/e2e/watch.spec.ts` |
+| Documentação/configuração | `README.md`, `docs/CONTRATOS.md`, `docs/RASTREABILIDADE-DADOS.md`, `docs/TECNOLOGIAS.md`, `docs/AJUSTES-V2.md`, `backend/.env.example` |
 
-## Limitações mantidas
+## Limitações do MVP
 
-- Sensores físicos e fontes NASA/NOAA/CCMC continuam sem integração; dados reais permanecem vazios.
-- Atualização compartilhada por consulta periódica, sem push ou fila offline. Estado anterior só é marcado indisponível após a próxima consulta falhar.
-- Registro guarda conferência e revisão atuais; não inclui autenticação nem auditoria completa de operadores.
-- A interpretação contextual usa uma atividade fixa com cinco variações determinísticas. As séries ambientais continuam geradas no navegador; sua faixa visual não determina aptidão ou conclusão da revisão. Sem IA generativa, diagnóstico, modelo radiobiológico ou decisão de aptidão.
-- Detalhes de uma sessão EVA longa permanecem em memória até zerar ou mudar a origem. A retenção normal limita detalhes aos últimos 30 minutos.
-- Teste de compreensão com usuários ainda necessário; não houve validação clínica ou teste com astronautas.
-- Build Web mantém o aviso de tamanho do bundle de gráficos. Divisão de pacotes fica fora do escopo desta correção.
+- A avaliação operacional continua em modo demonstrativo, com uma atividade fictícia e variações pequenas. Não interpreta dados de voo nem substitui um processo de autorização.
+- Qualidade `VALID` é um indicador do exemplo, não uma prova de calibração ou de correção científica do instrumento.
+- Um ponto pessoal utilizável não fornece histórico completo de exposição ou conclusão sobre saúde. As séries de perfil, sinais vitais e mapa corporal são ilustrações independentes; frequência, sono e SpO₂ não entram no motor radiológico.
+- Eventos remotos e previsões solares não são dose individual. Não há cálculo de risco biológico, imunidade, dano ou prognóstico.
+- A lógica independe de acesso à Terra, mas requer a API local. Não há fila offline, pareamento físico, autenticação, auditoria completa ou sincronização instantânea. O intervalo normal de consulta é três segundos.
+- A utilidade humano-sistema ainda é uma hipótese de protótipo; faltam teste de compreensão com usuários e validação operacional especializada.

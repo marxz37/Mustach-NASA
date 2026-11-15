@@ -68,3 +68,11 @@ export function toValidRate(value:number,unit:string,kind:string): number | null
   if (unit==='mSv/h') return value*1000;
   return null;
 }
+
+/** Metadata contract for observed API records and explicitly simulated evidence. */
+export interface RadiologicalMeasurement {
+  id: string; source: string; provenance: 'OBSERVED' | 'FORECAST' | 'SIMULATED'; instrument: string;
+  measured_at: string; quantity: string; value: number; unit: string; mission: string;
+  region?: string | null; scope: 'ENVIRONMENTAL' | 'PERSONAL'; quality: 'VALID' | 'REVIEW_REQUIRED' | 'UNKNOWN';
+  astronaut_id?: string | null; activity_id?: string | null; location?: string | null;
+}

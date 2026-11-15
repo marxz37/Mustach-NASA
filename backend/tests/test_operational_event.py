@@ -65,3 +65,20 @@ def test_acknowledgement_requires_both_checks():
             response = client.post(PATH + '/acknowledge', json={'expected_revision': event['revision'], **fields})
             assert response.status_code == 422
         assert client.get(PATH).json()['acknowledged_at'] is None
+
+
+def test_personal_evidence_endpoint_reassesses_the_shared_event_without_touching_observed_records():
+    with TestClient(app) as client:
+        before = client.get(PATH).json()
+        response = client.post(PATH + '/personal-measurement', json={'expected_revision': before['revision']})
+        assert response.status_code == 200
+        event = response.json()
+        assert event['id'] == before['id']
+        assert event['assessment']['personal_check']['state'] == 'USABLE'
+        assert event['assessment']['next_action'] == 'REVIEW_SOLAR_EVENT'
+        assert event['evidence']['personal_measurement']['astronaut_id'] == 'maya'
+        assert event['evidence']['personal_measurement']['provenance'] == 'SIMULATED'
+        assert client.get('/api/v1/measurements').json() == []
+        assert client.post(PATH + '/personal-measurement', json={'expected_revision': before['revision']}).status_code == 409
+        observed = {**event['evidence']['personal_measurement'], 'provenance': 'OBSERVED'}
+        assert client.post(PATH + '/personal-measurement', json={'expected_revision': event['revision'], 'measurement': observed}).status_code == 422

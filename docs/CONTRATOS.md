@@ -18,7 +18,7 @@
 ## Regras
 
 1. Cada medida deverá ter `measured_at`, `instrument`, `quantity`, `unit`, `source`, `provenance`, `mission`.
-2. O banco não terá medições falsas pré-carregadas.
+2. A tabela `measurements` não recebe exemplos falsos apresentados como observação. A ocorrência demonstrativa persiste evidências explicitamente `SIMULATED` em seu próprio registro.
 3. Quando uma origem real não fornecer medição, a interface exibirá ausência de dados, sem fallback silencioso. A **interface inicia em “Simulação”** com uma série sintética histórica gerada localmente (7 dias para demonstrar gráficos) e amostras de atualização contínua. Esse histórico fictício nunca é gravado no banco como observação.
 4. Dose absorvida (Gy) e equivalente (Sv) não são intercambiáveis.
 5. Uma integração temporal de taxa de dose só pode ocorrer com série dosimétrica homogênea e interpretação correta das lacunas.
@@ -52,52 +52,73 @@
 
 **V0.7:** o segundo indicador superior apresenta dose equivalente **acumulada em 24h (mSv)**, não a mesma taxa instantânea (µSv/h) do gráfico; exibe `—` quando não há série compatível. Isso **não equivale à dose pessoal** de um tripulante sem fonte individual associada. A janela pode ser parcial quando existem lacunas.
 
-## V0.9 — Avaliação contextual de preparação
+## V2 refinada — Avaliação baseada em evidência estruturada
 
-`GET /api/v1/demo/operational-event` retorna uma única ocorrência: `DEMO-EVT-001`, atividade `EVA-01`, fase `PREPARATION`, origem `SIMULATED`, fonte fictícia `DEMO-SOLAR-01` e referência fixa `scenario_at: 2026-11-15T12:00:00Z`. Esse horário ancora o roteiro; não é horário de coleta, emissão de previsão nem sincronização. O evento não é derivado da previsão `SYN-SEP / 01` ou de fluxo de prótons.
+A única avaliação operacional é `backend/app/operational.py::assess_preparation`. `shared/operational.ts` contém contrato e cliente, sem motor paralelo. A ocorrência permanece `DEMO-EVT-001 / EVA-01` e o roteiro `DEMO-RAD-01` é uma demonstração da equipe, não um protocolo NASA.
 
-| Campo | Significado |
-| --- | --- |
-| `personal_reading_available` | Disponibilidade definida pelo roteiro, sem valor dosimétrico ou sensor associado |
-| `missing_data` | Contexto de atividade, associação ambiental e/ou leitura pessoal ausentes |
-| `status` | `REVIEW_PENDING` enquanto houver lacuna, evento sinalizado ou consulta não registrada; `REVIEW_RECORDED` no restante |
-| `next_check` | `DEMO-RAD-01`: roteiro demonstrativo da equipe, sem protocolo NASA ou conduta médica |
-| `acknowledged_at` | Horário UTC em que a API aceitou o registro da conferência |
-| `revision` | Versão usada para rejeitar alterações feitas contra um estado antigo |
-| `scenario_id` / `inputs` | Variação persistida do roteiro e seus dados de entrada, nunca medições |
-| `scheduled_at` | Programação fixa da atividade no cenário; nulo quando falta o contexto |
-| `assessment.data_state` | `INCOMPLETE`, `ATTENTION` ou `AVAILABLE`: disponibilidade/contexto, nunca aptidão |
-| `assessment.review_state` | `PENDING` ou `RECORDED`: registro da consulta, separado dos dados |
-| `assessment.steps` | Estados e justificativas das três etapas, calculados no servidor |
-| `assessment.available_count` | Informações disponíveis, incluindo informações que exigem atenção; não verificações aprovadas |
-| `assessment.next_action` | Próxima verificação contextual, determinada pela prioridade dos dados ausentes |
-| `assessment.requires_attention` | Relevância do aviso passivo enviado ao Wearable |
+### Medição e contexto
 
-- `POST .../scenario`: recebe `expected_revision` e `scenario_id`; muda a variação e invalida o registro anterior. O seletor booleano `personal_reading_available` da V0.8 permanece aceito para compatibilidade; não pode ser enviado junto com `scenario_id`.
-- `POST .../acknowledge`: exige `expected_revision`, `context_reviewed: true` e `availability_checked: true`. Os nomes dos campos de confirmação foram preservados por compatibilidade; a interface envia-os por uma ação explícita de registrar a consulta ao roteiro, sem checkboxes. Não aprova EVA, inicia cronômetro ou preenche medições ausentes.
-- Revisão antiga resulta em HTTP 409; campos incompletos resultam em HTTP 422. Uma atualização SQLite condicional impede que duas alterações aceitem a mesma revisão.
-- Persistência em `demo_operational_event`, separada de `measurements`. Web e Wearable consultam o mesmo ID a cada três segundos; somente o Web expõe controles de consulta e cenário. O relógio apresenta um resumo passivo dentro da tela, sem interação para conferir a EVA.
-- Falha de consulta: identificar o último estado conhecido e bloquear edição. Falha de gravação: manter feedback visível; não registrar localmente uma confirmação fictícia.
-- As séries dosimétricas e o cronômetro continuam locais. A presença da prévia web não representa smartwatch pareado. Não há autorização, identidade de operador, fila offline ou trilha completa de auditoria nesta demonstração.
+`backend/app/measurements.py::Measurement` reutiliza o contrato original da API: ID, fonte, instrumento, proveniência, horário, grandeza, valor, unidade, missão e região opcional. Foram acrescentados `scope` (pessoal/ambiental), `astronaut_id`, `activity_id`, `location` e `quality`. Valor deve ser finito e não negativo; horário precisa de fuso. Isso é validação de conteúdo, não um limite de exposição.
 
+Uma evidência pessoal utilizável neste roteiro deve:
 
-### Regras e variações do roteiro
+1. Existir e ter fonte/instrumento/identificador definidos pelo contrato.
+2. Pertencer à pessoa, atividade, missão, local e escopo esperados.
+3. Ser `SIMULATED`, pois esta avaliação pertence ao roteiro demonstrativo. A API de observações mantém seu contrato e os exemplos nunca são usados como fallback do modo real.
+4. Conter `dose_equivalent_rate` em µSv/h (incluindo grafias Unicode compatíveis) ou mSv/h. Não é feita conversão de Gy nem de fluxo de prótons para Sv. O valor e a unidade originais permanecem visíveis.
+5. Não estar no futuro nem exceder a janela configurada, em relação ao relógio UTC da API.
+6. Ter indicador de qualidade `VALID` no exemplo. `UNKNOWN` e `REVIEW_REQUIRED` exigem conferência; não representam calibração científica comprovada.
 
-A única função de avaliação é `backend/app/operational.py::assess_preparation`. Os front-ends traduzem e desenham o resultado; não recalculam estados ou prioridades.
+O contexto ambiental passa pelas mesmas verificações, com escopo ambiental e sem exigir um astronauta para o instrumento ambiental. O evento remoto tem ID, fonte, proveniência, associação à atividade e emissão próprios; não fornece dose pessoal e não é derivado da previsão independente `SYN-SEP / 01` dos gráficos.
 
-| Variação | Dados | Próxima verificação sem consulta |
+### Três dimensões distintas
+
+| Dimensão | Campos | Significado |
 | --- | --- | --- |
-| `missing_personal` | Contexto presente, evento remoto sinalizado, leitura pessoal ausente | Conferir leitura individual |
-| `solar_review` | Todas as informações disponíveis; evento remoto sinalizado | Revisar evento remoto |
-| `complete` | Todas as informações disponíveis; sem evento remoto sinalizado | Revisar resumo e registrar consulta |
-| `missing_environment` | Falta associação das informações ambientais à EVA | Conferir contexto ambiental |
-| `missing_context` | Atividade sem contexto; associação ambiental também ausente | Conferir contexto da atividade |
+| Dados | `assessment.data_state`, `personal_check`, `environment_check` | Disponibilidade e compatibilidade dos registros. `USABLE` não significa seguro |
+| Contexto radiológico | `assessment.radiological_state` | Leitura individual disponível/não utilizável ou evento remoto a revisar; sem diagnóstico, probabilidade de dano ou limiar médico |
+| Revisão | `assessment.review_state`, `acknowledged_at` | Consulta pendente/registrada; não altera medições nem autoriza EVA |
 
-A associação ambiental da atividade é diferente da existência de taxas no dashboard da missão. A ausência dessa associação não apaga as séries do painel. As faixas `Normal / Atenção / Elevado` não são usadas para autorizar ou encerrar a revisão da EVA.
+`personal_check` e `environment_check` expõem estado (`USABLE`, `MISSING`, `STALE`, `INCOMPATIBLE`, `REVIEW_REQUIRED`), ID considerado, motivos, idade e janela aplicável. `assessment.steps` resume contexto, ambiente/evento e leitura pessoal; `available_count` conta apenas informações utilizáveis, nunca etapas aprovadas. `personal_reading_available` e `inputs` são resumos derivados, mantidos por compatibilidade.
 
-O registro altera apenas o estado da consulta. Se faltam dados ou há evento remoto sinalizado, a ocorrência continua relevante, inclusive após registrar. Sem lacunas nem evento e com consulta registrada, `next_action: NONE` indica ausência de nova verificação automática **neste roteiro**, nunca condição segura ou autorização.
+`evidence` devolve os registros usados; `evaluated_at` informa a hora da avaliação. `scenario_at` ancora a criação do roteiro; `scheduled_at` é a programação fictícia (duas horas após essa criação), não o horário da medição. `reading_received_at` é a aceitação do novo dado pela API, diferente de `measured_at` e de `acknowledged_at`.
 
-A migração adiciona `scenario_id` à tabela existente e preserva disponibilidade, horário da consulta e revisão. Nenhuma observação radiológica é criada no processo.
+### Regra temporal de engenharia
+
+O padrão é 900 s, configurável por `MUSTACH_DEMO_MAX_READING_AGE_SECONDS` no ambiente do processo. Não é requisito médico validado da NASA. Exemplo no PowerShell, antes de iniciar a API:
+
+```powershell
+$env:MUSTACH_DEMO_MAX_READING_AGE_SECONDS = "900"
+```
+
+A API reavalia em cada consulta. O intervalo normal de polling é três segundos; não há atualização instantânea. As leituras guardam seus horários após reiniciar a API. A idade aumenta com o relógio real: a reinicialização não fabrica atualidade.
+
+### Operações compartilhadas
+
+| Endpoint sob `/api/v1/demo/operational-event` | Entrada | Efeito |
+| --- | --- | --- |
+| `GET` | — | Evidência e avaliação da mesma ocorrência |
+| `POST /scenario` | `expected_revision` e `scenario_id` | Recria o contexto demonstrativo e invalida a consulta. O seletor booleano legado continua aceito exclusivamente como escolha de fixture estruturada |
+| `POST /personal-measurement` | `expected_revision`, `measurement` opcional | Persiste e reavalia uma nova medição. Sem payload de medição, gera explicitamente um exemplo pessoal associado ao contexto existente. Não muda cenário, evento remoto nem ID da ocorrência |
+| `POST /acknowledge` | `expected_revision`, `context_reviewed: true`, `availability_checked: true` | Registra consulta ao roteiro; campos antigos mantidos para compatibilidade, enviados por uma única ação explícita |
+
+O endpoint de demonstração rejeita payloads `OBSERVED`/`FORECAST` (422). Pode receber um registro sintético cujo conteúdo não serve à EVA, para explicar associação/unidade/qualidade incorretas. Não gerar leitura automaticamente quando falta a atividade. Não registrar ciência nem receber dados contra revisão antiga (409).
+
+No cenário padrão A falta a leitura pessoal. Registrar a consulta mantém a ausência. A ação de receber medição válida leva ao cenário funcional B sem trocar a fixture selecionada: a disponibilidade é resolvida, a consulta anterior é invalidada, e eventual evento remoto C continua exigindo revisão. Os exemplos D de idade, pessoa incorreta ou qualidade não são suficientes para a verificação.
+
+As variantes existentes foram estendidas para `stale_personal`, `wrong_personal` e `quality_review`. Nenhuma configuração adiciona medição observada real ou estado `SAFE`, `HEALTHY` ou `CLEARED`.
+
+### Persistência e falhas
+
+SQLite permanece com a tabela de observações intacta. O registro operacional recebe três campos aditivos: `context_json` (evidências), `assessment_signature` (estado semântico) e `reading_received_at`. Não se cria outra plataforma de dados. Atualizações usam transação e comparação de revisão.
+
+Na migração da versão anterior, a fixture é convertida em contexto estruturado. Uma consulta antiga é invalidada uma única vez porque não cobria a evidência agora avaliada; o cenário é preservado. A partir daí, reiniciar a API preserva consulta e evidências, salvo se uma regra temporal ou um dado relevante mudar.
+
+Uma transição por expiração limpa a consulta e incrementa a revisão uma única vez. Segundos de idade sem mudança de significado não geram revisões novas. A verificação de revisão também reconcilia expiração antes de gravar, rejeitando consulta sobre estado antigo.
+
+Web e Wearable leem o mesmo resultado. O relógio é passivo: estado da leitura, revisão, horário e próxima verificação, sem classificação local de pendência. Só o Web apresenta fonte/evidências e gravações. O modo real continua sem avaliação demonstrativa automática.
+
+Indisponibilidade da avaliação na API local não significa problema de comunicação com a Terra. Ausência de medição não significa falha da prévia web do relógio. O heartbeat comprova somente contato da prévia com a API, nunca sensor ou pareamento físico. Falha de consulta identifica o último resultado conhecido e bloqueia gravação; não existe fila offline.
 
 ## Cobertura e classificação visual
 

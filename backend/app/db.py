@@ -1,8 +1,10 @@
-"""Banco local para medições futuras. Nenhuma amostra é criada automaticamente."""
+"""Persistência local: evidência SIMULATED da ocorrência separada das observações."""
 import os
 import sqlite3
+from datetime import datetime
 from pathlib import Path
-from .operational import SCENARIOS
+from . import operational as op
+from .measurements import Measurement
 
 DEFAULT_DB = Path(__file__).resolve().parent.parent / "sentinela.sqlite3"
 
@@ -45,6 +47,18 @@ def init_db() -> None:
         if 'scenario_id' not in columns:
             conn.execute("ALTER TABLE demo_operational_event ADD COLUMN scenario_id TEXT NOT NULL DEFAULT 'missing_personal'")
             conn.execute("UPDATE demo_operational_event SET scenario_id = CASE WHEN personal_reading_available = 1 THEN 'solar_review' ELSE 'missing_personal' END")
+        for column in ('context_json', 'assessment_signature', 'reading_received_at'):
+            if column not in columns:
+                conn.execute(f'ALTER TABLE demo_operational_event ADD COLUMN {column} TEXT')
+        conn.row_factory = sqlite3.Row
+        row = conn.execute("SELECT * FROM demo_operational_event WHERE id = 'DEMO-EVT-001'").fetchone()
+        if row['context_json'] is None:
+            context = op.build_scenario(row['scenario_id'])
+            signature = op.assessment_signature(op.assess_preparation(context, False))
+            # Old acknowledgements did not cover structured evidence; invalidate once on migration.
+            conn.execute("UPDATE demo_operational_event SET context_json = ?, assessment_signature = ?, "
+                         "revision = revision + CASE WHEN acknowledged_at IS NULL THEN 0 ELSE 1 END, acknowledged_at = NULL WHERE id = ?",
+                         (context.model_dump_json(), signature, 'DEMO-EVT-001'))
         conn.commit()
 
 
@@ -58,28 +72,51 @@ def get_measurements(limit: int = 500) -> list[dict]:
         return [dict(row) for row in rows]
 
 
-def get_demo_event() -> dict:
+def _refresh_event(conn: sqlite3.Connection, at: datetime) -> dict:
+    conn.row_factory = sqlite3.Row
+    row = dict(conn.execute("SELECT * FROM demo_operational_event WHERE id = 'DEMO-EVT-001'").fetchone())
+    context = op.ScenarioInputs.model_validate_json(row['context_json'])
+    assessment = op.assess_preparation(context, row['acknowledged_at'] is not None, at)
+    signature = op.assessment_signature(assessment)
+    if signature != row['assessment_signature']:
+        conn.execute("UPDATE demo_operational_event SET acknowledged_at = NULL, revision = revision + 1, "
+                     "assessment_signature = ? WHERE id = ?", (signature, 'DEMO-EVT-001'))
+        row['revision'] += 1
+        row['acknowledged_at'] = None
+        assessment = op.assess_preparation(context, False, at)
+    row['_context'], row['_assessment'], row['_evaluated_at'] = context, assessment, at
+    return row
+
+
+def get_demo_event(at: datetime | None = None) -> dict:
     with sqlite3.connect(database_path()) as conn:
-        conn.row_factory = sqlite3.Row
-        return dict(conn.execute("SELECT * FROM demo_operational_event WHERE id = 'DEMO-EVT-001'").fetchone())
+        conn.execute('BEGIN IMMEDIATE')
+        return _refresh_event(conn, at or op.current_time())
 
 
 def update_demo_event(expected_revision: int, *, reading_available: bool | None = None,
-                      acknowledged_at: str | None = None, scenario_id: str | None = None) -> bool:
-    """Compare-and-set avoids registering a check against an outdated scenario."""
+                      acknowledged_at: str | None = None, scenario_id: str | None = None,
+                      measurement: Measurement | None = None) -> bool:
+    """Evidence updates and expiry share the same optimistic revision as consultation."""
     with sqlite3.connect(database_path()) as conn:
-        if reading_available is not None or scenario_id is not None:
-            scenario_id = scenario_id or ('solar_review' if reading_available else 'missing_personal')
-            reading_available = SCENARIOS[scenario_id].personal_reading_available
-            result = conn.execute(
-                "UPDATE demo_operational_event SET personal_reading_available = ?, scenario_id = ?, "
-                "acknowledged_at = NULL, revision = revision + 1 WHERE id = ? AND revision = ?",
-                (int(reading_available), scenario_id, 'DEMO-EVT-001', expected_revision),
-            )
+        conn.execute('BEGIN IMMEDIATE')
+        at = op.current_time()
+        row = _refresh_event(conn, at)
+        if row['revision'] != expected_revision:
+            return False
+        if reading_available is not None or scenario_id is not None or measurement is not None:
+            if measurement is None:
+                scenario_id = scenario_id or ('solar_review' if reading_available else 'missing_personal')
+                context = op.build_scenario(scenario_id, at)
+            else:
+                scenario_id = row['scenario_id']
+                context = row['_context'].model_copy(update={'personal_measurement': measurement})
+            assessment = op.assess_preparation(context, False, at)
+            conn.execute("UPDATE demo_operational_event SET context_json = ?, scenario_id = ?, personal_reading_available = ?, "
+                         "acknowledged_at = NULL, revision = revision + 1, assessment_signature = ?, reading_received_at = ? WHERE id = ?",
+                         (context.model_dump_json(), scenario_id, int(assessment.personal_check.state == 'USABLE'),
+                          op.assessment_signature(assessment), at.isoformat() if measurement else None, 'DEMO-EVT-001'))
         else:
-            result = conn.execute(
-                "UPDATE demo_operational_event SET acknowledged_at = COALESCE(acknowledged_at, ?), "
-                "revision = revision + 1 WHERE id = ? AND revision = ?",
-                (acknowledged_at, 'DEMO-EVT-001', expected_revision),
-            )
-        return result.rowcount == 1
+            conn.execute("UPDATE demo_operational_event SET acknowledged_at = COALESCE(acknowledged_at, ?), "
+                         "revision = revision + 1 WHERE id = ?", (acknowledged_at, 'DEMO-EVT-001'))
+        return True

@@ -40,7 +40,7 @@ test('API failure does not fabricate a preparation assessment or offer an offlin
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({status:503,json:{}}));
   await page.goto('/');
   const check=page.getByRole('region',{name:'Pre-EVA verification'});
-  await expect(check).toContainText('Local API unavailable');
+  await expect(check).toContainText('Shared assessment unavailable');
   await expect(check.locator('.preparation-steps')).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Record consultation'})).toHaveCount(0);
 });
@@ -58,7 +58,7 @@ test('a concurrent scenario change refreshes the assessment and preserves the co
   const drawer=page.getByRole('dialog',{name:'Preparation guide'});
   await drawer.getByRole('button',{name:'Record consultation',exact:true}).click();
   await expect(drawer.getByRole('alert')).toContainText('The scenario changed');
-  await expect(drawer).toContainText('Individual reading available in the scenario');
+  await expect(drawer).toContainText('Individual reading usable for this activity');
   await expect(page.locator('.prep-count')).toContainText('3/3');
   await expect(page.locator('.prep-review-tag')).toContainText('Consultation not recorded');
 });
@@ -243,3 +243,46 @@ test('overview prioritizes solar event, 24h accumulated dose, and exposure state
   await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
   await expect(cards.nth(1)).toContainText('—');
 });
+
+
+test('received evidence resolves personal availability in the same occurrence without erasing the remote event',async({page})=>{
+  let event={...events.missing_personal_recorded};
+  await page.route('**/api/v1/demo/operational-event**',async route=>{
+    if(route.request().method()==='POST'){
+      expect(route.request().url()).toContain('/personal-measurement');
+      expect(route.request().postDataJSON()).toEqual({expected_revision:2});
+      event={...events.personal_received};
+    }
+    await route.fulfill({json:event});
+  });
+  await page.goto('/');
+  await page.getByRole('button',{name:/Open team guide/}).click();
+  const drawer=page.getByRole('dialog');
+  await drawer.getByRole('button',{name:'Receive simulated reading'}).click();
+  await expect(drawer).toContainText('DEMO-PERSONAL-001');
+  await expect(drawer).toContainText('DEMO-PD-01');
+  await expect(drawer).toContainText('0.47 µSv/h');
+  await expect(page.locator('.prep-reading-resolved')).toContainText('Individual availability resolved');
+  await expect(page.locator('.prep-count')).toContainText('3/3');
+  await expect(page.locator('.prep-review-tag')).toContainText('Consultation not recorded');
+  await expect(page.locator('.prep-next-callout')).toContainText('Review remote event');
+  await expect(page.getByRole('region',{name:'Pre-EVA verification'})).toContainText('Review pending');
+});
+
+for(const [fixture,reason,next] of [
+  ['stale_personal','The reading exceeds the configured freshness window.','Check a recent individual reading'],
+  ['wrong_personal','The reading belongs to another crewmember.','Check reading association'],
+  ['quality_review','The supplied quality flag requires review.','Check reading quality'],
+] as const){
+  test(`structured ${fixture} explains unusable personal evidence`,async({page})=>{
+    await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({json:events[fixture]}));
+    await page.goto('/');
+    await expect(page.locator('.prep-assessment')).toHaveAttribute('data-state','INCOMPLETE');
+    await expect(page.locator('.prep-next-callout')).toContainText(next);
+    await page.getByRole('button',{name:/Open team guide/}).click();
+    const drawer=page.getByRole('dialog');
+    await expect(drawer).toContainText(reason);
+    await expect(drawer).toContainText('not a NASA medical limit');
+    await expect(drawer).toContainText('DEMO-PERSONAL-001');
+  });
+}
