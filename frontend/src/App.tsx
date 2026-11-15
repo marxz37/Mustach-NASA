@@ -1,15 +1,25 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Route, Routes, useLocation } from 'react-router-dom';
-import { Sidebar } from '@/components/dashboard/Sidebar';
-import { TopBar } from '@/components/dashboard/TopBar';
+import { Activity, RadioTower, ScanHeart, Wifi, WifiOff } from 'lucide-react';
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { Overview } from '@/pages/Overview';
-import { CrewPage, DocumentationPage, HistoryPage, NotFoundPage, RadiationPage, SimulatorPage, SolarPage, SourcesPage } from '@/pages/Secondary';
+import { CrewPage } from '@/pages/Crew';
 import { getApiStatus } from '@/services/api';
-const titles: Record<string,string> = {'/':'VISÃO GERAL','/tripulantes':'TRIPULANTES','/radiacao':'RADIAÇÃO','/clima-espacial':'CLIMA ESPACIAL','/historico':'HISTÓRICO','/simulador':'SIMULADOR','/fontes':'FONTES CIENTÍFICAS','/documentacao':'DOCUMENTAÇÃO'};
-export default function App(){
-  const [menuOpen,setMenuOpen]=useState(false);
-  const location=useLocation();
-  const {data:status}=useQuery({queryKey:['api-status'],queryFn:getApiStatus,refetchInterval:60_000});
-  return <div className="app-shell"><Sidebar open={menuOpen} onClose={()=>setMenuOpen(false)}/><div className="main-column"><TopBar title={titles[location.pathname]??'PÁGINA'} onMenu={()=>setMenuOpen(true)} apiOnline={status?.api==='online'}/><main><Routes><Route path="/" element={<Overview/>}/><Route path="/tripulantes" element={<CrewPage/>}/><Route path="/radiacao" element={<RadiationPage/>}/><Route path="/clima-espacial" element={<SolarPage/>}/><Route path="/historico" element={<HistoryPage/>}/><Route path="/simulador" element={<SimulatorPage/>}/><Route path="/fontes" element={<SourcesPage/>}/><Route path="/documentacao" element={<DocumentationPage/>}/><Route path="*" element={<NotFoundPage/>}/></Routes></main></div></div>;
+
+export default function App() {
+  const { data: status } = useQuery({ queryKey: ['api-status'], queryFn: getApiStatus, refetchInterval: 60_000, retry: 1 });
+  return <div className="mustach-shell">
+    <header className="mustach-header">
+      <div className="brand"><span className="brand-icon"><ScanHeart size={23} strokeWidth={1.65}/></span><span><strong>MUSTACH<span className="brand-cross">✳</span></strong><small>SPACE RADIATION MONITOR</small></span></div>
+      <nav className="main-tabs" aria-label="Navegação principal">
+        <NavLink to="/" end className={({isActive}) => `main-tab ${isActive?'tab-active':''}`}><Activity size={17}/> Visão geral</NavLink>
+        <NavLink to="/tripulantes" className={({isActive}) => `main-tab ${isActive?'tab-active':''}`}><RadioTower size={17}/> Tripulantes</NavLink>
+      </nav>
+      <div className="header-status" aria-label={status?.api === 'online' ? 'API local conectada' : 'API local não conectada'}>
+        {status?.api === 'online' ? <Wifi size={15}/> : <WifiOff size={15}/>}
+        <span>{status?.api === 'online' ? 'API LOCAL ONLINE' : 'API NÃO CONECTADA'}</span>
+      </div>
+    </header>
+    <main className="mustach-main"><Routes><Route path="/" element={<Overview/>}/><Route path="/tripulantes" element={<CrewPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></main>
+    <footer className="mustach-footer"><span>MUSTACH / NASA SPACE APPS CHALLENGE 2026</span><span>PROTÓTIPO DE INTERFACE • NÃO É DISPOSITIVO MÉDICO</span></footer>
+  </div>;
 }

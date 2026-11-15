@@ -1,44 +1,31 @@
-# Sentinela — Design System v0.1
+# Mustach — Design System v0.2
 
-## Origem
+## Direção visual
 
-Design original inspirado na organização do desenho do Paint recebido do grupo e na estética de painéis de missão: escuro, azul profundo, linhas finas e realces ciano. Não reproduz a interface de terceiros.
+Interface escura e minimalista, com superfícies quase pretas, linhas finas, tipografia editorial e acentos em bronze. As referências visuais orientam a experiência de navegação e ampliação, sem reprodução literal.
 
-## Cores
+## Tokens principais
 
-- Fundo principal: `#040b17`
-- Fundo lateral: `#061629`
-- Cartões: `#071526`
-- Bordas: `rgba(92, 149, 189, 0.16)`
-- Texto de destaque: `#e9f6ff`
-- Texto secundário: `#7896ad`
-- Ciano de interação: `#31d8e8`
-- Verde-menta (sinalização positiva FUTURA): `#42e5b8`
-- Âmbar (eventos, não automaticamente perigo): `#e4bd6c`
+- Fundo: `#0b0d10`
+- Texto: `#ebe8e4`
+- Texto secundário: `#aaa6a1`
+- Linha divisória: `#303037`
+- Acento: `#caa880`
+- Área anatômica sem dados: tons de cinza
 
-## Tipografia
+## Hierarquia
 
-- Interface: **DM Sans** (400, 500, 600, 700, 800)
-- Identificação científica, metadados e unidades: **JetBrains Mono**
+- Cabeçalho horizontal com abas `Visão geral` e `Tripulantes`; sem sidebar ou breadcrumb.
+- Indicadores textuais em uma faixa superior, sem cards coloridos.
+- Corpo 2D interativo como elemento central da visão geral.
+- Um único painel `Atividade solar` combina condição atual e previsão SEP; radiação e histórico ficam em painéis separados.
+- Tripulantes usa ficha horizontal com avatar, dados individuais e minigráfico em estado vazio.
+- Clique em um marcador abre painel lateral temporário com fundo desfocado, conexão visual ao ponto selecionado, ampliação circular do órgão e campos de exposição.
 
-## Componentes
+## Estados de dados
 
-- Sidebar fixa com dois grupos, responsiva para telas pequenas.
-- Topbar com status da API local (não indica conexão NASA).
-- Cards de indicadores (nenhuma métrica preenchida sem medição).
-- Modelo anatômico clicável SVG (cor de seleção, **não calor radiológico**).
-- Telemetria ambiental e individual separadas.
-- Card de atividade solar com estado indisponível.
-- Gráfico ECharts vazio; períodos 24h/7 dias/30 dias.
-- Painel corporal sem avaliar saúde até existir fonte.
-
-## Estados
-
-- `—` = sem dado; não significa zero.
-- `API LOCAL ONLINE` = apenas FastAPI acessível.
-- `API NÃO CONECTADA` = FastAPI indisponível.
-- `OBSERVED`, `FORECAST`, `SIMULATED` são origens diferentes e nunca devem ser fundidas.
-
-## Figma
-
-O projeto inclui tokens e componentes de referência para replicação no Figma, mas **nenhum arquivo .fig foi criado** nesta etapa. A fonte de verdade atual é o projeto React.
+- `—` significa dado ausente, nunca zero ou condição segura.
+- O corpo permanece neutro quando não há dosimetria regional aplicável.
+- Nenhuma cor verde/amarela/vermelha é usada como classificação de risco antes da definição científica dos limites.
+- `API LOCAL ONLINE` indica apenas a disponibilidade da FastAPI, não de uma fonte NASA/NOAA.
+- Dados observados, previstos e simulados devem manter rótulos e proveniência distintos.

@@ -1,1 +1,1 @@
-"""Sentinela API — protótipo sem medições reais."""
+"""Mustach API — protótipo científico sem medições reais."""

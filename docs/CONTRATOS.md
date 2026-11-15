@@ -1,10 +1,10 @@
-# Contratos científicos — Sentinela
+# Contratos científicos — Mustach
 
 ## Estado inicial
 
 - O MVP visual inicia com zero medições, zero tripulantes e zero eventos solares.
 - Não existem fluxos ao vivo, alertas clínicos ou predições habilitadas.
-- Um traçado/cor anatômico serve apenas para selecionar região, não é um mapa radiológico de calor.
+- O mapa corporal 2D permanece neutro na ausência de medições; não representa estimativas de dose por órgão ou uma avaliação médica.
 
 ## Dados
 
@@ -22,7 +22,7 @@
 3. Quando a origem não puder fornecer uma medição, a interface exibirá ausência de dados.
 4. Dose absorvida (Gy) e equivalente (Sv) não são intercambiáveis.
 5. Uma integração temporal de taxa de dose só pode ocorrer com série dosimétrica homogênea e interpretação correta das lacunas.
-6. Para o mock da exposição por órgão, nenhum valor numérico é exibido.
+6. Para a visualização de exposição por órgão, nenhum valor numérico ou cor de risco é exibido sem dados e limites validados.
 7. Alertas de saúde NÃO são diagnósticos médicos.
 
 ## Referências

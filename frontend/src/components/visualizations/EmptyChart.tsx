@@ -7,9 +7,9 @@ export function EmptyChart({ height = 165, label = 'Nenhuma medição disponíve
     animation: false,
     backgroundColor: 'transparent',
     grid: { top: 12, bottom: 12, left: 22, right: 10 },
-    xAxis: { type: 'category', data: [], axisLine: { show: true, lineStyle: { color: '#173149' } }, axisTick: { show: false }, axisLabel: { show: false }, splitLine: { show: false } },
-    yAxis: { type: 'value', min: 0, splitNumber: 4, axisLine: { show: false }, axisLabel: { show: false }, splitLine: { lineStyle: { color: '#143047', type: 'dashed' } } },
-    series: [{ type: 'line', data: [], smooth: true, lineStyle: { color: '#3bd9e8' } }],
+    xAxis: { type: 'category', data: [], axisLine: { show: true, lineStyle: { color: '#46413c' } }, axisTick: { show: false }, axisLabel: { show: false }, splitLine: { show: false } },
+    yAxis: { type: 'value', min: 0, splitNumber: 4, axisLine: { show: false }, axisLabel: { show: false }, splitLine: { lineStyle: { color: '#343236', type: 'dashed' } } },
+    series: [{ type: 'line', data: [], smooth: true, lineStyle: { color: '#caa880' } }],
   };
   return <div className="empty-chart" style={{ height }}>
     <ReactECharts option={options} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />

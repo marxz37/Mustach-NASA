@@ -45,9 +45,9 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="Sentinela — Mission Radiation Monitoring API",
+    title="Mustach — Space Radiation Monitoring API",
     description="Esqueleto para integrações científicas futuras. Não fornece dosimetria individual real.",
-    version="0.1.0",
+    version="0.2.0",
     lifespan=lifespan,
 )
 app.add_middleware(
