@@ -1,87 +1,70 @@
 import { useState } from 'react';
-import { Activity, ArrowUpRight, CalendarDays, Heart, Info, Radio, Sun } from 'lucide-react';
-import { EmptyChart } from '@/components/visualizations/EmptyChart';
+import { HeartPulse, Info, Radio, Activity } from 'lucide-react';
+import { demoCopy } from '@shared/demoCopy';
+import { SolarActivityPanel } from '@/components/dashboard/SolarActivityPanel';
 import { HeatmapBody, type BodyTarget } from '@/components/visualizations/HeatmapBody';
 import { OrganDetails } from '@/components/visualizations/OrganDetails';
+import { LiveRateChart } from '@/components/monitoring/LiveRateChart';
+import { DoseHistory } from '@/components/monitoring/DoseHistory';
+import { EVAClock } from '@/components/monitoring/EVAClock';
+import { useApp } from '@/context/AppContext';
 
-const periods = ['24h', '7 dias', '30 dias'] as const;
-type HealthStatus = 'normal' | 'alerta' | 'perigo';
-const healthLabels: Record<HealthStatus, string> = { normal: 'Normal', alerta: 'Alerta', perigo: 'Perigo' };
-
-function IndividualHealth({ status }: { status?: HealthStatus }) {
-  return <section className="quiet-panel health-section" aria-labelledby="health-title">
-    <div className="panel-heading"><Heart size={19}/><h2 id="health-title">Saúde do indivíduo</h2><span>{status ? 'AVALIAÇÃO DISPONÍVEL' : 'SEM AVALIAÇÃO'}</span></div>
-    <div className={`individual-health ${status ? `health-${status}` : 'health-unknown'}`}>
-      <Heart size={58} strokeWidth={1.35} aria-hidden="true"/>
-      <strong>{status ? healthLabels[status] : 'Sem avaliação'}</strong>
-      <p>{status ? 'Estado informado por avaliação individual.' : 'Aguardando dados de saúde do indivíduo.'}</p>
+function MissionStatus(){
+  const {t,simulated,latestEquivalent,totalDoseMicroSv,mode}=useApp();
+  const daily=totalDoseMicroSv('daily');
+  const weekly=totalDoseMicroSv('weekly');
+  const tone = !simulated || latestEquivalent===null ? 'unknown' : latestEquivalent < .5 ? 'normal' : latestEquivalent < .62 ? 'alerta' : 'perigo';
+  const label = tone==='normal' ? t('statusNominal') : tone==='alerta' ? t('statusAttention') : tone==='perigo' ? t('statusHighExposure') : t('notEvaluated');
+  const panelClass = tone==='normal' ? 'health-normal' : tone==='alerta' ? 'health-alerta' : tone==='perigo' ? 'health-perigo' : 'health-unknown';
+  const sourceLabel = mode==='simulation' ? t('simulation') : mode==='real' ? t('real') : t('noData');
+  return <section className="quiet-panel health-section" aria-label={t('overviewStatus')}>
+    <div className="panel-heading"><HeartPulse size={19}/><h2>{t('overviewStatus')}</h2><span>{sourceLabel}</span></div>
+    <div className={`individual-health ${panelClass}`}><HeartPulse size={48} strokeWidth={1.35}/><strong>{label}</strong><p>{simulated?t('overviewCrewTabNote'):t('healthWaiting')}</p></div>
+    <div className="health-metrics">
+      <div><Radio size={18}/><span>{t('latestRate')}</span><strong>{latestEquivalent===null?'—':latestEquivalent.toFixed(3)} <small>µSv/h</small></strong></div>
+      <div><Activity size={18}/><span>{t('accumulated')} · {t('daily')}</span><strong>{daily===null?'—':(daily/1000).toFixed(4)} <small>mSv</small></strong></div>
+      <div><Activity size={18}/><span>{t('accumulated')} · {t('weekly')}</span><strong>{weekly===null?'—':(weekly/1000).toFixed(4)} <small>mSv</small></strong></div>
+      <div><Info size={18}/><span>{t('dataMode')}</span><strong>{sourceLabel}</strong></div>
     </div>
-    <div className="panel-foot"><span>Não constitui diagnóstico médico</span><ArrowUpRight size={14}/></div>
+    <p className="panel-explain">{t('overviewCrewTabNote')}</p>
   </section>;
 }
 
-export function Overview() {
-  const [active, setActive] = useState<BodyTarget | null>(null);
-  const [period, setPeriod] = useState<(typeof periods)[number]>('7 dias');
-  const [bodyView, setBodyView] = useState<'corpo' | 'orgaos'>('corpo');
-  const [demonstration, setDemonstration] = useState(true);
-
+export function Overview(){
+  const [selected,setSelected]=useState<BodyTarget|null>(null);
+  const [bodyView,setBodyView]=useState<'corpo'|'orgaos'>('corpo');
+  const {t,mode,simulated,absorbedRate,totalDoseMicroSv,language,latestEquivalent}=useApp();
+  const d=(key:Parameters<typeof demoCopy>[1])=>demoCopy(language,key);
+  const accumulated=totalDoseMicroSv('daily');
+  const missionStatus = !simulated || latestEquivalent===null ? t('notEvaluated') : latestEquivalent < .5 ? t('statusNominal') : latestEquivalent < .62 ? t('statusAttention') : t('statusHighExposure');
   return <div className="dashboard-page">
-    <div className="dashboard-intro">
-      <div>
-        <span className="section-kicker">MUSTACH / MISSION MONITORING</span>
-        <h1>O espaço deixa marcas.<br/><em>Vamos compreendê-las.</em></h1>
-        <p>Uma leitura integrada da exposição espacial e do cuidado com a tripulação.</p>
-      </div>
-      <span className="preview-chip"><span className="status-dot"/> Sem telemetria conectada</span>
-    </div>
-
-    <section className="readout-strip" aria-label="Indicadores da missão">
-      <div><span>01 / TAXA DE DOSE ABSORVIDA</span><strong>— <small>µGy/h</small></strong><p>Aguardando fonte dosimétrica</p></div>
-      <div><span>02 / DOSE ACUMULADA</span><strong>— <small>mSv</small></strong><p>Sem histórico validado</p></div>
-      <div><span>03 / SAÚDE DO INDIVÍDUO</span><strong>Sem avaliação</strong><p>Sem dados individuais</p></div>
+    <div className="dashboard-toolbar"><div><span className="section-kicker">MUSTACH / {t('missionReadings')}</span>{simulated&&<p className="overview-demo-line">{d('overviewNote')}</p>}</div><div className="mode-chip" data-mode={mode}><span className="status-dot"/>{mode==='simulation'?t('simulation'):mode==='real'?t('real'):t('noData')}</div></div>
+    <section className="readout-strip" aria-label={t('missionReadings')}>
+      <div><span>01 / {t('absorbedRate')}</span><strong>{absorbedRate===null?'—':absorbedRate.toFixed(3)} <small>µGy/h</small></strong><p>{simulated?d('demo'):t('awaitingDosimeter')}</p></div>
+      <div><span>02 / {t('accumulated')} · {t('daily')}</span><strong>{accumulated===null?'—':(accumulated/1000).toFixed(7)} <small>mSv</small></strong><p>{simulated?d('coverage'):t('noValidHistory')}</p></div>
+      <div><span>03 / {t('overviewStatus')}</span><strong>{missionStatus}</strong><p>{t('overviewCrewTabNote')}</p></div>
     </section>
-
     <div className="overview-grid">
       <section className="body-section" aria-labelledby="body-title">
-        <div className="section-heading"><div><span className="section-kicker">01 / EXPLORAÇÃO CORPORAL</span><h2 id="body-title">Mapa de exposição</h2></div><span className="section-aside">2D · INTERATIVO</span></div>
-        <div className="body-controls">
-          <div className="body-view-tabs" role="group" aria-label="Visualização do mapa">
-            <button type="button" className={bodyView === 'corpo' ? 'active' : ''} aria-pressed={bodyView === 'corpo'} onClick={() => setBodyView('corpo')}>Corpo</button>
-            <button type="button" className={bodyView === 'orgaos' ? 'active' : ''} aria-pressed={bodyView === 'orgaos'} onClick={() => setBodyView('orgaos')}>Órgãos</button>
-          </div>
-          <label className="demo-switch"><input type="checkbox" checked={demonstration} onChange={event => setDemonstration(event.target.checked)}/> Prévia simulada</label>
-        </div>
-        <p className="section-description">{bodyView === 'orgaos' ? 'Selecione um órgão para abrir sua ficha ampliada.' : 'Visualize a distribuição corporal de exposição.'} {demonstration ? 'Cores e porcentagens são fictícias, usadas apenas para demonstrar a interface; não representam dose, risco ou saúde.' : 'Sem medições aplicáveis, o mapa permanece neutro.'}</p>
-        <HeatmapBody view={bodyView} demonstration={demonstration} selected={active} onSelect={setActive}/>
-        <div className="body-legend">{demonstration ? <><span className="heat-scale" aria-hidden="true"/><span>Menor intensidade ilustrativa</span><span>Maior intensidade ilustrativa</span></> : <><span className="legend-swatch"/><span>Sem dados de exposição</span><span>Escala desativada</span></>}</div>
+        <div className="section-heading"><div><span className="section-kicker">01 / 2D</span><h2 id="body-title">{t('heatmapTitle')}</h2></div><span className="section-aside">2D · INTERACTIVE</span></div>
+        <div className="body-controls"><div className="body-view-tabs" role="group" aria-label={t('heatmapTitle')}><button type="button" className={bodyView==='corpo'?'active':''} aria-pressed={bodyView==='corpo'} onClick={()=>setBodyView('corpo')}>{t('body')}</button><button type="button" className={bodyView==='orgaos'?'active':''} aria-pressed={bodyView==='orgaos'} onClick={()=>setBodyView('orgaos')}>{t('organs')}</button></div><span className="mode-note">{simulated?t('demoPreview'):t('noData')}</span></div>
+        <p className="section-description">{bodyView==='orgaos'?t('selectOrgan'):t('bodyDescription')} {simulated?t('heatmapSimulation'):t('heatmapEmpty')}</p>
+        <HeatmapBody view={bodyView} demonstration={simulated} selected={selected} onSelect={setSelected}/>
+        <div className="body-legend">{simulated?<><span className="heat-scale" aria-hidden="true"/><span>{t('mapLegendLow')}</span><span>{t('mapLegendHigh')}</span></>:<><span className="legend-swatch"/><span>{t('mapLegendEmpty')}</span></>}</div>
       </section>
-
       <div className="overview-aside">
-        <section className="quiet-panel solar-section" aria-labelledby="solar-title">
-          <div className="panel-heading"><Sun size={19}/><h2 id="solar-title">Atividade solar</h2><span>NOAA / CCMC</span></div>
-          <div className="solar-content"><div className="solar-orbit"><Sun size={31} strokeWidth={1.2}/></div><div><span className="panel-kicker">CONDIÇÃO ATUAL + PREVISÃO SEP</span><strong>Sem previsão disponível</strong><p>Eventos solares e previsões de tempestades aparecerão aqui quando as fontes forem conectadas.</p></div></div>
-          <div className="panel-foot"><span>GOES · SEP SCOREBOARD</span><span>Fonte não conectada</span></div>
-        </section>
-
-        <section className="quiet-panel radiation-section" aria-labelledby="radiation-title">
-          <div className="panel-heading"><Radio size={19}/><h2 id="radiation-title">Radiação</h2><span>SEM SINAL</span></div>
-          <div className="reading-row"><div><strong>NASA RadLab</strong><span>Taxa de dose absorvida</span></div><b>— <small>µGy/h</small></b></div>
-          <div className="reading-row"><div><strong>ISS-RAD / REM</strong><span>Ambiente da missão</span></div><b>— <small>µSv/h</small></b></div>
-          <div className="reading-row"><div><strong>Dosímetro pessoal</strong><span>Exposição individual</span></div><b>— <small>mSv</small></b></div>
-          <div className="panel-foot"><span>Observado ≠ previsto ≠ simulado</span><Info size={14}/></div>
+        <SolarActivityPanel/>
+        <section className="quiet-panel radiation-section" aria-label={t('radiation')}>
+          <div className="panel-heading"><Radio size={19}/><h2>{t('radiation')}</h2><span>{simulated?t('simulated'):t('noSignal')}</span></div>
+          <div className="reading-row"><div><strong>{simulated?'CABIN SENSOR / DEMO':'NASA RadLab'}</strong><span>{t('absorbedRate')}</span></div><b>{simulated&&absorbedRate!==null?absorbedRate.toFixed(3):'—'} <small>µGy/h</small></b></div>
+          <div className="reading-row"><div><strong>{simulated?'RADIATION MODEL / DEMO':'ISS-RAD / REM'}</strong><span>{t('doseAmbient')}</span></div><b>{simulated?(absorbedRate===null?'—':(absorbedRate*.81).toFixed(3)):'—'} <small>µSv/h</small></b></div>
+          <div className="reading-row"><div><strong>{simulated?'PERSONAL / DEMO':t('personalDose')}</strong><span>{t('personalExposure')}</span></div><b>{simulated&&totalDoseMicroSv('daily',true)!==null?(totalDoseMicroSv('daily',true)!/1000).toFixed(4):'—'} <small>mSv</small></b></div>
+          <div className="panel-foot"><span>{simulated?d('demoNote'):t('readoutNotSame')}</span><Info size={14}/></div>
         </section>
       </div>
     </div>
-
-    <div className="lower-grid">
-      <section className="quiet-panel history-section" aria-labelledby="history-title">
-        <div className="panel-heading"><Activity size={19}/><h2 id="history-title">Histórico de exposição</h2><div className="period-tabs" role="group" aria-label="Período do histórico">{periods.map(item=><button type="button" key={item} className={period===item?'active':''} onClick={()=>setPeriod(item)} aria-pressed={period===item}>{item}</button>)}</div></div>
-        <div className="history-subtitle"><CalendarDays size={14}/> Dose acumulada · {period} <span>mSv</span></div>
-        <EmptyChart height={195} label={`Sem medições para ${period}`}/>
-      </section>
-      <IndividualHealth/>
-    </div>
-    <OrganDetails target={active} onClose={()=>setActive(null)}/>
+    <div className="monitoring-grid"><LiveRateChart/><DoseHistory/></div>
+    <div className="monitoring-grid monitoring-grid--bottom"><EVAClock/><MissionStatus/></div>
+    <OrganDetails target={selected} onClose={()=>setSelected(null)}/>
   </div>;
 }

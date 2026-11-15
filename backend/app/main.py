@@ -47,14 +47,17 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     title="Mustach — Space Radiation Monitoring API",
     description="Esqueleto para integrações científicas futuras. Não fornece dosimetria individual real.",
-    version="0.3.0",
+    version="0.4.0",
     lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173", "http://127.0.0.1:5173",
+        "http://localhost:5174", "http://127.0.0.1:5174",
+    ],
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -85,6 +88,38 @@ def solar_events():
     return []
 
 
+class SolarForecastModel(BaseModel):
+    """Uma previsão por modelo; horizontes e unidades nunca são combinados."""
+
+    id: str
+    source: str
+    provider: str
+    model: str
+    provenance: Literal["FORECAST"] = "FORECAST"
+    issued_at: datetime
+    valid_from: datetime | None = None
+    valid_until: datetime | None = None
+    occurrence_probability_percent: float | None = Field(default=None, ge=0, le=100)
+    peak_proton_flux: float | None = Field(default=None, ge=0)
+    peak_proton_flux_unit: str | None = None
+    proton_energy_min_mev: float | None = Field(default=None, ge=0)
+    proton_energy_max_mev: float | None = Field(default=None, ge=0)
+    event_start_at: datetime | None = None
+    event_peak_at: datetime | None = None
+    event_end_at: datetime | None = None
+
+
+class SolarForecastResponse(BaseModel):
+    status: Literal["available", "no_forecast"] = "no_forecast"
+    models: list[SolarForecastModel] = Field(default_factory=list)
+
+
+@app.get("/api/v1/solar/forecast", response_model=SolarForecastResponse)
+def solar_forecast():
+    """Contrato compartilhado para previsões futuras de SEP; nenhuma fonte está conectada."""
+    return SolarForecastResponse()
+
+
 @app.get("/api/v1/sources", response_model=list[SourceInfo])
 def sources():
     return [
@@ -112,3 +147,28 @@ class WearableStatus(BaseModel):
 def wearable_status():
     """A interface e o wearable compartilham a API, mas nenhum dispositivo está conectado."""
     return WearableStatus()
+
+# Dev-only presence signal from the standalone wearable WEB PREVIEW.
+# This is not a physical watch pairing, and carries no personal health data.
+from datetime import timezone, timedelta
+
+class WearableConnection(BaseModel):
+    paired: bool = False
+    preview_active: bool = False
+    last_seen_at: datetime | None = None
+
+_last_preview_ping: datetime | None = None
+
+@app.post('/api/v1/wearable/heartbeat', response_model=WearableConnection)
+def wearable_heartbeat():
+    global _last_preview_ping
+    _last_preview_ping = datetime.now(timezone.utc)
+    return wearable_connection()
+
+@app.get('/api/v1/wearable/connection', response_model=WearableConnection)
+def wearable_connection():
+    now = datetime.now(timezone.utc)
+    return WearableConnection(
+        preview_active=_last_preview_ping is not None and now - _last_preview_ping < timedelta(seconds=90),
+        last_seen_at=_last_preview_ping,
+    )

@@ -1,11 +1,15 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { X, Info } from 'lucide-react';
 import { type BodyTarget, targetInfo } from './HeatmapBody';
+import { organLabels } from './organLabels';
+import { useApp } from '@/context/AppContext';
+import { demoCopy } from '@shared/demoCopy';
 
 interface Props { target: BodyTarget | null; onClose: () => void; }
 interface Point { x: number; y: number; edgeX: number; edgeY: number; }
 
 export function OrganDetails({ target, onClose }: Props) {
+  const {t,simulated,language}=useApp();
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
   const [origin, setOrigin] = useState<Point | null>(null);
@@ -53,6 +57,7 @@ export function OrganDetails({ target, onClose }: Props) {
 
   if (!target) return null;
   const organ = targetInfo[target];
+  const organText=organLabels[target];
   return <div className="organ-overlay" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
     {origin && <svg className="organ-connector" aria-hidden="true">
       <path d={`M${origin.x} ${origin.y} C${origin.x + 100} ${origin.y}, ${origin.edgeX - 75} ${origin.edgeY}, ${origin.edgeX} ${origin.edgeY}`}/>
@@ -60,30 +65,30 @@ export function OrganDetails({ target, onClose }: Props) {
       <circle cx={origin.edgeX} cy={origin.edgeY} r="3"/>
     </svg>}
     <section className="organ-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-      <div className="drawer-header"><span className="section-kicker">ANÁLISE REGIONAL / 2D</span><button ref={closeRef} type="button" className="icon-button" onClick={onClose} aria-label="Fechar detalhes"><X size={19}/></button></div>
-      <div className="drawer-title"><span>{organ.region}</span><h2 id={titleId}>Detalhes de {organ.name}</h2><p>{organ.description}</p></div>
+      <div className="drawer-header"><span className="section-kicker">{t('regionTitle')}</span><button ref={closeRef} type="button" className="icon-button" onClick={onClose} aria-label={t('close')}><X size={19}/></button></div>
+      <div className="drawer-title"><span>{t(organText.region)}</span><h2 id={titleId}>{t('detailsOf')} {t(organText.name)}</h2><p>{t(organText.description)}</p></div>
       <div className="organ-zoom">
-        <span>AMPLIAÇÃO ESQUEMÁTICA</span>
+        <span>{t('schematicZoom')}</span>
         <div className="zoom-comparison">
-          <div className="zoom-origin" aria-hidden="true"><span className="zoom-origin-point"/><small>{organ.region}</small></div>
+          <div className="zoom-origin" aria-hidden="true"><span className="zoom-origin-point"/><small>{t(organText.region)}</small></div>
           <div className="zoom-connection" aria-hidden="true"/>
           <div className="zoom-lens">
-            <svg viewBox="0 0 210 180" role="img" aria-label={`Ampliação 2D de ${organ.name}, sem dados de dose`}>
+            <svg viewBox="0 0 210 180" role="img" aria-label={`${t('schematicZoom')} ${t(organText.name)}`}>
               <defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#437a9e"/><stop offset="1" stopColor="#102b47"/></linearGradient></defs>
               <path d={organ.zoomPath} transform="translate(0 9)" fill={`url(#${gradientId})`} stroke="#75dfff" strokeWidth="2.3" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>
-        <span>SEM MAPA DOSIMÉTRICO DISPONÍVEL</span>
+        <span>{simulated?demoCopy(language,'demoShort'):t('noMapReadings')}</span>
       </div>
       <dl className="drawer-measurements">
-        <div><dt>Taxa de dose</dt><dd>— <small>µGy/h</small></dd></div>
-        <div><dt>Dose acumulada</dt><dd>— <small>mSv</small></dd></div>
-        <div><dt>Status</dt><dd>Sem dados</dd></div>
-        <div><dt>Fonte</dt><dd>Não conectada</dd></div>
+        <div><dt>{t('organReading')}</dt><dd>— <small>µGy/h</small></dd></div>
+        <div><dt>{t('organTotal')}</dt><dd>— <small>mSv</small></dd></div>
+        <div><dt>{t('status')}</dt><dd>{t('noData')}</dd></div>
+        <div><dt>{t('source')}</dt><dd>{t('organNoSource')}</dd></div>
       </dl>
-      <div className="drawer-observations"><h3>Observações</h3><p>Não há medições individuais ou estimativas validadas para este órgão. Dados ambientais não representam automaticamente a dose recebida por um astronauta.</p></div>
-      <p className="drawer-notice"><Info size={16}/> Esta visualização não constitui avaliação médica.</p>
+      <div className="drawer-observations"><h3>{t('organNotes')}</h3>{simulated&&<p className="drawer-demo-note">{demoCopy(language,'demoNote')}</p>}<p>{t('organWarning')}</p></div>
+      <p className="drawer-notice"><Info size={16}/> {t('organMedical')}</p>
     </section>
   </div>;
 }
