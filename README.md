@@ -1,4 +1,4 @@
-# Mustach — NASA Space Apps Challenge 2026
+.# Mustach — NASA Space Apps Challenge 2026
 
 Protótipo de acompanhamento de informações de exposição radiológica individual e ambiental, relacionadas à preparação de uma atividade. Não é dispositivo médico nem mecanismo de autorização de EVA.
 
