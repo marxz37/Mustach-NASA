@@ -2,6 +2,22 @@
 
 Protótipo de monitoramento da radiação espacial e de apresentação de dados individuais. Não é dispositivo médico.
 
+## Documentação do projeto
+
+Toda a pesquisa científica, rastreabilidade e stack ficam no GitHub, **não em páginas do aplicativo**:
+
+| Documento | Conteúdo |
+|---|---|
+| [Fontes científicas](docs/FONTES-CIENTIFICAS.md) | Catálogo com links NASA, NOAA, CCMC, CSA, datasets e referências de pesquisa; indica fontes candidatas e restritas |
+| [Rastreabilidade dos dados](docs/RASTREABILIDADE-DADOS.md) | Liga fonte → grandeza/unidade → tela → componente/endpoint → condição para integrar |
+| [Tecnologias e arquitetura](docs/TECNOLOGIAS.md) | Stack **em uso** vs **planejada**, arquivos e comandos de teste |
+| [Contratos e limites científicos](docs/CONTRATOS.md) | Observação, previsão, simulação, dose acumulada, EVA e limitações |
+| [Design system](docs/DESIGN-SYSTEM.md) | Regras visuais e tokens da interface |
+
+**V0.7 — ajuste de interface:** a segunda métrica do topo da Visão geral agora é **dose equivalente acumulada nas últimas 24 horas (mSv)**, calculada somente sobre intervalos de medição disponíveis; o gráfico abaixo continua mostrando a **taxa instantânea (µSv/h)**. Isso elimina a repetição do indicador `Current dose rate` sem acrescentar API ou mudar o banco. Mais detalhes em [rastreabilidade](docs/RASTREABILIDADE-DADOS.md).
+
+**Situação real das integrações:** os gráficos e os perfis demonstrativos usam dados gerados no navegador; as APIs externas da NASA/NOAA/CCMC/CSA ainda **não estão conectadas**, e a FastAPI tem apenas os contratos iniciais. Nenhum valor sintético é apresentado como medição real.
+
 ## Aplicações
 
 | Aplicação | Pasta | Desenvolvimento |
@@ -58,13 +74,13 @@ As portas 5173 e 5174 encaminham `/api` para a FastAPI local na porta 8000. Em o
 - **Tripulantes fictícios:** quatro perfis ilustrativos com retratos criados para esta demonstração (Maya Bennett, Alex Kim, Elena Reyes e Amir Haddad). A seleção troca a série sintética pessoal, o resumo do perfil e os indicadores exibidos; esses perfis não representam astronautas reais.
 - **Séries radiológicas:** o simulador local gera uma **janela sintética de 7 dias com amostras de cinco em cinco minutos** e acrescenta uma amostra sintética a cada 2 segundos. Isso existe exclusivamente para validar o layout e o gráfico, não é telemetria histórica da NASA. Mudanças de origem reinicializam a sessão e evitam misturar dados.
 - **Histórico:** `Last 24 hours / Últimas 24 horas` e `Last 7 days / Últimos 7 dias` indicam janelas móveis. Em modo real, apenas medições compatíveis podem ser acumuladas; lacunas permanecem visíveis sem extrapolação. Em simulação, a série sintética cobre o período demonstrativo.
-- **Saúde:** removida a duplicação do status no dashboard; o painel inferior mostra indicadores ilustrativos do tripulante selecionado (frequência cardíaca, SpO₂, sono e atividade). Nenhum desses números é uma avaliação médica, nem informa segurança radiológica.
+- **Saúde (histórico V0.5):** havia um painel de indicadores ilustrativos no dashboard, mas **na versão atual os dados específicos dos tripulantes ficam exclusivamente na aba Tripulantes**. Não são avaliação médica nem indicador validado de segurança radiológica.
 - **EVA:** mantém cronômetro independente, controles de pausa e reset e cálculo sintético de dose da sessão quando possível. Adicionamos um registro de EVA anterior **100% fictício** apenas para preencher a experiência de demonstração.
 - **Atividade solar:** no modo simulação, A/B/C são preenchidos com **um único cenário solar fictício** local, com sinalização explícita `SYNTHETIC FIXTURE`. Nenhum prognóstico da NOAA, CCMC ou NASA foi inventado como dado real.
-- **Mustach Wearable:** continua aplicativo separado na porta 5174; tem modo demonstrativo e seletor independente dos mesmos quatro perfis fictícios, retrato e as duas telas de Saúde / Atividade Solar. Ainda não existe conexão com smartwatch físico, nem sincronização de um perfil real entre aplicativos.
+- **Mustach Wearable (histórico V0.5):** a primeira versão da prévia mostrava perfis fictícios. **A versão atual removeu nome/foto/seletor de tripulantes do relógio** e mostra coração, status demonstrativo e taxa; a segunda tela resume o clima solar. Não existe conexão com smartwatch físico.
 - **Conexão:** os horários de última consulta à API e última medição são distintos. O Wearable continua enviando batimentos de presença da **prévia web** para a API, e isso não representa um relógio físico pareado.
 - **Três idiomas:** inglês (padrão), português e espanhol, inclusive os textos novos dos estados demonstrativos. Cada aplicativo guarda sua preferência no próprio navegador.
-- **Mapa de calor:** continua 2D e sem porcentagens. Em modo demonstração, as cores e o modal de órgãos são **apenas ilustrações anatômicas**, não uma estimativa de dose em cada órgão.
+- **Mapa de calor:** continua 2D e sem porcentagens. Na V0.6, o gradiente passou a reagir às taxas sintéticas em **faixas fictícias**; isso não é uma estimativa de dose em órgãos nem um limiar de saúde.
 - **Telemetria orbital:** não exibida no MVP porque exige vincular localização e momento de medição ao instrumento que gerou o registro.
 
 Os retratos em `frontend/public/crew/` e `wearable/public/crew/` foram gerados artificialmente para perfis fictícios. O módulo `shared/demo.ts` concentra os dados e as séries para o **modo demonstrativo da interface**, e `shared/demoCopy.ts` concentra as respectivas legendas EN/PT/ES. Os componentes não gravam dados simulados no SQLite e não modificam as rotas FastAPI.
@@ -114,3 +130,14 @@ cd backend
 ## Verificação no Windows antes do commit
 
 Execute `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` e `npm run test:e2e` em `frontend/` e `wearable/`. No back-end, execute `pytest -q`. O código V0.5 passou na checagem estática de TypeScript e ESLint dos dois front-ends e nos 9 testes existentes da API, mas os testes do Vite/Vitest e a compilação final não puderam ser executados no ambiente Linux de elaboração por falta do binário nativo Rollup; confirme-os no Windows antes de integrar à `main`.
+
+
+## V0.6 — Refinamento de interface (sem novas integrações)
+
+- A prioridade da visão geral é **atividade solar**, **taxa de dose equivalente atual** e **faixa demonstrativa de exposição**. Histórico, mapa corporal e EVA permanecem abaixo.
+- A série de demonstração é atualizada no navegador a cada **2 segundos**. O gráfico mostra o horário da amostra mais recente; nenhum sensor real foi conectado nesta etapa.
+- O mapa de calor 2D acompanha as variações **exclusivamente da simulação**. Em `shared/demoBands.ts`, os índices sintéticos usam faixas (`< 0,45`, `< 0,58`, `>= 0,58`) e fatores fictícios por região. Esses limites NÃO são limites de dose, riscos clínicos, condições seguras ou dose recebida por órgãos.
+- Ao selecionar **Dados reais** ou **Sem dados**, as regiões corporais ficam neutras enquanto não existir dosimetria específica e critérios radiológicos validados. Nunca inferir uma dose de órgão a partir de taxa ambiental do RadLab ou fluxo NOAA.
+- No Wearable, a primeira tela mostra coração, **faixa demonstrativa**, **taxa atual** e **horário da última amostra**, não perfis de tripulantes. A segunda apresenta somente ocorrência, intensidade e horário previsto do pico solar. Não há dispositivo físico pareado.
+- A seleção global de origem continua identificando os valores fictícios, sem repetir diversos avisos em cada painel. Documentar explicitamente o caráter não clínico da classificação de demonstração.
+- Continua previsto para uma etapa posterior: critérios radiológicos científicos por grandeza/unidade, calibração dos sensores, dados pessoais autorizados, tratamento de amostras defasadas, proveniência e integração de APIs/banco de dados.

@@ -16,5 +16,5 @@ export function formatSolarTime(value:string|null|undefined,language:Language='e
 }
 export function formatSolarProbability(value:number|null|undefined,language:Language='en'):string {return value==null?'—':`${num(value,language)}%`;}
 export function formatSolarFlux(value:number|null|undefined,unit:string|null|undefined,language:Language='en'):string {return value==null||!unit?'—':`${num(value,language)} ${unit}`;}
-export function formatSolarEnergy(min:number|null|undefined,max:number|null|undefined,language:Language='en'):string {return min==null||max==null?'—':`${num(min,language)}–${num(max,language)} MeV`;}
+export function formatSolarEnergy(min:number|null|undefined,max:number|null|undefined,language:Language='en'):string {return min==null?'—':max==null?`≥${num(min,language)} MeV`:`${num(min,language)}–${num(max,language)} MeV`;}
 export function formatSolarWindow(start:string|null|undefined,end:string|null|undefined,language:Language='en'):string {return !start||!end?'—':`${formatSolarTime(start,language)} → ${formatSolarTime(end,language)}`;}

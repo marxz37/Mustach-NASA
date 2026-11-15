@@ -33,8 +33,10 @@ export function demoPersonalSeries(points:RatePoint[],crew:DemoCrewMember):RateP
 /** Scenario data, NOT a real NOAA/CCMC/NASA prediction. */
 export function demoSolarModel(now:number):SolarForecastModel {
   const hour=3_600_000;
-  const iso=(offset:number)=>new Date(now+offset*hour).toISOString();
-  return {id:'demo-sep-01',source:'MUSTACH SYNTHETIC FIXTURE',provider:'MUSTACH LAB',model:'SYN-SEP / 01',provenance:'FORECAST',issued_at:iso(-.5),valid_from:iso(0),valid_until:iso(12),occurrence_probability_percent:18,peak_proton_flux:2.4,peak_proton_flux_unit:'pfu (>10 MeV)',proton_energy_min_mev:10,proton_energy_max_mev:100,event_start_at:iso(4),event_peak_at:iso(7),event_end_at:iso(10)};
+  // Keep an issued forecast stable during the hour rather than moving its peak every render.
+  const issued=Math.floor(now/hour)*hour;
+  const iso=(offset:number)=>new Date(issued+offset*hour).toISOString();
+  return {id:'demo-sep-01',source:'MUSTACH SYNTHETIC FIXTURE',provider:'MUSTACH LAB',model:'SYN-SEP / 01',provenance:'FORECAST',issued_at:iso(-.5),valid_from:iso(0),valid_until:iso(12),occurrence_probability_percent:18,peak_proton_flux:2.4,peak_proton_flux_unit:'pfu (>10 MeV)',proton_energy_min_mev:10,proton_energy_max_mev:null,event_start_at:iso(4),event_peak_at:iso(7),event_end_at:iso(10)};
 }
 
 /** Illustrative accumulated 7-day total for independent web-watch previews. */
