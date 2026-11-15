@@ -27,15 +27,15 @@ test('source selection keeps real and no-data honest, simulation is visibly synt
   const source=page.getByRole('combobox',{name:'Data source'});
   await expect(source).toHaveValue('simulation');
   await expect(page.locator('.demo-banner')).toHaveCount(0);
-  await expect(page.locator('.live-rate-section')).toContainText('Simulated');
+  await expect(page.locator('.live-rate-section')).toContainText('Live');
   await expect(page.locator('.body-percent-label')).toHaveCount(0);
   await source.selectOption('real');
   await expect(page.locator('.readout-strip')).toContainText('—');
   await source.selectOption('simulation');
   await expect(page.locator('.mode-chip')).toContainText('Simulation');
-  await expect(page.getByText('Illustrative colors only',{exact:false}).first()).toBeVisible();
+  await expect(page.getByText('Color bands reflect fictional',{exact:false}).first()).toBeVisible();
   await expect(page.locator('.body-percent-label')).toHaveCount(0);
-  await expect(page.locator('.live-rate-section')).toContainText('Simulated');
+  await expect(page.locator('.live-rate-section')).toContainText('Live');
 });
 
 test('EVA timer starts, pauses, finishes and resets without assuming radiation dose',async({page})=>{
@@ -93,4 +93,28 @@ test('mobile 320px viewport avoids horizontal page overflow',async({page})=>{
   await expect(page.getByRole('heading',{name:'Exposure map'})).toBeVisible();
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);
   expect(overflow).toBe(false);
+});
+
+
+test('synthetic 2D heatmap reacts to incoming UI readings, real mode remains neutral',async({page})=>{
+  await page.goto('/');
+  const band=page.locator('.human-heatmap path[data-band]').first();
+  await expect(band).toHaveAttribute('data-band',/baseline|attention|high/);
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('real');
+  await expect(band).toHaveAttribute('data-band','unknown');
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('simulation');
+  await expect(band).toHaveAttribute('data-band',/baseline|attention|high/);
+});
+
+
+test('overview prioritizes solar event, 24h accumulated dose, and exposure state without duplicating live dose-rate headline',async({page})=>{
+  await page.goto('/');
+  const cards=page.locator('.readout-strip .readout-priority');
+  await expect(cards).toHaveCount(3);
+  await expect(cards.nth(1)).toContainText('ACCUMULATED DOSE');
+  await expect(cards.nth(1)).toContainText('mSv');
+  await expect(cards.nth(1)).not.toContainText('Current dose rate');
+  await expect(page.getByRole('heading',{name:'Current dose rate'})).toBeVisible();
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
+  await expect(cards.nth(1)).toContainText('—');
 });

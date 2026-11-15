@@ -4,7 +4,7 @@ test('independent English watch preview shows health and solar by buttons',async
   await page.goto('/');
   await expect(page).toHaveTitle('Mustach Wearable');
   await expect(page.getByRole('region',{name:'Screens: HEALTH'})).toBeVisible();
-  await expect(page.getByText('Maya Bennett')).toBeVisible();
+  await expect(page.getByText('LAST READING')).toBeVisible();
   await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();
   await expect(page.getByRole('region',{name:'Screens: SOLAR ACTIVITY'})).toBeVisible();
   await expect(page.getByText('A / OCCURRENCE')).toBeVisible();
@@ -17,9 +17,9 @@ test('independent English watch preview shows health and solar by buttons',async
 test('wearable language selector switches to Portuguese and Spanish',async({page})=>{
   await page.goto('/');
   await page.getByRole('combobox',{name:'Language'}).selectOption('pt');
-  await expect(page.getByText('Maya Bennett')).toBeVisible();
+  await expect(page.getByText('ÚLTIMA LEITURA')).toBeVisible();
   await page.getByRole('combobox',{name:'Idioma'}).selectOption('es');
-  await expect(page.getByText('Maya Bennett')).toBeVisible();
+  await expect(page.getByText('ÚLTIMA LECTURA')).toBeVisible();
 });
 
 test('watch swipe and keyboard navigate between pages',async({page})=>{
@@ -34,6 +34,21 @@ test('watch swipe and keyboard navigate between pages',async({page})=>{
 
 test('watch never reports an actual physical watch pairing',async({page})=>{
   await page.goto('/');
-  await expect(page.getByText('SIMULATED')).toBeVisible();
-  await expect(page.getByText('All portraits, names', {exact:false})).toBeVisible();
+  await expect(page.getByText('DEMO', {exact:true})).toBeVisible();
+  await expect(page.getByText('Fictional data only.', {exact:false})).toBeVisible();
+});
+
+
+test('watch solar page stays inside its screen at standard size',async({page})=>{
+  await page.goto('/');
+  await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();
+  const bounds=await page.evaluate(()=>{
+    const screen=document.querySelector('.watch-screen');
+    const center=document.querySelector('.watch-center--solar');
+    if(!screen||!center)return null;
+    const s=screen.getBoundingClientRect(),c=center.getBoundingClientRect();
+    return {top:c.top,bottom:c.bottom,screenBottom:s.bottom};
+  });
+  expect(bounds).not.toBeNull();
+  if(bounds)expect(bounds.bottom).toBeLessThanOrEqual(bounds.screenBottom-18);
 });

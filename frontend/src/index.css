@@ -325,3 +325,73 @@ a { color: inherit; text-decoration: none; }
 .section-kicker,.readout-strip p,.coordinate,.heatmap-bottom-tag,.crew-fields,.sync-line,.utility-select{font-size:10px}
 .panel-explain,.eva-disclaimer p{font-size:11px;line-height:1.7;color:#a7c0d1}
 @media(max-width:760px){.crew-vitals>div{padding:18px 10px}.crew-vitals>div+div{padding-left:10px}.health-metrics strong{font-size:21px}}
+
+/* V0.6 · Information hierarchy: solar/weather and incoming radiation first. */
+.dashboard-page{padding-top:30px;padding-bottom:48px}
+.dashboard-toolbar{margin-bottom:13px}
+.readout-strip--priority{margin-bottom:28px;border-color:#28516b}
+.readout-strip--priority>div{padding-top:18px;padding-bottom:18px}
+.readout-priority>span{display:flex;align-items:center;gap:8px;font-size:10px;line-height:1.35}
+.readout-priority>span svg{color:#6ad6fa;flex:none}
+.readout-priority>span b{font-weight:500}
+.readout-priority strong{font-family:'DM Sans','Segoe UI',sans-serif;font-weight:450;font-size:clamp(22px,2.3vw,32px);margin:9px 0 5px}
+.readout-priority p{font-size:10px;color:#92b3c7}
+.readout-tier--baseline{color:#82dfa6!important}
+.readout-tier--attention{color:#ffce76!important}
+.readout-tier--high{color:#fc897e!important}
+.readout-tier--unknown{color:#9eb3c1!important}
+.live-pulse{width:6px;height:6px;border-radius:50%;background:#60dabc;box-shadow:0 0 0 4px #60dabc18;animation:mustach-pulse 1.8s ease-out infinite;margin-left:auto}
+@keyframes mustach-pulse{50%{box-shadow:0 0 0 8px #60dabc00;opacity:.6}}
+.overview-priority-grid{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,1fr);gap:clamp(18px,2.2vw,32px);align-items:start}
+.priority-sensors{display:grid;gap:17px;align-content:start}
+.overview-support-grid{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,1fr);gap:clamp(18px,2.2vw,32px);margin-top:29px;align-items:start}
+.overview-support-stack{display:grid;gap:22px;align-content:start}
+.overview-priority-grid .panel-heading,.overview-support-stack .panel-heading{min-height:52px}
+.overview-priority-grid .radiation-section{align-self:start}
+.overview-priority-grid .reading-row{padding:13px 0}
+.overview-priority-grid .solar-lead{padding:14px 0 15px;align-items:center}
+.overview-priority-grid .solar-lead strong{font-size:21px}
+.overview-priority-grid .solar-lead p{margin-top:5px}
+.overview-priority-grid .solar-categories--concise .solar-category{padding:12px 0;grid-template-columns:20px minmax(0,1fr);gap:11px}
+.overview-priority-grid .solar-categories--concise .solar-category h3{font-size:12px;color:#93cfe4}
+.overview-priority-grid .solar-categories--concise .solar-category strong{font-family:'DM Sans',sans-serif;font-size:20px;font-weight:500;margin:5px 0 4px;line-height:1.26;overflow-wrap:anywhere}
+.overview-priority-grid .solar-categories--concise .solar-category p{font-size:10px;margin:0;line-height:1.55}
+.solar-technical{display:flex;justify-content:space-between;gap:9px;flex-wrap:wrap;padding:11px 0;font:10px/1.55 'JetBrains Mono',monospace;color:#81a9c1}
+.solar-section .panel-foot{align-items:flex-start;gap:13px;font-size:10px}
+.solar-section .panel-foot>span:last-child{overflow-wrap:anywhere;max-width:55%;text-align:right}
+.overview-priority-grid .live-rate-summary{margin-top:13px}
+.overview-priority-grid .live-rate-summary strong{font-size:25px}
+.overview-priority-grid .chart-wrap{margin-top:7px}
+.overview-support-grid .heatmap-stage{min-height:510px}
+.overview-support-grid .human-heatmap{height:480px;width:min(100%,430px)}
+.overview-support-grid .heatmap-rings{width:min(76%,390px);box-shadow:0 0 0 36px #1297c91a,0 0 0 73px #40bdeb11}
+.overview-support-grid .body-controls{margin-top:13px}
+.overview-support-grid .section-description{margin:9px 0 0}
+.body-legend--bands{gap:7px 9px;color:#bcd5df;font-size:11px;align-items:center}
+.body-legend--bands span:last-child{margin-left:0;color:inherit}
+.band-mark{display:inline-block;width:10px;height:10px;flex:none;border-radius:3px;margin-left:7px}
+.band-mark:first-child{margin-left:0}
+.band-mark--baseline{background:#6ab88f}
+.band-mark--attention{background:#e3c05c}
+.band-mark--high{background:#dc655b}
+.heatmap-method-note{font-size:10px;color:#85a9c0;line-height:1.6;margin:0}
+.readout-live{font-size:10px;letter-spacing:.03em}
+.live-indicator.is-simulated{background:#64d5c2;box-shadow:0 0 8px #64d5c282;animation:mustach-pulse 1.8s ease-out infinite}
+@media(max-width:1000px){
+ .overview-priority-grid,.overview-support-grid{grid-template-columns:1fr;gap:24px}
+ .priority-sensors{grid-template-columns:1fr 1fr;align-items:start}
+ .overview-support-stack{grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+ .overview-support-grid .heatmap-stage{min-height:520px}
+}
+@media(max-width:720px){
+ .readout-strip--priority{grid-template-columns:1fr 1fr}
+ .readout-strip--priority>div:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--line)}
+ .readout-strip--priority>div:nth-child(2){border-left:1px solid var(--line);padding-left:15px}
+ .readout-strip--priority>div{padding:15px 10px 15px 0}
+ .priority-sensors,.overview-support-stack{grid-template-columns:1fr}
+ .overview-support-grid .heatmap-stage{min-height:470px}
+ .overview-support-grid .human-heatmap{height:450px}
+ .dashboard-page{padding-top:20px}
+}
+@media(max-width:380px){.readout-strip--priority{grid-template-columns:1fr}.readout-strip--priority>div:nth-child(2){border-left:0;padding-left:0;border-top:1px solid var(--line)}.readout-strip--priority>div:nth-child(3){grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.live-pulse,.live-indicator.is-simulated{animation:none}}

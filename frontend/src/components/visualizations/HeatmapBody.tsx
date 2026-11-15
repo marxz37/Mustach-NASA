@@ -1,6 +1,7 @@
 import { useId, type KeyboardEvent } from 'react';
 import { useApp } from '@/context/AppContext';
 import { organLabels } from './organLabels';
+import { demonstrationBand, demoRegionScales, type DemoBand } from '@shared/demoBands';
 
 export type BodyTarget = 'cerebro' | 'pulmoes' | 'coracao' | 'figado' | 'estomago' | 'medula';
 export const targetInfo: Record<BodyTarget, { name: string; region: string; description: string; zoomPath: string }> = {
@@ -25,7 +26,24 @@ interface Props { view: 'corpo' | 'orgaos'; demonstration: boolean; selected: Bo
 
 export function HeatmapBody({ view, demonstration, selected, onSelect }: Props) {
   const id = useId().replaceAll(':', '');
-  const {t}=useApp();
+  const {t,latestEquivalent}=useApp();
+  // Environmental or personal readings do NOT determine organ dose.
+  // Only the explicit fictional demo mode colors anatomical regions.
+  const demoRate = demonstration ? latestEquivalent : null;
+  const tiers = {
+    head: demonstrationBand(demoRate,demoRegionScales.head),
+    torso: demonstrationBand(demoRate,demoRegionScales.torso),
+    abdomen: demonstrationBand(demoRate,demoRegionScales.abdomen),
+    arms: demonstrationBand(demoRate,demoRegionScales.arms),
+    legs: demonstrationBand(demoRate,demoRegionScales.legs),
+  };
+  const tierColors:Record<DemoBand,[string,string,string]>={
+    baseline:['#8dd8b2','#4aa783','#155b54'],
+    attention:['#f6d777','#dba447','#705e2f'],
+    high:['#fa9d7b','#e05c55','#7e313d'],
+    unknown:['#496784','#1e3852','#0a1d31'],
+  };
+  const organTier = (organ:BodyTarget):DemoBand => organ==='cerebro'?tiers.head:organ==='pulmoes'||organ==='coracao'?tiers.torso:organ==='figado'||organ==='estomago'?tiers.abdomen:tiers.legs;
   const selectOnKey = (event: KeyboardEvent<SVGGElement>, target: BodyTarget) => {
     if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(target); }
   };
@@ -35,28 +53,25 @@ export function HeatmapBody({ view, demonstration, selected, onSelect }: Props) 
     <svg className="human-heatmap" viewBox="0 0 360 470" role="group" aria-label={`${t('heatmapTitle')} — ${demonstration?t('heatmapSimulation'):t('heatmapEmpty')}`}>
       <defs>
         <linearGradient id={`${id}-neutral`} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#496784"/><stop offset=".52" stopColor="#1e3852"/><stop offset="1" stopColor="#0a1d31"/></linearGradient>
-        <radialGradient id={`${id}-head`} gradientUnits="userSpaceOnUse" cx="179" cy="67" r="53"><stop stopColor="#ef5444"/><stop offset=".38" stopColor="#f3c34d"/><stop offset=".72" stopColor="#8ed386"/><stop offset="1" stopColor="#48a9a1"/></radialGradient>
-        <radialGradient id={`${id}-torso`} gradientUnits="userSpaceOnUse" cx="181" cy="205" r="104"><stop stopColor="#df493d"/><stop offset=".29" stopColor="#ef7750"/><stop offset=".55" stopColor="#f1cb5a"/><stop offset=".78" stopColor="#91d37d"/><stop offset="1" stopColor="#55a9a4"/></radialGradient>
-        <linearGradient id={`${id}-limbs`} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#63bf98"/><stop offset=".46" stopColor="#e1d264"/><stop offset=".72" stopColor="#e99d55"/><stop offset="1" stopColor="#60bb9a"/></linearGradient>
-        <radialGradient id={`${id}-pelvis`} gradientUnits="userSpaceOnUse" cx="180" cy="269" r="60"><stop stopColor="#e5754f"/><stop offset=".4" stopColor="#ecc45e"/><stop offset="1" stopColor="#6dbd93"/></radialGradient>
+        {Object.entries(tiers).map(([region,tier])=>{const [inner,middle,outer]=tierColors[tier];return <radialGradient key={region} id={`${id}-${region}`}><stop stopColor={inner}/><stop offset=".53" stopColor={middle}/><stop offset="1" stopColor={outer}/></radialGradient>})}
       </defs>
       <g fill="none" stroke="#3b7291" strokeWidth=".7" opacity=".25" pointerEvents="none"><path d="M180 0V470M0 230H360M40 97H320M40 359H320" strokeDasharray="4 8"/><circle cx="180" cy="238" r="125"/><circle cx="180" cy="238" r="174"/></g>
       <g fill={`url(#${id}-neutral)`} stroke="#6795af" strokeWidth="1.5" strokeLinejoin="round">
-        <path fill={demonstration ? `url(#${id}-head)` : undefined} d="M180 26C157 26 146 47 147 68c.7 18 5 29 13 38 7 8 14 12 20 12s13-4 20-12c8-9 12-20 13-38 1-21-10-42-33-42ZM167 108v23h26v-23"/>
-        <path fill={demonstration ? `url(#${id}-torso)` : undefined} d="M166 125c-17 0-30 6-47 14-8 4-12 15-13 26 14 7 23 16 36 25l7 45c10 5 20 8 31 8s21-3 31-8l7-45c13-9 22-18 36-25-1-11-5-22-13-26-17-8-30-14-47-14l-14 9Z"/>
-        <path fill={demonstration ? `url(#${id}-pelvis)` : undefined} d="m149 234-6 39c-1 11 7 20 17 27l20 12 20-12c10-7 18-16 17-27l-6-39c-20 10-42 10-62 0Z"/>
-        <path fill={demonstration ? `url(#${id}-limbs)` : undefined} d="M107 163c-7 6-14 17-19 35L70 268l-17 54c-3 9 1 13 6 14 6 2 10-1 14-11l26-58 25-74c-4-14-10-25-17-30Z M253 163c7 6 14 17 19 35l18 70 17 54c3 9-1 13-6 14-6 2-10-1-14-11l-26-58-25-74c4-14 10-25 17-30Z M55 332l-7 18c-2 7 4 10 9 7l8-17 M305 332l7 18c2 7-4 10-9 7l-8-17"/>
-        <path fill={demonstration ? `url(#${id}-limbs)` : undefined} d="M159 298c-13 18-18 36-17 62l-3 71-7 22c-2 7 3 10 9 10h15c6 0 7-7 7-14l12-86 5-45-21-20Z M201 298c13 18 18 36 17 62l3 71 7 22c2 7-3 10-9 10h-15c-6 0-7-7-7-14l-12-86-5-45 21-20Z"/>
+        <path data-band={demonstration?tiers.head:"unknown"} fill={demonstration ? `url(#${id}-head)` : undefined} d="M180 26C157 26 146 47 147 68c.7 18 5 29 13 38 7 8 14 12 20 12s13-4 20-12c8-9 12-20 13-38 1-21-10-42-33-42ZM167 108v23h26v-23"/>
+        <path data-band={demonstration?tiers.torso:"unknown"} fill={demonstration ? `url(#${id}-torso)` : undefined} d="M166 125c-17 0-30 6-47 14-8 4-12 15-13 26 14 7 23 16 36 25l7 45c10 5 20 8 31 8s21-3 31-8l7-45c13-9 22-18 36-25-1-11-5-22-13-26-17-8-30-14-47-14l-14 9Z"/>
+        <path data-band={demonstration?tiers.abdomen:"unknown"} fill={demonstration ? `url(#${id}-abdomen)` : undefined} d="m149 234-6 39c-1 11 7 20 17 27l20 12 20-12c10-7 18-16 17-27l-6-39c-20 10-42 10-62 0Z"/>
+        <path data-band={demonstration?tiers.arms:"unknown"} fill={demonstration ? `url(#${id}-arms)` : undefined} d="M107 163c-7 6-14 17-19 35L70 268l-17 54c-3 9 1 13 6 14 6 2 10-1 14-11l26-58 25-74c-4-14-10-25-17-30Z M253 163c7 6 14 17 19 35l18 70 17 54c3 9-1 13-6 14-6 2-10-1-14-11l-26-58-25-74c4-14 10-25 17-30Z M55 332l-7 18c-2 7 4 10 9 7l8-17 M305 332l7 18c2 7-4 10-9 7l-8-17"/>
+        <path data-band={demonstration?tiers.legs:"unknown"} fill={demonstration ? `url(#${id}-legs)` : undefined} d="M159 298c-13 18-18 36-17 62l-3 71-7 22c-2 7 3 10 9 10h15c6 0 7-7 7-14l12-86 5-45-21-20Z M201 298c13 18 18 36 17 62l3 71 7 22c2 7-3 10-9 10h-15c-6 0-7-7-7-14l-12-86-5-45 21-20Z"/>
       </g>
       <g fill="none" stroke="#61a9c5" strokeWidth="1" opacity=".34" pointerEvents="none"><path d="M180 143v89m-23-83 23 20 23-20m-51 40 28 18 28-18M163 254h34m-33 12h32M169 318l-9 45M191 318l9 45"/></g>
       {view === 'orgaos' && hotspots.map(({id: organ,cx,cy,radius,labelX,labelY}) => <g key={organ} role="button" tabIndex={0} aria-label={`${t('detailsOf')} ${t(organLabels[organ].name)}`} aria-pressed={selected === organ} className={`heatmap-hotspot ${selected===organ?'hotspot-selected':''}`} onClick={() => onSelect(organ)} onKeyDown={event => selectOnKey(event, organ)}>
         <circle cx={cx} cy={cy} r={radius + 7} fill="transparent" stroke="none"/>
         <circle cx={cx} cy={cy} r={radius} fill="rgba(17,19,23,.12)" stroke={selected===organ?'#a5edff':'#5acde7'} strokeWidth={selected===organ?2:1} strokeDasharray={selected===organ?'0':'3 5'} opacity=".9"/>
-        <circle data-focus-organ={organ} cx={cx} cy={cy} r="3.8" fill="#b3edff" stroke="#031327" strokeWidth="1"/>
+        <circle data-focus-organ={organ} data-band={demonstration?organTier(organ):'unknown'} cx={cx} cy={cy} r="3.8" fill={demonstration?tierColors[organTier(organ)][0]:'#b3edff'} stroke="#031327" strokeWidth="1"/>
         <path d={`M${cx+radius*.65} ${cy} L${labelX} ${labelY}`} stroke="#5acde7" strokeWidth=".8" opacity=".7" pointerEvents="none"/>
         <text x={labelX+3} y={labelY-3} className="organ-point-label" pointerEvents="none">{t(organLabels[organ].name).toUpperCase()}</text>
       </g>)}
     </svg>
-    <div className="heatmap-bottom-tag"><span className="status-dot"/> {demonstration ? t('heatmapSimulation') : t('noMapReadings')}</div>
+    {!demonstration&&<div className="heatmap-bottom-tag"><span className="status-dot"/> {t('noMapReadings')}</div>}
   </div>;
 }
