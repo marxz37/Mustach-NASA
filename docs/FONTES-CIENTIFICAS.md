@@ -27,6 +27,6 @@ A documentação científica permanece no GitHub, não na interface do aplicativ
 
 ## Exigências para implementar o mapa corporal
 
-As fontes disponíveis não representam, por padrão, doses recebidas em órgãos específicos. O mapa atual usa uma silhueta neutra e não classifica risco. O motor real deverá distinguir: (1) dosímetro pessoal; (2) monitor ambiental; (3) estimativa física validada; (4) simulação. Sem base apropriada, não gerar cores de risco nem diagnósticos por órgão.
+As fontes disponíveis não representam, por padrão, doses recebidas em órgãos específicos. O mapa atual usa uma silhueta neutra por padrão e não classifica risco. A prévia colorida opcional é somente ilustrativa, sem valor de dose ou significado médico. O motor real deverá distinguir: (1) dosímetro pessoal; (2) monitor ambiental; (3) estimativa física validada; (4) simulação. Sem base apropriada, não gerar cores de risco nem diagnósticos por órgão.
 
 Toda fonte de dados adicionada deverá registrar instrumentação, localização, unidade, intervalo temporal, atualização, qualidade e origem observada/prevista/simulada.

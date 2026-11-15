@@ -10,11 +10,27 @@ test('nova navegação superior sem barra lateral', async ({page}) => {
   await expect(page.getByText('Fontes científicas')).toHaveCount(0);
   await expect(page.getByText('EXPOSIÇÃO POR ÓRGÃO')).toHaveCount(0);
   await expect(page.getByRole('heading', {name:'Atividade solar'})).toHaveCount(1);
+  await expect(page.getByRole('heading', {name:'Saúde do indivíduo'})).toBeVisible();
+  await expect(page.locator('.individual-health')).toContainText('Sem avaliação');
+  await expect(page.locator('.individual-health')).toHaveClass(/health-unknown/);
+  await expect(page.getByText('SEM DADOS · ESCALA DESATIVADA')).toBeVisible();
+});
+
+test('mapa separa corpo e órgãos e identifica cores simuladas', async ({page}) => {
+  await page.goto('/');
+  await expect(page.getByRole('button',{name:'Ampliar órgão: Cérebro'})).toHaveCount(0);
+  await page.getByRole('checkbox',{name:'Prévia simulada'}).check();
+  await expect(page.getByText('SIMULAÇÃO VISUAL · SEM DOSIMETRIA')).toBeVisible();
+  await expect(page.getByRole('group',{name:'Mapa corporal com cores simuladas, sem dosimetria'})).toBeVisible();
+  await page.getByRole('button',{name:'Órgãos', exact:true}).click();
+  await expect(page.getByRole('button',{name:'Ampliar órgão: Cérebro'})).toBeVisible();
+  await page.getByRole('checkbox',{name:'Prévia simulada'}).uncheck();
   await expect(page.getByText('SEM DADOS · ESCALA DESATIVADA')).toBeVisible();
 });
 
 test('clicar em órgão abre painel de detalhes sem valores inventados', async ({page}) => {
   await page.goto('/');
+  await page.getByRole('button',{name:'Órgãos', exact:true}).click();
   await page.getByRole('button',{name:'Ampliar órgão: Cérebro'}).click();
   const details = page.getByRole('dialog',{name:'Detalhes de Cérebro'});
   await expect(details).toBeVisible();
@@ -44,6 +60,7 @@ test('visão geral cabe na tela pequena', async ({page}) => {
   await expect(page.getByRole('heading', {name:'Mapa de exposição'})).toBeVisible();
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasHorizontalOverflow).toBe(false);
+  await page.getByRole('button',{name:'Órgãos', exact:true}).click();
   await page.getByRole('button',{name:'Ampliar órgão: Pulmões'}).click();
   await expect(page.getByRole('dialog',{name:'Detalhes de Pulmões'})).toBeVisible();
   const modalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);

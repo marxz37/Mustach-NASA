@@ -10,8 +10,9 @@ Protótipo de monitoramento de radiação espacial e acompanhamento de saúde do
 - Componentes estruturados para integração com TanStack Query e Apache ECharts.
 - Back-end FastAPI + SQLite, sem medições cadastradas.
 - Navegação superior com apenas **Visão geral** e **Tripulantes** (sem sidebar).
-- Mapa anatômico **2D** com marcadores selecionáveis e painel de ampliação de órgãos.
-- O mapa corporal permanece **neutro enquanto não houver medições aplicáveis**; a futura escala de cores depende de limites cientificamente fundamentados.
+- Mapa anatômico **2D** com vistas `Corpo` e `Órgãos`, marcadores selecionáveis e painel de ampliação.
+- O mapa corporal permanece **neutro enquanto não houver medições aplicáveis**. A opção `Prévia simulada` mostra apenas um gradiente ilustrativo, sem dosimetria ou classificação de risco; a futura escala operacional depende de limites cientificamente fundamentados.
+- O painel `Saúde do indivíduo` usa um coração e reserva os estados normal, alerta e perigo para avaliações individuais autorizadas. Sem avaliação, permanece neutro.
 - Clicar em um dos marcadores abre um painel de detalhes. As taxas, doses e avaliações continuam vazias.
 - Nenhuma página de fontes científicas no website; a documentação das fontes fica exclusivamente neste repositório, em `docs/FONTES-CIENTIFICAS.md`.
 

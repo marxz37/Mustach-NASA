@@ -57,6 +57,12 @@ a { color: inherit; text-decoration: none; }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 15px; }
 .section-heading h2 { margin: 7px 0 0; font: 400 clamp(28px, 3vw, 42px) Georgia, serif; letter-spacing: -.03em; }
 .section-aside { white-space: nowrap; padding-bottom: 6px; }
+.body-controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 22px; }
+.body-view-tabs { display: inline-flex; border-bottom: 1px solid #58514a; gap: 25px; }
+.body-view-tabs button { border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 8px 2px 11px; color: #9d9994; background: transparent; font-size: 12px; }
+.body-view-tabs button.active { color: #eee8df; border-bottom-color: var(--gold); }
+.demo-switch { display: inline-flex; align-items: center; gap: 8px; color: #b0aaa3; font: 10px 'JetBrains Mono', monospace; cursor: pointer; }
+.demo-switch input { accent-color: #caa880; width: 14px; height: 14px; margin: 0; }
 .section-description { margin: 12px 0 6px; color: #aaa6a1; font-size: 12px; line-height: 1.55; max-width: 520px; }
 .heatmap-stage { min-height: 590px; position: relative; display: grid; place-items: center; overflow: hidden; background: radial-gradient(ellipse at center, #33312d55, transparent 55%); }
 .heatmap-rings { position: absolute; width: min(80%, 470px); aspect-ratio: 1; border: 1px solid #a48b7042; border-radius: 50%; box-shadow: 0 0 0 54px #8a745912, 0 0 0 110px #a98f6309; }
@@ -70,6 +76,7 @@ a { color: inherit; text-decoration: none; }
 .body-legend { display: flex; gap: 13px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--line); padding: 15px 0; color: #b4aea8; font-size: 11px; }
 .body-legend span:last-child { margin-left: auto; color: #8e8984; }
 .legend-swatch { display: inline-block; width: 16px; height: 9px; background: #575b61; }
+.heat-scale { display: inline-block; width: 90px; height: 8px; background: linear-gradient(90deg, #63bd90, #efd05e, #e45243); }
 
 .overview-aside { display: grid; grid-template-rows: 1fr 1fr; gap: 37px; padding-top: 10px; }
 .quiet-panel { min-width: 0; border-top: 1px solid #77706a; }
@@ -99,9 +106,14 @@ a { color: inherit; text-decoration: none; }
 .empty-chart { position: relative; overflow: hidden; }
 .empty-chart-label { position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; gap: 9px; font-size: 11px; color: #aaa6a1; pointer-events: none; }
 .empty-chart-label svg { color: var(--gold); }
-.health-message { min-height: 190px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
-.health-message strong { font: 400 24px Georgia, serif; margin-top: 16px; }
-.health-message p { color: #aaa6a1; font-size: 12px; line-height: 1.6; max-width: 340px; }
+.individual-health { min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 22px 0; }
+.individual-health svg { margin-bottom: 13px; }
+.individual-health strong { font: 400 26px Georgia, serif; }
+.individual-health p { color: #aaa6a1; font-size: 12px; line-height: 1.6; margin: 8px 0 0; }
+.health-unknown svg { color: #898d91; }
+.health-normal svg, .health-normal strong { color: #64bd84; }
+.health-alerta svg, .health-alerta strong { color: #e9c657; }
+.health-perigo svg, .health-perigo strong { color: #e76659; }
 
 .organ-overlay { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: flex-end; background: #020305bc; backdrop-filter: blur(7px); }
 .organ-connector { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: visible; }
