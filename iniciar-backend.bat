@@ -2,9 +2,9 @@
 cd /d "%~dp0backend"
 if not exist ".venv\Scripts\python.exe" python -m venv .venv
 if errorlevel 1 goto erro
-".venv\Scripts\python.exe" -m pip install -r requirements-dev.txt
+".venv\Scripts\python.exe" -m pip install -r requirements.txt
 if errorlevel 1 goto erro
-".venv\Scripts\python.exe" -m uvicorn app.main:app --reload --port 8000
+".venv\Scripts\python.exe" -m uvicorn app.main:app --port 8000
 if errorlevel 1 goto erro
 exit /b 0
 :erro
