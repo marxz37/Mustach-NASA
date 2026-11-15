@@ -1,0 +1,38 @@
+# React / Node.js
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# Python / FastAPI
+backend/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Banco de dados local
+*.db
+*.sqlite
+*.sqlite3
+
+# Variáveis de ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# Testes
+playwright-report/
+test-results/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
