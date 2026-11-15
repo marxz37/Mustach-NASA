@@ -22,7 +22,8 @@ function shortTime(value:string|null|undefined,language:Language){
 export default function App(){
   const [screen,setScreen]=useState<Screen>('health');
   const [language,setLanguage]=useState<Language>(defaultLanguage);
-  const [demo,setDemo]=useState(true);
+  const [dataMode,setDataMode]=useState<'simulation'|'real'|'none'>('simulation');
+  const demo=dataMode==='simulation';
   const [now,setNow]=useState(Date.now());
   const dragStart=useRef<number|null>(null);
   const t=(key:TranslationKey)=>translate(language,key);
@@ -47,7 +48,7 @@ export default function App(){
   const tone=current&&event.assessment.requires_attention?'attention':'unknown';
   const label=current&&check?c(check.state):t('unavailable');
   const description=current?`${c(event.assessment.requires_attention?'pending':'recorded')} · ${event.evidence.activity?.astronaut_name ?? event.activity}`:c('watchUnknown');
-  const model=demo?demoSolarModel(now):forecast?.models[0];
+  const model=demo?demoSolarModel(now):dataMode==='real'&&!forecastError?(forecast?.models.find(item=>item.source==='NOAA SWPC'&&item.forecast_horizon_day===1)??forecast?.models[0]):undefined;
   const goto=(next:Screen)=>setScreen(next);
   const handlePointerEnd=(x:number)=>{if(dragStart.current===null)return;const dx=x-dragStart.current;dragStart.current=null;if(Math.abs(dx)>=50)goto(dx<0?'solar':'health');};
   const changeLanguage=(next:Language)=>{setLanguage(next);try{localStorage.setItem('mustach-language',next);}catch{/* local storage optional */}};
@@ -55,7 +56,7 @@ export default function App(){
     <header className="wearable-header">
       <div className="watch-header-row"><span className="section-kicker"><span className="pulse-dot"/> MUSTACH WEARABLE / {t('wearableLabel')}</span>
         <label className="watch-language"><Languages size={15}/><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={language} onChange={e=>changeLanguage(e.target.value as Language)}>{(Object.keys(languageNames) as Language[]).map(key=><option key={key} value={key}>{languageNames[key]}</option>)}</select></label></div>
-      <div className="wearable-demo-toolbar"><label className="watch-choice">{t('dataMode')}<select value={demo?'simulation':'none'} onChange={e=>setDemo(e.target.value==='simulation')}><option value="simulation">{t('simulation')}</option><option value="none">{t('noData')}</option></select></label></div>
+      <div className="wearable-demo-toolbar"><label className="watch-choice">{t('dataMode')}<select value={dataMode} onChange={e=>setDataMode(e.target.value as typeof dataMode)}><option value="simulation">{t('simulation')}</option><option value="real">{t('real')}</option><option value="none">{t('noData')}</option></select></label></div>
       <h1>{t('watchTitle')}</h1><p>{demo?c('watchSimulation'):t('watchCaption')}</p>
       <p className="watch-sync"><span>{wearableConnected&&!wearableError?<Wifi size={13}/>:<WifiOff size={13}/>} {wearableConnected&&!wearableError?t('apiOnline'):t('apiOffline')}</span><span>{t('lastSync')}: {formattedClock(lastHeartbeat,language,true)}</span><span>{t('deviceNote')}</span></p>
     </header>
@@ -81,7 +82,7 @@ export default function App(){
             <div className="watch-center watch-center--solar" key="solar">
               <div className="watch-eyebrow watch-solar-kicker"><Sun size={12}/>{t('solar')}</div>
               <strong className="watch-solar-title">{model?t('watchForecastTitle'):t('noForecast')}</strong>
-              <p className="watch-solar-source">{model?model.model:forecastError?t('apiOffline'):t('solarModels')}</p>
+              <p className="watch-solar-source">{model?`${model.provider} · ${model.model}${model.forecast_horizon_day?` · ${model.forecast_horizon_day}/3`:''}`:forecastError?t('apiOffline'):t('solarModels')}</p>
               <div className="watch-solar-summary">
                 <div><span>A / {t('occurrence')}</span><strong>{formatSolarProbability(model?.occurrence_probability_percent,language)}</strong></div>
                 <div><span>B / {t('intensity')}</span><strong>{formatSolarFlux(model?.peak_proton_flux,model?.peak_proton_flux_unit,language)}</strong></div>

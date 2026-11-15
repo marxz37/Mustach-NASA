@@ -10,6 +10,7 @@ import { HeatmapBody, type BodyTarget } from '@/components/visualizations/Heatma
 import { OrganDetails } from '@/components/visualizations/OrganDetails';
 import { LiveRateChart } from '@/components/monitoring/LiveRateChart';
 import { DoseHistory } from '@/components/monitoring/DoseHistory';
+import { ScientificHistory } from '@/components/monitoring/ScientificHistory';
 import { EVAClock } from '@/components/monitoring/EVAClock';
 import { OperationalCheck } from '@/components/monitoring/OperationalCheck';
 import { useApp } from '@/context/AppContext';
@@ -63,7 +64,7 @@ export function Overview(){
         {simulated?<div className="body-legend body-legend--bands"><span className="band-mark band-mark--baseline"/>{t('statusNominal')}<span className="band-mark band-mark--attention"/>{t('statusAttention')}<span className="band-mark band-mark--high"/>{t('statusHighExposure')}</div>:<div className="body-legend"><span className="legend-swatch"/>{t('mapLegendEmpty')}</div>}
         <p className="heatmap-method-note">{simulated?t('demoBandsWarning'):t('heatmapEmpty')}</p>
       </section>
-      <div className="overview-support-stack"><DoseHistory/><EVAClock/></div>
+      <div className="overview-support-stack"><DoseHistory/>{mode==='real'&&<ScientificHistory/>}<EVAClock/></div>
     </div>
     <OrganDetails target={selected} onClose={()=>setSelected(null)}/>
   </div>;

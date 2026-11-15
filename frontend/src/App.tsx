@@ -4,6 +4,7 @@ import { Overview } from '@/pages/Overview';
 import { CrewPage } from '@/pages/Crew';
 import { useApp } from '@/context/AppContext';
 import { formattedClock, languageNames, type Language } from '@shared/i18n';
+import { NotificationCenter } from '@/components/dashboard/NotificationCenter';
 
 export default function App() {
   const {t,mode,setMode,language,setLanguage,apiOnline,lastApiCheck,lastMeasurement,wearablePreviewActive,wearableLastSeen}=useApp();
@@ -15,6 +16,7 @@ export default function App() {
         <NavLink to="/tripulantes" className={({isActive})=>`main-tab ${isActive?'tab-active':''}`}><RadioTower size={17}/>{t('crew')}</NavLink>
       </nav>
       <div className="header-utilities">
+        <NotificationCenter/>
         <div className="header-status" aria-label={apiOnline?t('apiOnline'):t('apiOffline')}>{apiOnline?<Wifi size={15}/>:<WifiOff size={15}/>}<span>{apiOnline?t('apiOnline'):t('apiOffline')}</span></div>
         <label className="utility-select"><span>{t('dataMode')}</span><select aria-label={t('dataMode')} value={mode} onChange={event=>setMode(event.target.value as 'none'|'real'|'simulation')}><option value="none">{t('noData')}</option><option value="real">{t('real')}</option><option value="simulation">{t('simulation')}</option></select></label>
         <label className="utility-select language-select"><Languages size={15} aria-hidden="true"/><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={language} onChange={event=>setLanguage(event.target.value as Language)}>{(Object.keys(languageNames) as Language[]).map(lang=><option key={lang} value={lang}>{languageNames[lang]}</option>)}</select></label>
