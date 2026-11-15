@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SENTINELA / Mission Operations
 
 **Protótipo visual V0.1 — NASA Space Apps Challenge 2026**
@@ -110,3 +111,6 @@ cd frontend
 npx playwright install chromium
 npx playwright test
 ```
+=======
+# Mustach-NASA
+>>>>>>> 0bfa6ccaefb7ad829abf3ab3d62de7aaa39a0f28
