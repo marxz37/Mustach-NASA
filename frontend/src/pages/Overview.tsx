@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Activity, ArrowUpRight, CalendarDays, Heart, Info, Radio, Sun } from 'lucide-react';
+import { Activity, ArrowUpRight, CalendarDays, Heart, Info, Radio } from 'lucide-react';
+import { SolarActivityPanel } from '@/components/dashboard/SolarActivityPanel';
 import { EmptyChart } from '@/components/visualizations/EmptyChart';
 import { HeatmapBody, type BodyTarget } from '@/components/visualizations/HeatmapBody';
 import { OrganDetails } from '@/components/visualizations/OrganDetails';
@@ -58,11 +59,7 @@ export function Overview() {
       </section>
 
       <div className="overview-aside">
-        <section className="quiet-panel solar-section" aria-labelledby="solar-title">
-          <div className="panel-heading"><Sun size={19}/><h2 id="solar-title">Atividade solar</h2><span>NOAA / CCMC</span></div>
-          <div className="solar-content"><div className="solar-orbit"><Sun size={31} strokeWidth={1.2}/></div><div><span className="panel-kicker">CONDIÇÃO ATUAL + PREVISÃO SEP</span><strong>Sem previsão disponível</strong><p>Eventos solares e previsões de tempestades aparecerão aqui quando as fontes forem conectadas.</p></div></div>
-          <div className="panel-foot"><span>GOES · SEP SCOREBOARD</span><span>Fonte não conectada</span></div>
-        </section>
+        <SolarActivityPanel/>
 
         <section className="quiet-panel radiation-section" aria-labelledby="radiation-title">
           <div className="panel-heading"><Radio size={19}/><h2 id="radiation-title">Radiação</h2><span>SEM SINAL</span></div>

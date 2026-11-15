@@ -39,3 +39,20 @@ def test_wearable_status_is_unpaired_without_fake_vitals():
         assert payload['accumulated_dose_msv'] is None
         assert payload['solar_status'] == 'no_forecast'
         assert payload['last_solar_update'] is None
+
+
+def test_solar_forecast_has_no_invented_values():
+    with TestClient(app) as client:
+        response = client.get('/api/v1/solar/forecast')
+        assert response.status_code == 200
+        assert response.json() == {'status': 'no_forecast', 'models': []}
+
+
+def test_wearable_origin_is_allowed():
+    with TestClient(app) as client:
+        response = client.options(
+            '/api/v1/solar/forecast',
+            headers={'Origin': 'http://localhost:5174', 'Access-Control-Request-Method': 'GET'},
+        )
+        assert response.status_code == 200
+        assert response.headers['access-control-allow-origin'] == 'http://localhost:5174'

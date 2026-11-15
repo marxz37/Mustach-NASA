@@ -52,7 +52,10 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[
+        "http://localhost:5173", "http://127.0.0.1:5173",
+        "http://localhost:5174", "http://127.0.0.1:5174",
+    ],
     allow_credentials=False,
     allow_methods=["GET"],
     allow_headers=["*"],
@@ -83,6 +86,38 @@ def crew():
 @app.get("/api/v1/solar-events", response_model=list[dict])
 def solar_events():
     return []
+
+
+class SolarForecastModel(BaseModel):
+    """Uma previsão por modelo; horizontes e unidades nunca são combinados."""
+
+    id: str
+    source: str
+    provider: str
+    model: str
+    provenance: Literal["FORECAST"] = "FORECAST"
+    issued_at: datetime
+    valid_from: datetime | None = None
+    valid_until: datetime | None = None
+    occurrence_probability_percent: float | None = Field(default=None, ge=0, le=100)
+    peak_proton_flux: float | None = Field(default=None, ge=0)
+    peak_proton_flux_unit: str | None = None
+    proton_energy_min_mev: float | None = Field(default=None, ge=0)
+    proton_energy_max_mev: float | None = Field(default=None, ge=0)
+    event_start_at: datetime | None = None
+    event_peak_at: datetime | None = None
+    event_end_at: datetime | None = None
+
+
+class SolarForecastResponse(BaseModel):
+    status: Literal["available", "no_forecast"] = "no_forecast"
+    models: list[SolarForecastModel] = Field(default_factory=list)
+
+
+@app.get("/api/v1/solar/forecast", response_model=SolarForecastResponse)
+def solar_forecast():
+    """Contrato compartilhado para previsões futuras de SEP; nenhuma fonte está conectada."""
+    return SolarForecastResponse()
 
 
 @app.get("/api/v1/sources", response_model=list[SourceInfo])

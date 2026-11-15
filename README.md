@@ -1,39 +1,39 @@
 # Mustach — NASA Space Apps Challenge 2026
 
-Protótipo de monitoramento de radiação espacial e acompanhamento de saúde dos astronautas.
+Protótipo de monitoramento da radiação espacial e de apresentação de dados individuais. Não é dispositivo médico.
 
-**Versão:** 0.2 — reconstrução visual baseada no desenho de interface da equipe.
+## Aplicações
 
-## Estado atual
+| Aplicação | Pasta | Desenvolvimento |
+| --- | --- | --- |
+| Mustach Web | `frontend/` | <http://localhost:5173> |
+| Mustach Wearable | `wearable/` | <http://localhost:5174> |
+| API compartilhada | `backend/` | <http://localhost:8000/docs> |
 
-- Front-end React 19 + TypeScript + Vite + Tailwind CSS + ícones Lucide.
-- Componentes estruturados para integração com TanStack Query e Apache ECharts.
-- Back-end FastAPI + SQLite, sem medições cadastradas.
-- Navegação superior com apenas **Visão geral** e **Tripulantes** (sem sidebar).
-- Mapa anatômico **2D** com vistas `Corpo` e `Órgãos`, marcadores selecionáveis e painel de ampliação.
-- O mapa corporal permanece **neutro enquanto não houver medições aplicáveis**. A opção `Prévia simulada` mostra apenas um gradiente ilustrativo, sem dosimetria ou classificação de risco; a futura escala operacional depende de limites cientificamente fundamentados.
-- O painel `Saúde do indivíduo` usa um coração e reserva os estados normal, alerta e perigo para avaliações individuais autorizadas. Sem avaliação, permanece neutro.
-- Clicar em um dos marcadores abre um painel de detalhes. As taxas, doses e avaliações continuam vazias.
-- Nenhuma página de fontes científicas no website; a documentação das fontes fica exclusivamente neste repositório, em `docs/FONTES-CIENTIFICAS.md`.
+O Wearable é uma aplicação React + TypeScript + Vite independente que simula a tela do relógio no navegador. Não há conexão com smartwatch, Bluetooth ou sensores físicos. Os dois front-ends usam a mesma FastAPI; `shared/solar.ts` concentra o contrato e a formatação da previsão exibida nos dois aplicativos.
+
+O Mustach Web conserva as abas superiores **Visão geral** e **Tripulantes**, sem sidebar. O mapa corporal 2D, os percentuais explicitamente ilustrativos, o modal de órgãos, o painel de radiação, o histórico de dose e a interface dos tripulantes continuam no Web. A aba antiga `Relógio` foi removida.
 
 ## Iniciar no Windows
 
-### Pré-requisitos
+Pré-requisitos: Node.js compatível com Vite, Python 3.10+ e Git. Na raiz do repositório, execute cada arquivo em seu próprio terminal:
 
-- Node.js 20.19+ ou versão 22+ compatível com Vite.
-- Python 3.10+.
-- Git.
+```text
+iniciar-backend.bat
+iniciar-frontend.bat
+iniciar-wearable.bat
+```
 
-Na raiz do projeto, execute os atalhos `iniciar-backend.bat` e `iniciar-frontend.bat` separadamente, ou:
+Ou inicie manualmente:
 
 ```powershell
 cd backend
-py -3.14 -m venv .venv
+py -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Em outro terminal:
+Em um segundo terminal:
 
 ```powershell
 cd frontend
@@ -41,15 +41,41 @@ npm install
 npm run dev
 ```
 
-Acesse <http://localhost:5173> (front-end) e <http://localhost:8000/docs> (FastAPI).
+Em um terceiro terminal:
 
-### Validação
+```powershell
+cd wearable
+npm install
+npm run dev
+```
+
+As portas 5173 e 5174 encaminham `/api` para a FastAPI local na porta 8000. Em outro ambiente, defina `VITE_API_BASE_URL` para a URL da API; ela deve autorizar a origem de cada aplicativo.
+
+## Atividade solar
+
+O Web usa um único painel com **A — Ocorrência**, **B — Intensidade** e **C — Evolução temporal**. A segunda tela do Wearable, acessada por swipe horizontal, teclado ou botões, exibe uma versão compacta das mesmas categorias.
+
+`GET /api/v1/solar/forecast` devolve uma coleção de previsões **separadas por modelo**, preservando provedor, origem, emissão, horizonte, unidades e valores de cada modelo. A estrutura está preparada para futuras integrações com NASA SEP Scoreboard / CCMC, NOAA SWPC e NASA DONKI; nenhuma dessas fontes está conectada nesta versão. A resposta atual é `{"status":"no_forecast","models":[]}`.
+
+Os dados observados, as previsões e as simulações devem permanecer distintos. Probabilidade de evento de partículas solares não é probabilidade de dano à saúde; fluxo de prótons não é dose individual. Modelos com horizontes ou unidades incompatíveis não devem ser combinados.
+
+## Testes
 
 ```powershell
 cd frontend
+npm run typecheck
+npm run build
 npm run lint
 npm test
+npm run test:e2e
+```
+
+```powershell
+cd wearable
+npm run typecheck
 npm run build
+npm run lint
+npm test
 npm run test:e2e
 ```
 
@@ -58,47 +84,9 @@ cd backend
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-O build, o lint e os testes Vitest, Pytest e Playwright foram executados neste ambiente durante a validação da interface.
+## Limites científicos do protótipo
 
-## Conceitos de segurança científica
-
-- Medições **observadas**, **previstas** e **simuladas** devem sempre ter proveniência e metadados distintos.
-- O fluxo de prótons não equivale à dose absorvida pelo corpo.
-- A taxa de dose absorvida em µGy/h não se converte diretamente em dose equivalente em µSv/h sem o modelo adequado.
-- Um campo vazio jamais deve aparecer como estado seguro.
-- A silhueta neutra não significa baixa exposição; nenhum limite clínico ou operacional é exibido sem fundamentação.
+- Sem medições aplicáveis, o mapa corporal é neutro; a prévia colorida e os percentuais são apenas demonstrativos, não representam dose ou risco.
+- Um campo vazio não significa condição segura.
 - Estimativas por órgão exigem dosimetria individual ou modelos físicos validados.
-
-## Próximas etapas
-
-1. Ajustar a interface com feedback visual da equipe.
-2. Integrar dados de radiação NASA RadLab e clima espacial NOAA mantendo a indicação de data, origem, instrumento e unidade.
-3. Definir regras de visualização fundamentadas para a futura escala do mapa de calor.
-4. Implementar histórico e dose acumulada somente para séries dosimétricas compatíveis.
-5. Incluir novos testes automatizados para dados reais e casos de ausência de telemetria.
-
-
-## Atualização Mustach V0.3 sobre o ZIP do projeto
-
-- Preservados: layout sem menu lateral, abas superiores, visual editorial, fichas de tripulantes, visualização Corpo/Órgãos, modal de zoom com fundo desfocado e painéis de radiação/atividade solar.
-- Novo: aba **Relógio** (`/relogio`), com telas **Saúde** e **Atividade solar** navegáveis por deslize horizontal, teclado ou botões.
-- Novo: `GET /api/v1/wearable/status` retorna estado explícito de não pareamento. Não há conexão Bluetooth ou dispositivo físico nesta versão.
-- Novo: percentuais **fictícios** sobre o mapa corporal somente no modo `Prévia simulada`. Eles não indicam dose, probabilidade de dano, porcentagem de tecido afetado nem risco médico. Desativar a prévia remove todos os percentuais e cores de simulação.
-- Atualizado: identidade visual azul-marinho/ciano futurista do website e do relógio.
-- Os dados reais continuam ausentes; a interface não exibe avaliações clínicas falsas.
-
-### Após aplicar o patch
-
-```powershell
-cd frontend
-npm run lint
-npm test
-npm run build
-npm run test:e2e
-cd ..\backend
-.\.venv\Scripts\python.exe -m pytest -q
-```
-
-O patch foi gerado especificamente a partir do arquivo `myproject.zip` compartilhado nesta conversa.
-
-**Observação:** `PRÉVIA-SEM-INSTALAR.html` é um snapshot legado do projeto, não foi regenerado nesta versão. Para conferir as alterações atuais, use `iniciar-frontend.bat` e abra `http://localhost:5173`.
+- Fontes científicas e condições para integração estão documentadas em `docs/FONTES-CIENTIFICAS.md`, não no site.

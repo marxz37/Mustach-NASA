@@ -1,0 +1,52 @@
+:root { font-family: 'DM Sans', 'Segoe UI', sans-serif; color: #e8f4ff; background: #040d1b; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; outline-offset: 4px; }
+.wearable-shell { min-height: 100vh; padding: 46px clamp(22px,5vw,86px) 32px; background: radial-gradient(ellipse 70% 38% at 75% -7%, #145d973d, transparent 72%), radial-gradient(circle 58% 43% at -7% 60%, #074c7526, transparent 75%), #040d1b; overflow: hidden; }
+.wearable-header { max-width: 850px; margin: 0 auto; }
+.section-kicker { display: inline-block; font: 10px 'JetBrains Mono', monospace; letter-spacing: .17em; color: #64d9ff; }
+.wearable-header h1 { font: 400 clamp(37px,4.5vw,62px)/1.08 Georgia, 'Times New Roman', serif; letter-spacing: -.035em; margin: 20px 0 12px; }
+.wearable-header h1 em { color: #72ddff; font-weight: 400; }
+.wearable-header p { color: #9fbbd1; font-size: 13px; line-height: 1.75; }
+.pulse-dot { width: 7px; height: 7px; display: inline-block; background: #63d8fb; border-radius: 50%; margin-right: 7px; box-shadow: 0 0 15px #59cfff6b; }
+.watch-exhibit { position: relative; min-height: 645px; padding: 28px 20px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+.watch-exhibit::before { content: ''; position: absolute; width: min(70vw,600px); height: min(70vw,600px); border: 1px solid #51bfe02d; border-radius: 50%; box-shadow: 0 0 0 65px #2582a314, 0 0 0 136px #2582a30a; pointer-events: none; }
+.watch-decoration { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #4bcafa; box-shadow: 0 0 12px #36c6f5; }
+.watch-decoration--one { top: 24%; left: 26%; }.watch-decoration--two { right: 24%; bottom: 24%; width: 3px; height: 3px; }
+.watch-device { display: flex; flex-direction: column; align-items: center; z-index: 1; filter: drop-shadow(0 27px 38px #000b); }
+.watch-strap { width: 158px; height: 77px; background: linear-gradient(90deg, #0b192a, #203b58 50%, #0a192b); border: 1px solid #21415f; }
+.watch-strap--top { border-radius: 24px 24px 8px 8px; margin-bottom: -7px; }
+.watch-strap--bottom { border-radius: 8px 8px 32px 32px; margin-top: -7px; }
+.watch-case { position: relative; width: 300px; height: 375px; padding: 11px; background: linear-gradient(130deg, #557897, #182b41 27%, #091929 77%, #355a79); border: 2px solid #537e9c; border-radius: 58px; box-shadow: inset 0 0 0 2px #05101b, 0 0 60px #158ec02b; }
+.watch-crown { position: absolute; width: 10px; height: 44px; border-radius: 4px 8px 8px 4px; right: -12px; top: 91px; border: 1px solid #397fa0; background: #1c3950; }
+.watch-screen { height: 100%; width: 100%; position: relative; overflow: hidden; background: radial-gradient(circle at 50% 48%, #0c2b49 0, #061729 64%, #020b17 100%); border: 1px solid #31739880; border-radius: 47px; color: #effbff; display: flex; flex-direction: column; touch-action: pan-y; user-select: none; outline-offset: 5px; }
+.watch-screen::after { content: ''; position: absolute; inset: 8px; border: 1px solid #579ec51d; border-radius: 40px; pointer-events: none; }
+.watch-screen-top { display: flex; justify-content: space-between; align-items: center; padding: 23px 19px 5px; gap: 7px; }
+.watch-wordmark { font: 750 18px 'Segoe UI', sans-serif; letter-spacing: -.05em; }.watch-wordmark span { color: #56ccef; font-size: 12px; margin-left: 1px; }
+.watch-signal { color: #82aac2; font: 8px 'JetBrains Mono', monospace; white-space: nowrap; }.watch-signal-dot { width: 5px; height: 5px; display: inline-block; background: #7e98ad; border-radius: 50%; margin-right: 3px; }
+.watch-center { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; animation: watch-page-in .24s ease-out; padding: 0 17px; }
+@keyframes watch-page-in { from { opacity: .3; transform: translateX(9px); } to { opacity: 1; transform: none; } }
+.watch-main-icon { color: #a2b8c9; margin-bottom: 12px; }.watch-eyebrow { font: 8px 'JetBrains Mono', monospace; color: #72cfea; letter-spacing: .15em; margin-bottom: 10px; }
+.watch-main-title { font: 400 28px Georgia, serif; letter-spacing: -.025em; }.watch-main-desc { font-size: 10px; line-height: 1.5; margin: 9px 0 16px; color: #90b2ca; }
+.watch-health-stats { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; border-top: 1px solid #306280; padding-top: 13px; }
+.watch-health-stats div { display: flex; flex-direction: column; gap: 8px; }.watch-health-stats div + div { border-left: 1px solid #306280; }
+.watch-health-stats span { font: 8px 'JetBrains Mono', monospace; color: #84a8bf; }.watch-health-stats strong { font: 400 20px 'Segoe UI', sans-serif; }.watch-health-stats small { font-size: 9px; color: #8faec2; }
+.watch-center--solar { justify-content: flex-start; padding: 14px 16px 0; }
+.watch-center--solar .watch-eyebrow { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 6px; color: #ffd280; }
+.watch-solar-title { font: 400 18px Georgia, serif; line-height: 1.1; }.watch-solar-source { font-size: 8px; color: #89abc1; line-height: 1.3; margin: 4px 0 10px; }
+.watch-solar-summary { width: 100%; border-top: 1px solid #306280; text-align: left; }
+.watch-solar-summary > div { display: grid; grid-template-columns: 92px minmax(0,1fr); gap: 2px 5px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid #30628070; }
+.watch-solar-summary span { font: 8px 'JetBrains Mono', monospace; color: #7bd8f6; }.watch-solar-summary strong { color: #effbff; font: 500 11px 'DM Sans', sans-serif; overflow-wrap: anywhere; text-align: right; }
+.watch-solar-summary small { grid-column: 1 / -1; color: #83a8bf; font-size: 8px; line-height: 1.2; }
+.watch-model-note { margin-top: 5px; font-size: 8px; color: #83a8bf; }
+.watch-screen-footer { display: flex; flex-direction: column; align-items: center; padding: 7px 0 16px; gap: 7px; }
+.watch-dots { display: flex; gap: 7px; }.watch-dots span { display: block; height: 4px; width: 4px; border-radius: 50%; background: #577a95; }.watch-dots span.active { width: 18px; background: #59dcff; border-radius: 8px; box-shadow: 0 0 9px #59dcff66; }
+.watch-screen-footer small { font: 7px 'JetBrains Mono', monospace; letter-spacing: .05em; color: #81a5c0; }
+.watch-controls { display: flex; align-items: center; gap: 24px; margin-top: 20px; z-index: 1; color: #90bbd3; font: 10px 'JetBrains Mono', monospace; }
+.watch-nav-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #367998; background: #0b2945; color: #b5e9fa; border-radius: 50%; }.watch-nav-button:hover:not(:disabled) { background: #0c4564; }.watch-nav-button:disabled { opacity: .32; cursor: not-allowed; }
+.wearable-footer { display: flex; flex-direction: column; align-items: center; gap: 10px; border-top: 1px solid #1e425c; padding-top: 15px; color: #8db2ca; font-size: 11px; text-align: center; }
+.wearable-footer p { display: flex; align-items: center; gap: 8px; margin: 0; line-height: 1.5; }.wearable-footer svg { flex: none; }.wearable-footer span { font: 10px 'JetBrains Mono', monospace; }
+@media (max-width: 760px) { .wearable-shell { padding: 30px 18px 28px; }.wearable-header h1 { font-size: 40px; }.watch-exhibit { min-height: 570px; } }
+@media (max-width: 420px) { .watch-case { width: 266px; height: 357px; border-radius: 52px; }.watch-screen { border-radius: 41px; }.watch-strap { width: 136px; }.watch-controls { gap: 17px; }.watch-screen-footer small { font-size: 6px; }.watch-solar-summary > div { grid-template-columns: 80px minmax(0,1fr); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; } }

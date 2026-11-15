@@ -24,6 +24,8 @@
 5. Uma integração temporal de taxa de dose só pode ocorrer com série dosimétrica homogênea e interpretação correta das lacunas.
 6. Para a visualização de exposição por órgão, nenhum valor numérico ou cor de risco é exibido sem dados e limites validados.
 7. Alertas de saúde NÃO são diagnósticos médicos.
+8. A previsão SEP de `GET /api/v1/solar/forecast` contém registros separados por modelo, com provedor, fonte, emissão, janela de validade, probabilidade de ocorrência, fluxo máximo com unidade, energia e horários de início/pico/término. A resposta vazia usa `status: no_forecast` e `models: []`.
+9. Não combinar modelos com horizontes, unidades ou faixas de energia diferentes. Probabilidade de evento SEP não é probabilidade de dano à saúde, e fluxo de prótons não se converte diretamente em dose individual.
 
 ## Referências
 
