@@ -47,7 +47,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     title="Mustach — Space Radiation Monitoring API",
     description="Esqueleto para integrações científicas futuras. Não fornece dosimetria individual real.",
-    version="0.3.0",
+    version="0.4.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -57,7 +57,7 @@ app.add_middleware(
         "http://localhost:5174", "http://127.0.0.1:5174",
     ],
     allow_credentials=False,
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -147,3 +147,28 @@ class WearableStatus(BaseModel):
 def wearable_status():
     """A interface e o wearable compartilham a API, mas nenhum dispositivo está conectado."""
     return WearableStatus()
+
+# Dev-only presence signal from the standalone wearable WEB PREVIEW.
+# This is not a physical watch pairing, and carries no personal health data.
+from datetime import timezone, timedelta
+
+class WearableConnection(BaseModel):
+    paired: bool = False
+    preview_active: bool = False
+    last_seen_at: datetime | None = None
+
+_last_preview_ping: datetime | None = None
+
+@app.post('/api/v1/wearable/heartbeat', response_model=WearableConnection)
+def wearable_heartbeat():
+    global _last_preview_ping
+    _last_preview_ping = datetime.now(timezone.utc)
+    return wearable_connection()
+
+@app.get('/api/v1/wearable/connection', response_model=WearableConnection)
+def wearable_connection():
+    now = datetime.now(timezone.utc)
+    return WearableConnection(
+        preview_active=_last_preview_ping is not None and now - _last_preview_ping < timedelta(seconds=90),
+        last_seen_at=_last_preview_ping,
+    )

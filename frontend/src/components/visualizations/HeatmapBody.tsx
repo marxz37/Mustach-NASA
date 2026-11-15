@@ -1,4 +1,6 @@
 import { useId, type KeyboardEvent } from 'react';
+import { useApp } from '@/context/AppContext';
+import { organLabels } from './organLabels';
 
 export type BodyTarget = 'cerebro' | 'pulmoes' | 'coracao' | 'figado' | 'estomago' | 'medula';
 export const targetInfo: Record<BodyTarget, { name: string; region: string; description: string; zoomPath: string }> = {
@@ -23,13 +25,14 @@ interface Props { view: 'corpo' | 'orgaos'; demonstration: boolean; selected: Bo
 
 export function HeatmapBody({ view, demonstration, selected, onSelect }: Props) {
   const id = useId().replaceAll(':', '');
+  const {t}=useApp();
   const selectOnKey = (event: KeyboardEvent<SVGGElement>, target: BodyTarget) => {
     if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(target); }
   };
   return <div className="heatmap-stage">
-    <span className="coordinate coord-nw">VISTA ANTERIOR / 2D</span><span className="coordinate coord-ne">{view === 'orgaos' ? 'SELECIONE UM ÓRGÃO' : 'CORPO INTEIRO'}</span>
+    <span className="coordinate coord-nw">2D / ANTERIOR</span><span className="coordinate coord-ne">{view==='orgaos'?t('organs'):t('body')}</span>
     <div className="heatmap-rings" aria-hidden="true"/>
-    <svg className="human-heatmap" viewBox="0 0 360 470" role="group" aria-label={demonstration ? `Mapa ${view === 'corpo' ? 'corporal' : 'de órgãos'} com cores simuladas, sem dosimetria` : `Mapa ${view === 'corpo' ? 'corporal' : 'de órgãos'} sem medições de exposição`}>
+    <svg className="human-heatmap" viewBox="0 0 360 470" role="group" aria-label={`${t('heatmapTitle')} — ${demonstration?t('heatmapSimulation'):t('heatmapEmpty')}`}>
       <defs>
         <linearGradient id={`${id}-neutral`} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#496784"/><stop offset=".52" stopColor="#1e3852"/><stop offset="1" stopColor="#0a1d31"/></linearGradient>
         <radialGradient id={`${id}-head`} gradientUnits="userSpaceOnUse" cx="179" cy="67" r="53"><stop stopColor="#ef5444"/><stop offset=".38" stopColor="#f3c34d"/><stop offset=".72" stopColor="#8ed386"/><stop offset="1" stopColor="#48a9a1"/></radialGradient>
@@ -46,29 +49,14 @@ export function HeatmapBody({ view, demonstration, selected, onSelect }: Props) 
         <path fill={demonstration ? `url(#${id}-limbs)` : undefined} d="M159 298c-13 18-18 36-17 62l-3 71-7 22c-2 7 3 10 9 10h15c6 0 7-7 7-14l12-86 5-45-21-20Z M201 298c13 18 18 36 17 62l3 71 7 22c2 7-3 10-9 10h-15c-6 0-7-7-7-14l-12-86-5-45 21-20Z"/>
       </g>
       <g fill="none" stroke="#61a9c5" strokeWidth="1" opacity=".34" pointerEvents="none"><path d="M180 143v89m-23-83 23 20 23-20m-51 40 28 18 28-18M163 254h34m-33 12h32M169 318l-9 45M191 318l9 45"/></g>
-      {demonstration && view === 'corpo' && <g className="body-percent-overlay" aria-label="Porcentagens exclusivamente ilustrativas; não representam risco nem dosimetria" pointerEvents="none">
-        {[
-          {label:'CABEÇA', pct:'5%', x:180, y:72},
-          {label:'BRAÇO E.', pct:'11%', x:67, y:238},
-          {label:'BRAÇO D.', pct:'10%', x:294, y:238},
-          {label:'TÓRAX', pct:'22%', x:180, y:192},
-          {label:'ABDÔMEN', pct:'18%', x:180, y:280},
-          {label:'PERNA E.', pct:'22%', x:149, y:388},
-          {label:'PERNA D.', pct:'33%', x:212, y:388},
-        ].map(item => <g key={item.label} className="body-percent-label" transform={`translate(${item.x} ${item.y})`}>
-          <rect x="-18" y="-12" width="36" height="25" rx="5" className="body-percent-backdrop"/>
-          <text x="0" y="0" textAnchor="middle" className="body-percent-value">{item.pct}</text>
-          <text x="0" y="9" textAnchor="middle" className="body-percent-name">{item.label}</text>
-        </g>)}
-      </g>}
-      {view === 'orgaos' && hotspots.map(({id: organ,cx,cy,radius,labelX,labelY}) => <g key={organ} role="button" tabIndex={0} aria-label={`Ampliar órgão: ${targetInfo[organ].name}`} aria-pressed={selected === organ} className={`heatmap-hotspot ${selected===organ?'hotspot-selected':''}`} onClick={() => onSelect(organ)} onKeyDown={event => selectOnKey(event, organ)}>
+      {view === 'orgaos' && hotspots.map(({id: organ,cx,cy,radius,labelX,labelY}) => <g key={organ} role="button" tabIndex={0} aria-label={`${t('detailsOf')} ${t(organLabels[organ].name)}`} aria-pressed={selected === organ} className={`heatmap-hotspot ${selected===organ?'hotspot-selected':''}`} onClick={() => onSelect(organ)} onKeyDown={event => selectOnKey(event, organ)}>
         <circle cx={cx} cy={cy} r={radius + 7} fill="transparent" stroke="none"/>
         <circle cx={cx} cy={cy} r={radius} fill="rgba(17,19,23,.12)" stroke={selected===organ?'#a5edff':'#5acde7'} strokeWidth={selected===organ?2:1} strokeDasharray={selected===organ?'0':'3 5'} opacity=".9"/>
         <circle data-focus-organ={organ} cx={cx} cy={cy} r="3.8" fill="#b3edff" stroke="#031327" strokeWidth="1"/>
         <path d={`M${cx+radius*.65} ${cy} L${labelX} ${labelY}`} stroke="#5acde7" strokeWidth=".8" opacity=".7" pointerEvents="none"/>
-        <text x={labelX+3} y={labelY-3} className="organ-point-label" pointerEvents="none">{targetInfo[organ].name.toUpperCase()}</text>
+        <text x={labelX+3} y={labelY-3} className="organ-point-label" pointerEvents="none">{t(organLabels[organ].name).toUpperCase()}</text>
       </g>)}
     </svg>
-    <div className="heatmap-bottom-tag"><span className="status-dot"/> {demonstration ? '% ILUSTRATIVOS · NÃO REPRESENTAM DOSE OU RISCO' : 'SEM DADOS · ESCALA DESATIVADA'}</div>
+    <div className="heatmap-bottom-tag"><span className="status-dot"/> {demonstration ? t('heatmapSimulation') : t('noMapReadings')}</div>
   </div>;
 }

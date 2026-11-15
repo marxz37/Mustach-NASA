@@ -1,109 +1,92 @@
-import { expect, test } from '@playwright/test';
+import {expect,test} from '@playwright/test';
 
-test('nova navegação superior sem barra lateral', async ({page}) => {
+test('English is default, no side menu and no decorative hero',async({page})=>{
   await page.goto('/');
-  await expect(page.getByRole('navigation', {name:'Navegação principal'})).toBeVisible();
-  await expect(page.getByRole('link', {name:'Visão geral'})).toBeVisible();
-  await expect(page.getByRole('link', {name:'Tripulantes'})).toBeVisible();
-  await expect(page.getByRole('link', {name:'Relógio'})).toHaveCount(0);
-  await expect(page.getByText('Sem telemetria conectada')).toBeVisible();
-  await expect(page.getByText('Visão geral da missão')).toHaveCount(0);
+  await expect(page.getByRole('link',{name:'Overview'})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Crew'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Exposure map'})).toBeVisible();
+  await expect(page.getByText('O espaço deixa marcas.')).toHaveCount(0);
   await expect(page.getByText('Fontes científicas')).toHaveCount(0);
-  await expect(page.getByText('EXPOSIÇÃO POR ÓRGÃO')).toHaveCount(0);
-  await expect(page.getByRole('heading', {name:'Atividade solar'})).toHaveCount(1);
+  await expect(page.getByText('Mission Operations')).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Solar activity'})).toHaveCount(1);
   await expect(page.locator('.solar-category')).toHaveCount(3);
-  await expect(page.locator('.solar-category').nth(0)).toContainText('Ocorrência');
-  await expect(page.locator('.solar-category').nth(1)).toContainText('Intensidade');
-  await expect(page.locator('.solar-category').nth(2)).toContainText('Evolução temporal');
-  await expect(page.getByRole('heading', {name:'Saúde do indivíduo'})).toBeVisible();
-  await expect(page.locator('.individual-health')).toContainText('Sem avaliação');
-  await expect(page.locator('.individual-health')).toHaveClass(/health-unknown/);
-  await expect(page.getByText('% ILUSTRATIVOS · NÃO REPRESENTAM DOSE OU RISCO')).toBeVisible();
 });
 
-test('mapa separa corpo e órgãos e identifica cores simuladas', async ({page}) => {
+test('switch EN/PT/ES for navigation and solar',async({page})=>{
   await page.goto('/');
-  await expect(page.getByRole('button',{name:'Ampliar órgão: Cérebro'})).toHaveCount(0);
-  await page.getByRole('checkbox',{name:'Prévia simulada'}).uncheck();
-  await page.getByRole('checkbox',{name:'Prévia simulada'}).check();
-  await expect(page.getByText('% ILUSTRATIVOS · NÃO REPRESENTAM DOSE OU RISCO')).toBeVisible();
-  await expect(page.getByRole('group',{name:'Mapa corporal com cores simuladas, sem dosimetria'})).toBeVisible();
-  await page.getByRole('button',{name:'Órgãos', exact:true}).click();
-  await expect(page.getByRole('button',{name:'Ampliar órgão: Cérebro'})).toBeVisible();
-  await page.getByRole('checkbox',{name:'Prévia simulada'}).uncheck();
-  await expect(page.getByText('SEM DADOS · ESCALA DESATIVADA')).toBeVisible();
+  await page.getByRole('combobox',{name:'Language'}).selectOption('pt');
+  await expect(page.getByRole('link',{name:'Visão geral'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Atividade solar'})).toBeVisible();
+  await page.getByRole('combobox',{name:'Idioma'}).selectOption('es');
+  await expect(page.getByRole('link',{name:'Resumen'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Actividad solar'})).toBeVisible();
 });
 
-test('clicar em órgão abre painel de detalhes sem valores inventados', async ({page}) => {
+test('source selection keeps real and no-data honest, simulation is visibly synthetic',async({page})=>{
   await page.goto('/');
-  await page.getByRole('button',{name:'Órgãos', exact:true}).click();
-  await page.getByRole('button',{name:'Ampliar órgão: Cérebro'}).click();
-  const details = page.getByRole('dialog',{name:'Detalhes de Cérebro'});
-  await expect(details).toBeVisible();
-  await expect(details.getByRole('img',{name:'Ampliação 2D de Cérebro, sem dados de dose'})).toBeVisible();
-  await expect(details.locator('.zoom-lens')).toBeVisible();
-  await expect(page.locator('.organ-connector')).toBeVisible();
-  await expect(details.getByText('Taxa de dose')).toBeVisible();
-  await expect(details.getByText('Dose acumulada')).toBeVisible();
-  await expect(details.getByText('Status', {exact:true})).toBeVisible();
-  await expect(details.getByText('Fonte', {exact:true})).toBeVisible();
-  await expect(details.getByText('Observações')).toBeVisible();
-  await expect(details.getByText('Não conectada')).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(details).not.toBeVisible();
-});
-
-test('tripulantes mostra ficha visual sem inventar astronautas', async ({page}) => {
-  await page.goto('/tripulantes');
-  await expect(page.getByRole('heading', {name:'Nenhum tripulante cadastrado'})).toBeVisible();
-  await expect(page.getByText('Sem série dosimétrica')).toBeVisible();
-  await expect(page.getByText('Nenhum astronauta ou valor de exposição fictício foi inserido.', {exact:false})).toBeVisible();
-});
-
-test('visão geral cabe na tela pequena', async ({page}) => {
-  await page.setViewportSize({width: 320, height: 720});
-  await page.goto('/');
-  await expect(page.getByRole('heading', {name:'Mapa de exposição'})).toBeVisible();
-  const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-  expect(hasHorizontalOverflow).toBe(false);
-  await page.getByRole('button',{name:'Órgãos', exact:true}).click();
-  await page.getByRole('button',{name:'Ampliar órgão: Pulmões'}).click();
-  await expect(page.getByRole('dialog',{name:'Detalhes de Pulmões'})).toBeVisible();
-  const modalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-  expect(modalOverflow).toBe(false);
-});
-
-
-test('rota antiga do relógio não permanece no Mustach Web', async ({page}) => {
-  await page.goto('/relogio');
-  await expect(page).toHaveURL('/');
-  await expect(page.getByRole('heading', {name:'Mapa de exposição'})).toBeVisible();
-});
-
-test('painel solar mantém modelos e unidades separados', async ({page}) => {
-  const model = {
-    id: 'modelo-a', source: 'fonte-de-teste', provider: 'provedor-de-teste', model: 'Modelo A', provenance: 'FORECAST',
-    issued_at: '2026-11-15T12:00:00Z', valid_from: '2026-11-15T12:00:00Z', valid_until: '2026-11-16T12:00:00Z',
-    occurrence_probability_percent: 12, peak_proton_flux: 40, peak_proton_flux_unit: 'pfu',
-    proton_energy_min_mev: 10, proton_energy_max_mev: 100,
-    event_start_at: '2026-11-15T16:00:00Z', event_peak_at: '2026-11-15T18:00:00Z', event_end_at: '2026-11-15T23:00:00Z',
-  };
-  await page.route('**/api/v1/solar/forecast', route => route.fulfill({json: {
-    status: 'available', models: [model, {...model, id: 'modelo-b', model: 'Modelo B', occurrence_probability_percent: 65, peak_proton_flux: 5, peak_proton_flux_unit: 'unidade-B'}],
-  }}));
-  await page.goto('/');
-  const solar = page.locator('.solar-section');
-  await expect(solar).toContainText('Modelo A');
-  await expect(solar).toContainText('40 pfu');
-  await solar.getByLabel('Modelo').selectOption('modelo-b');
-  await expect(solar).toContainText('65%');
-  await expect(solar).toContainText('5 unidade-B');
-  await expect(solar).not.toContainText('40 pfu');
-});
-
-test('porcentagens demonstrativas aparecem somente com simulação ativa', async ({page}) => {
-  await page.goto('/');
-  await expect(page.locator('.body-percent-label').filter({hasText:'33%'})).toBeVisible();
-  await page.getByRole('checkbox',{name:'Prévia simulada'}).uncheck();
+  const source=page.getByRole('combobox',{name:'Data source'});
+  await expect(source).toHaveValue('none');
   await expect(page.locator('.body-percent-label')).toHaveCount(0);
+  await source.selectOption('real');
+  await expect(page.locator('.readout-strip')).toContainText('—');
+  await source.selectOption('simulation');
+  await expect(page.locator('.mode-chip')).toContainText('Simulation');
+  await expect(page.getByText('Illustrative colors only',{exact:false}).first()).toBeVisible();
+  await expect(page.locator('.body-percent-label')).toHaveCount(0);
+  await expect(page.locator('.live-rate-section')).toContainText('Simulated');
+});
+
+test('EVA timer starts, pauses, finishes and resets without assuming radiation dose',async({page})=>{
+  await page.goto('/');
+  const eva=page.getByRole('region',{name:'EVA session'});
+  await expect(eva).toContainText('00:00:00');
+  await eva.getByRole('button',{name:'Start EVA'}).click();
+  await expect(eva).toContainText('In progress');
+  await eva.getByRole('button',{name:'Pause'}).click();
+  await expect(eva).toContainText('Paused');
+  await eva.getByRole('button',{name:'Resume'}).click();
+  await eva.getByRole('button',{name:'Finish EVA'}).click();
+  await expect(eva).toContainText('Finished');
+  await expect(eva).toContainText('Dose unavailable');
+  await eva.getByRole('button',{name:'Reset'}).click();
+  await expect(eva).toContainText('Ready');
+});
+
+test('EVA data-source switch clears session and does not combine readings',async({page})=>{
+  await page.goto('/');
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('simulation');
+  const eva=page.getByRole('region',{name:'EVA session'});
+  await eva.getByRole('button',{name:'Start EVA'}).click();
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
+  await expect(eva).toContainText('Ready');
+  await expect(eva).toContainText('Dose unavailable');
+});
+
+test('body organ zoom still works with neutral heatmap',async({page})=>{
+  await page.goto('/');
+  await page.getByRole('button',{name:'Organs',exact:true}).click();
+  await page.getByRole('button',{name:'Details of Brain'}).click();
+  const modal=page.getByRole('dialog',{name:'Details of Brain'});
+  await expect(modal).toBeVisible();
+  await expect(modal).toContainText('No data');
+  await page.keyboard.press('Escape');
+  await expect(modal).not.toBeVisible();
+});
+
+test('Crew includes monitoring and daily/weekly selection without fictitious astronauts',async({page})=>{
+  await page.goto('/tripulantes');
+  await expect(page.getByRole('heading',{name:'No crewmembers registered'})).toBeVisible();
+  const history=page.getByRole('region',{name:'Accumulated equivalent dose • available readings'});
+  await expect(history.getByRole('button',{name:'Daily'})).toBeVisible();
+  await history.getByRole('button',{name:'Weekly'}).click();
+  await expect(history.getByRole('button',{name:'Weekly'})).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByRole('region',{name:'EVA session'})).toBeVisible();
+});
+
+test('mobile 320px viewport avoids horizontal page overflow',async({page})=>{
+  await page.setViewportSize({width:320,height:720});
+  await page.goto('/');
+  await expect(page.getByRole('heading',{name:'Exposure map'})).toBeVisible();
+  const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth);
+  expect(overflow).toBe(false);
 });

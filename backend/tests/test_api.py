@@ -56,3 +56,28 @@ def test_wearable_origin_is_allowed():
         )
         assert response.status_code == 200
         assert response.headers['access-control-allow-origin'] == 'http://localhost:5174'
+
+
+def test_wearable_web_preview_heartbeat_is_not_physical_pairing():
+    with TestClient(app) as client:
+        before = client.get('/api/v1/wearable/connection')
+        assert before.status_code == 200
+        assert before.json()['paired'] is False
+        response = client.post('/api/v1/wearable/heartbeat')
+        assert response.status_code == 200
+        assert response.json()['paired'] is False
+        assert response.json()['preview_active'] is True
+        assert response.json()['last_seen_at'] is not None
+        latest = client.get('/api/v1/wearable/connection')
+        assert latest.json()['preview_active'] is True
+        assert latest.json()['paired'] is False
+
+
+def test_wearable_post_cors_allowed_only_for_preview_localhost():
+    with TestClient(app) as client:
+        response = client.options('/api/v1/wearable/heartbeat', headers={
+            'Origin': 'http://localhost:5174',
+            'Access-Control-Request-Method': 'POST',
+        })
+        assert response.status_code == 200
+        assert response.headers['access-control-allow-origin'] == 'http://localhost:5174'

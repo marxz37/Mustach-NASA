@@ -19,3 +19,8 @@ export interface WearableStatus {
 
 export const getWearableStatus = () => request<WearableStatus>('/api/v1/wearable/status');
 export const getSolarForecast = () => request<SolarForecastResponse>('/api/v1/solar/forecast');
+
+export async function sendWearableHeartbeat():Promise<void> {
+  const response=await fetch(`${API_BASE}/api/v1/wearable/heartbeat`,{method:'POST',headers:{Accept:'application/json'}});
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+}

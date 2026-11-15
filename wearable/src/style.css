@@ -50,3 +50,10 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 @media (max-width: 760px) { .wearable-shell { padding: 30px 18px 28px; }.wearable-header h1 { font-size: 40px; }.watch-exhibit { min-height: 570px; } }
 @media (max-width: 420px) { .watch-case { width: 266px; height: 357px; border-radius: 52px; }.watch-screen { border-radius: 41px; }.watch-strap { width: 136px; }.watch-controls { gap: 17px; }.watch-screen-footer small { font-size: 6px; }.watch-solar-summary > div { grid-template-columns: 80px minmax(0,1fr); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; } }
+/* V0.4: language switcher and web-only sync diagnostics */
+.watch-header-row { display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap; }
+.watch-language { display:flex;align-items:center;gap:6px;color:#82d8f7;font-size:11px; }
+.watch-language select { background:#0b243c;color:#e9f8ff;border:1px solid #245f85;padding:7px 9px;font:11px 'DM Sans',sans-serif; }
+.watch-sync { display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid #23415a;padding-top:12px;margin-top:15px!important;font-size:10px!important; }
+.watch-sync span { display:inline-flex;align-items:center;gap:5px; }
+.sr-only {position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}
