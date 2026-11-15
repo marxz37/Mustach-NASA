@@ -57,3 +57,18 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 .watch-sync { display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid #23415a;padding-top:12px;margin-top:15px!important;font-size:10px!important; }
 .watch-sync span { display:inline-flex;align-items:center;gap:5px; }
 .sr-only {position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;white-space:nowrap}
+
+/* V0.5 · Fictional UI demo, independent from real wearable telemetry */
+.wearable-demo-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:11px 16px;margin:16px 0 9px}.watch-choice{display:flex;align-items:center;gap:7px;color:#83b9d4;font:10px 'JetBrains Mono',monospace}.watch-choice select{min-width:110px;max-width:180px;background:#082238;border:1px solid #316a88;color:#e2f7ff;border-radius:2px;padding:8px;font:11px 'DM Sans',sans-serif}.watch-demo-chip{color:#ffd391;font:10px 'JetBrains Mono',monospace;letter-spacing:.05em;border:1px solid #a0804260;padding:8px 10px;line-height:1.4}
+.watch-main-title{font-size:clamp(16px,2vw,22px)}
+
+.watch-main-icon{display:grid;place-items:center;width:84px;height:84px;margin:0 auto 10px;border-radius:50%;border:1px solid #4d7d97;background:radial-gradient(circle at 50% 45%, #17334d, #0a1524 72%);box-shadow:0 0 0 10px #60ccef0d;}
+.watch-main-icon--normal{color:#67d38d;border-color:#4a9b67;box-shadow:0 0 18px #57c57a33,0 0 0 10px #57c57a12;}
+.watch-main-icon--attention{color:#f0cc63;border-color:#b38f2d;box-shadow:0 0 18px #f0cc6333,0 0 0 10px #f0cc6310;}
+.watch-main-icon--danger{color:#ef7d70;border-color:#b34a42;box-shadow:0 0 18px #ef7d7036,0 0 0 10px #ef7d7010;}
+.watch-main-icon--unknown{color:#a2b8c9;}
+.watch-signal-dot--normal{background:#67d38d;box-shadow:0 0 8px #67d38d66;}
+.watch-signal-dot--attention{background:#f0cc63;box-shadow:0 0 8px #f0cc6366;}
+.watch-signal-dot--danger{background:#ef7d70;box-shadow:0 0 8px #ef7d7066;}
+.watch-signal-dot--unknown{background:#7e98ad;}
+.watch-health-stats strong{line-height:1.15;}

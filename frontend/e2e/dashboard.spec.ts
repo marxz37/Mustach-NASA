@@ -25,7 +25,9 @@ test('switch EN/PT/ES for navigation and solar',async({page})=>{
 test('source selection keeps real and no-data honest, simulation is visibly synthetic',async({page})=>{
   await page.goto('/');
   const source=page.getByRole('combobox',{name:'Data source'});
-  await expect(source).toHaveValue('none');
+  await expect(source).toHaveValue('simulation');
+  await expect(page.locator('.demo-banner')).toHaveCount(0);
+  await expect(page.locator('.live-rate-section')).toContainText('Simulated');
   await expect(page.locator('.body-percent-label')).toHaveCount(0);
   await source.selectOption('real');
   await expect(page.locator('.readout-strip')).toContainText('—');
@@ -47,7 +49,7 @@ test('EVA timer starts, pauses, finishes and resets without assuming radiation d
   await eva.getByRole('button',{name:'Resume'}).click();
   await eva.getByRole('button',{name:'Finish EVA'}).click();
   await expect(eva).toContainText('Finished');
-  await expect(eva).toContainText('Dose unavailable');
+  await expect(eva).toContainText('synthetic', {ignoreCase:true});
   await eva.getByRole('button',{name:'Reset'}).click();
   await expect(eva).toContainText('Ready');
 });
@@ -73,13 +75,15 @@ test('body organ zoom still works with neutral heatmap',async({page})=>{
   await expect(modal).not.toBeVisible();
 });
 
-test('Crew includes monitoring and daily/weekly selection without fictitious astronauts',async({page})=>{
+test('Crew provides selectable fictional profiles and daily/weekly simulated histories',async({page})=>{
   await page.goto('/tripulantes');
-  await expect(page.getByRole('heading',{name:'No crewmembers registered'})).toBeVisible();
+  await expect(page.locator('.crew-tile')).toHaveCount(4);
+  await page.getByRole('button',{name:/Alex Kim/i}).click();
+  await expect(page.locator('.crew-active-header')).toContainText('Alex Kim');
   const history=page.getByRole('region',{name:'Accumulated equivalent dose • available readings'});
-  await expect(history.getByRole('button',{name:'Daily'})).toBeVisible();
-  await history.getByRole('button',{name:'Weekly'}).click();
-  await expect(history.getByRole('button',{name:'Weekly'})).toHaveAttribute('aria-pressed','true');
+  await expect(history.getByRole('button',{name:'Last 24 hours'})).toBeVisible();
+  await history.getByRole('button',{name:'Last 7 days'}).click();
+  await expect(history.getByRole('button',{name:'Last 7 days'})).toHaveAttribute('aria-pressed','true');
   await expect(page.getByRole('region',{name:'EVA session'})).toBeVisible();
 });
 

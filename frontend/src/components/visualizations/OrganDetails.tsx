@@ -3,12 +3,13 @@ import { X, Info } from 'lucide-react';
 import { type BodyTarget, targetInfo } from './HeatmapBody';
 import { organLabels } from './organLabels';
 import { useApp } from '@/context/AppContext';
+import { demoCopy } from '@shared/demoCopy';
 
 interface Props { target: BodyTarget | null; onClose: () => void; }
 interface Point { x: number; y: number; edgeX: number; edgeY: number; }
 
 export function OrganDetails({ target, onClose }: Props) {
-  const {t}=useApp();
+  const {t,simulated,language}=useApp();
   const closeRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
   const [origin, setOrigin] = useState<Point | null>(null);
@@ -78,7 +79,7 @@ export function OrganDetails({ target, onClose }: Props) {
             </svg>
           </div>
         </div>
-        <span>{t('noMapReadings')}</span>
+        <span>{simulated?demoCopy(language,'demoShort'):t('noMapReadings')}</span>
       </div>
       <dl className="drawer-measurements">
         <div><dt>{t('organReading')}</dt><dd>— <small>µGy/h</small></dd></div>
@@ -86,7 +87,7 @@ export function OrganDetails({ target, onClose }: Props) {
         <div><dt>{t('status')}</dt><dd>{t('noData')}</dd></div>
         <div><dt>{t('source')}</dt><dd>{t('organNoSource')}</dd></div>
       </dl>
-      <div className="drawer-observations"><h3>{t('organNotes')}</h3><p>{t('organWarning')}</p></div>
+      <div className="drawer-observations"><h3>{t('organNotes')}</h3>{simulated&&<p className="drawer-demo-note">{demoCopy(language,'demoNote')}</p>}<p>{t('organWarning')}</p></div>
       <p className="drawer-notice"><Info size={16}/> {t('organMedical')}</p>
     </section>
   </div>;

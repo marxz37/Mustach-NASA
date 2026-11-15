@@ -4,7 +4,7 @@ test('independent English watch preview shows health and solar by buttons',async
   await page.goto('/');
   await expect(page).toHaveTitle('Mustach Wearable');
   await expect(page.getByRole('region',{name:'Screens: HEALTH'})).toBeVisible();
-  await expect(page.getByText('Not evaluated')).toBeVisible();
+  await expect(page.getByText('Maya Bennett')).toBeVisible();
   await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();
   await expect(page.getByRole('region',{name:'Screens: SOLAR ACTIVITY'})).toBeVisible();
   await expect(page.getByText('A / OCCURRENCE')).toBeVisible();
@@ -17,9 +17,9 @@ test('independent English watch preview shows health and solar by buttons',async
 test('wearable language selector switches to Portuguese and Spanish',async({page})=>{
   await page.goto('/');
   await page.getByRole('combobox',{name:'Language'}).selectOption('pt');
-  await expect(page.getByText('Sem avaliação')).toBeVisible();
+  await expect(page.getByText('Maya Bennett')).toBeVisible();
   await page.getByRole('combobox',{name:'Idioma'}).selectOption('es');
-  await expect(page.getByText('Sin evaluación')).toBeVisible();
+  await expect(page.getByText('Maya Bennett')).toBeVisible();
 });
 
 test('watch swipe and keyboard navigate between pages',async({page})=>{
@@ -34,6 +34,6 @@ test('watch swipe and keyboard navigate between pages',async({page})=>{
 
 test('watch never reports an actual physical watch pairing',async({page})=>{
   await page.goto('/');
-  await expect(page.getByText('Not paired')).toBeVisible();
-  await expect(page.getByText('No smartwatch or sensors paired.',{exact:false})).toBeVisible();
+  await expect(page.getByText('SIMULATED')).toBeVisible();
+  await expect(page.getByText('All portraits, names', {exact:false})).toBeVisible();
 });

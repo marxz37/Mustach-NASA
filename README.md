@@ -51,17 +51,23 @@ npm run dev
 
 As portas 5173 e 5174 encaminham `/api` para a FastAPI local na porta 8000. Em outro ambiente, defina `VITE_API_BASE_URL` para a URL da API; ela deve autorizar a origem de cada aplicativo.
 
-## V0.4 — Leituras, EVA e idiomas
+## V0.5 — Refinamento visual com dados demonstrativos
 
 - **Idiomas:** inglês (padrão), português e espanhol. Selecione o idioma no cabeçalho do Web ou Wearable. Cada aplicativo guarda a preferência no próprio navegador, sem depender de cookies ou login.
-- **Origem dos dados:** `No data / Sem dados` (inicial), `Real data / Dados reais` (consulta `GET /api/v1/measurements`) e `Simulation / Simulação` (gera uma série sintética **no navegador**, iniciada no momento da seleção; não inventa histórico de 24h).
-- **Gráfico de taxa de dose:** amostras de **taxa de dose equivalente (µSv/h)**, com histórico móvel de até 24h. Em modo Real, atualiza a API a cada 10s, se existirem registros compatíveis. Sem fonte, permanece vazio. A apresentação ajusta a escala temporal ao trecho disponível.
-- **Dose acumulada:** seletor `Daily / Diária` ou `Weekly / Semanal` na visão geral e em Tripulantes. O cálculo integra apenas leituras consecutivas compatíveis e não extrapola lacunas; dados limitados da sessão são indicados como **parciais**, e não como o total de um dia/semana.
-- **EVA:** cronômetro `Iniciar`, `Pausar`, `Retomar`, `Finalizar` e `Zerar`, com preservação do estado ao alternar entre as abas do Web. A dose da sessão só pode ser estimada em **Simulação** (a partir da taxa de dose equivalente sintética). No modo Real, sem tripulante e dosímetro pessoal identificados, o cronômetro opera mas a dose aparece `—`.
-- **Tripulantes:** mantém 0 registros até receber dados autorizados; possui histórico diário/semanal, gráfico individual sem série fictícia e EVA demonstrativa não vinculada a pessoa real.
-- **Conexão:** os horários de última consulta à API e última medição são distintos. O Wearable envia `POST /api/v1/wearable/heartbeat` a cada 30s; `GET /api/v1/wearable/connection` permite ao Web dizer se a **prévia web** está ativa, sem alegar que um relógio físico está pareado. O registro fica somente em memória e é apagado quando o back-end reinicia.
-- **Visual:** removidos o texto decorativo anterior e os percentuais por região. O mapa fica neutro quando não há dados de órgão; em Simulação, as cores continuam educativas, sem classificação clínica.
-- **Telemetria orbital:** não exibimos altitude/posição no MVP porque isso exigiria vínculo temporal e espacial verificável com cada detector.
+- **Origem dos dados:** o Web inicia em `Simulation / Simulação` para permitir uma demonstração visual completa. `Real data / Dados reais` continua consultando somente a API existente; `No data / Sem dados` mostra a ausência real de dados. Nunca ocorre fallback automático de dados reais para dados sintéticos.
+- **Tripulantes fictícios:** quatro perfis ilustrativos com retratos criados para esta demonstração (Maya Bennett, Alex Kim, Elena Reyes e Amir Haddad). A seleção troca a série sintética pessoal, o resumo do perfil e os indicadores exibidos; esses perfis não representam astronautas reais.
+- **Séries radiológicas:** o simulador local gera uma **janela sintética de 7 dias com amostras de cinco em cinco minutos** e acrescenta uma amostra sintética a cada 2 segundos. Isso existe exclusivamente para validar o layout e o gráfico, não é telemetria histórica da NASA. Mudanças de origem reinicializam a sessão e evitam misturar dados.
+- **Histórico:** `Last 24 hours / Últimas 24 horas` e `Last 7 days / Últimos 7 dias` indicam janelas móveis. Em modo real, apenas medições compatíveis podem ser acumuladas; lacunas permanecem visíveis sem extrapolação. Em simulação, a série sintética cobre o período demonstrativo.
+- **Saúde:** removida a duplicação do status no dashboard; o painel inferior mostra indicadores ilustrativos do tripulante selecionado (frequência cardíaca, SpO₂, sono e atividade). Nenhum desses números é uma avaliação médica, nem informa segurança radiológica.
+- **EVA:** mantém cronômetro independente, controles de pausa e reset e cálculo sintético de dose da sessão quando possível. Adicionamos um registro de EVA anterior **100% fictício** apenas para preencher a experiência de demonstração.
+- **Atividade solar:** no modo simulação, A/B/C são preenchidos com **um único cenário solar fictício** local, com sinalização explícita `SYNTHETIC FIXTURE`. Nenhum prognóstico da NOAA, CCMC ou NASA foi inventado como dado real.
+- **Mustach Wearable:** continua aplicativo separado na porta 5174; tem modo demonstrativo e seletor independente dos mesmos quatro perfis fictícios, retrato e as duas telas de Saúde / Atividade Solar. Ainda não existe conexão com smartwatch físico, nem sincronização de um perfil real entre aplicativos.
+- **Conexão:** os horários de última consulta à API e última medição são distintos. O Wearable continua enviando batimentos de presença da **prévia web** para a API, e isso não representa um relógio físico pareado.
+- **Três idiomas:** inglês (padrão), português e espanhol, inclusive os textos novos dos estados demonstrativos. Cada aplicativo guarda sua preferência no próprio navegador.
+- **Mapa de calor:** continua 2D e sem porcentagens. Em modo demonstração, as cores e o modal de órgãos são **apenas ilustrações anatômicas**, não uma estimativa de dose em cada órgão.
+- **Telemetria orbital:** não exibida no MVP porque exige vincular localização e momento de medição ao instrumento que gerou o registro.
+
+Os retratos em `frontend/public/crew/` e `wearable/public/crew/` foram gerados artificialmente para perfis fictícios. O módulo `shared/demo.ts` concentra os dados e as séries para o **modo demonstrativo da interface**, e `shared/demoCopy.ts` concentra as respectivas legendas EN/PT/ES. Os componentes não gravam dados simulados no SQLite e não modificam as rotas FastAPI.
 
 A antiga prévia HTML estática foi retirada porque não reproduz as atualizações. Execute os aplicativos pelo Vite nas portas indicadas acima.
 
@@ -100,7 +106,11 @@ cd backend
 
 ## Limites científicos do protótipo
 
-- Sem medições aplicáveis, o mapa corporal é neutro. Em **Simulação**, as cores são apenas ilustrativas: não existem percentuais de dose, dano ou risco no mapa.
+- Fora do modo de simulação, sem medições aplicáveis, o mapa corporal é neutro. Em **Simulação**, as cores são apenas ilustrativas: não existem percentuais de dose, dano ou risco no mapa.
 - Um campo vazio não significa condição segura.
 - Estimativas por órgão exigem dosimetria individual ou modelos físicos validados.
 - Fontes científicas e condições para integração estão documentadas em `docs/FONTES-CIENTIFICAS.md`, não no site.
+
+## Verificação no Windows antes do commit
+
+Execute `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` e `npm run test:e2e` em `frontend/` e `wearable/`. No back-end, execute `pytest -q`. O código V0.5 passou na checagem estática de TypeScript e ESLint dos dois front-ends e nos 9 testes existentes da API, mas os testes do Vite/Vitest e a compilação final não puderam ser executados no ambiente Linux de elaboração por falta do binário nativo Rollup; confirme-os no Windows antes de integrar à `main`.

@@ -4,6 +4,7 @@ import type { Language, TranslationKey } from '@shared/i18n';
 import { translate } from '@shared/i18n';
 import { integrateEquivalentDose, toValidRate, type RatePoint, type TimeSpan } from '@shared/radiation';
 import { getApiStatus, getMeasurements, getWearableConnection } from '@/services/api';
+import { DEMO_CREW, demoEquivalentRate, demoPersonalSeries, demoSeries, type DemoCrewMember } from '@shared/demo';
 
 type DataMode = 'real' | 'simulation' | 'none';
 type EvaState = 'ready' | 'running' | 'paused' | 'finished';
@@ -13,7 +14,7 @@ interface AppState {
   mode:DataMode; setMode:(x:DataMode)=>void; now:number;
   apiOnline:boolean; lastApiCheck:number|null; lastMeasurement:number|null; wearableLastSeen:number|null; wearablePreviewActive:boolean;
   equivalentPoints:RatePoint[]; personalPoints:RatePoint[]; absorbedRate:number|null; latestEquivalent:number|null;
-  simulated:boolean; isObserved:boolean; evaState:EvaState; evaElapsedMs:number; evaDoseMicroSv:number|null;
+  selectedCrew:DemoCrewMember; setSelectedCrewId:(id:string)=>void; simulated:boolean; isObserved:boolean; evaState:EvaState; evaElapsedMs:number; evaDoseMicroSv:number|null;
   evaStart:()=>void; evaPause:()=>void; evaResume:()=>void; evaFinish:()=>void; evaReset:()=>void;
   totalDoseMicroSv:(period:'daily'|'weekly',personal?:boolean)=>number|null;
 }
@@ -21,27 +22,24 @@ const Context=createContext<AppState|null>(null);
 const languageFromStorage=():Language=>{
   try {const saved=localStorage.getItem('mustach-language');return saved==='pt'||saved==='es'?saved:'en';}catch{return 'en';}
 };
-function fakeRate(now:number):number {
-  const phase=now/8000;
-  // Deterministic SYNTHETIC signal; never attribute it to an astronaut or NASA sensor.
-  return Math.max(0.05,0.55+Math.sin(phase)*0.17+Math.sin(phase*0.31)*0.06);
-}
 export function AppProvider({children}:{children:ReactNode}) {
   const [language,setLanguageState]=useState<Language>(languageFromStorage);
   const setLanguage=(next:Language)=>{setLanguageState(next);try{localStorage.setItem('mustach-language',next);}catch{/* storage optional */}};
   const t=(key:TranslationKey)=>translate(language,key);
-  const [mode,setModeState]=useState<DataMode>('none');
+  const [mode,setModeState]=useState<DataMode>('simulation');
+  const [selectedCrewId,setSelectedCrewId]=useState(DEMO_CREW[0].id);
+  const selectedCrew=DEMO_CREW.find(x=>x.id===selectedCrewId)??DEMO_CREW[0];
   const [now,setNow]=useState(Date.now());
-  const [simulatedPoints,setSimulatedPoints]=useState<RatePoint[]>([]);
+  const [simulatedPoints,setSimulatedPoints]=useState<RatePoint[]>(()=>demoSeries(Date.now()));
   const [evaState,setEvaState]=useState<EvaState>('ready');
   const [evaSpans,setEvaSpans]=useState<EvaSpan[]>([]);
   const setMode=(next:DataMode)=>{
     // A session is reset when a user changes provenance. Never mix sources in a dose total.
-    setModeState(next);setEvaState('ready');setEvaSpans([]);setSimulatedPoints([]);
+    setModeState(next);setEvaState('ready');setEvaSpans([]);setSimulatedPoints(next==='simulation'?demoSeries(Date.now()):[]);
   };
   useEffect(()=>{
     if(mode!=='simulation')return;
-    const add=()=>{const at=Date.now();setNow(at);setSimulatedPoints(old=>[...old.filter(p=>p.at>=at-7*86_400_000),{at,value:fakeRate(at)}].slice(-4500));};
+    const add=()=>{const at=Date.now();setNow(at);setSimulatedPoints(old=>[...old.filter(p=>p.at>=at-7*86_400_000),{at,value:demoEquivalentRate(at)}].slice(-4500));};
     add(); const timer=window.setInterval(add,2000);return ()=>window.clearInterval(timer);
   },[mode]);
   useEffect(()=>{const timer=window.setInterval(()=>setNow(Date.now()),1000);return ()=>window.clearInterval(timer);},[]);
@@ -61,8 +59,8 @@ export function AppProvider({children}:{children:ReactNode}) {
     const groups=[...byInstrument.values()];
     return (groups.sort((a,b)=>Math.max(...b.map(p=>p.at))-Math.max(...a.map(p=>p.at)))[0]??[]).sort((a,b)=>a.at-b.at);
   },[observed]);
-  // No registered crewmember or dosimeter pairing exists yet. Keep personal readings unavailable.
-  const personalPoints:RatePoint[]=[];
+  // DEMO data is assigned only to fictional profiles; real mode still requires a paired dosimeter.
+  const personalPoints=useMemo(()=>mode==='simulation'?demoPersonalSeries(simulatedPoints,selectedCrew):[],[mode,simulatedPoints,selectedCrew]);
   const equivalentPoints=mode==='simulation'?simulatedPoints:mode==='real'?measuredPoints:[];
   const latestEquivalent=equivalentPoints.length&&now-equivalentPoints[equivalentPoints.length-1].at<120_000?equivalentPoints[equivalentPoints.length-1].value:null;
   const latestAbsorbed=mode==='real'?[...observed].reverse().find(x=>x.quantity==='absorbed_dose_rate'&&['µGy/h','uGy/h','μGy/h'].includes(x.unit)):undefined;
@@ -81,15 +79,15 @@ export function AppProvider({children}:{children:ReactNode}) {
   const totalDoseMicroSv=(period:'daily'|'weekly',personal=false)=>{
     const cutoff=now-(period==='daily'?86_400_000:7*86_400_000);
     const data=personal?personalPoints:equivalentPoints;
-    const maxGap=mode==='simulation'?5000:60_000;
-    // For crew, simulated data is unassigned and must never be represented as personal dose.
-    if(personal&&mode!=='real')return null;
+    const maxGap=mode==='simulation'?310_000:60_000;
+    // Personal demo values belong to fictional profiles only; real personal measurements remain unavailable.
+    if(personal&&mode!=='simulation')return null;
     return integrateEquivalentDose(data,[{start:cutoff,end:now}],maxGap);
   };
   const lastApiCheck=status.isSuccess?status.dataUpdatedAt:null;
   const wearableLastSeen=wearable.data?.last_seen_at?Date.parse(wearable.data.last_seen_at):null;
   const wearablePreviewActive=Boolean(wearableLastSeen&&now-wearableLastSeen<90_000);
-  const state:AppState={language,setLanguage,t,mode,setMode,now,apiOnline:status.isSuccess&&!status.isError,lastApiCheck,lastMeasurement,wearableLastSeen,wearablePreviewActive,equivalentPoints,personalPoints,absorbedRate,latestEquivalent,simulated:mode==='simulation',isObserved:mode==='real',evaState,evaElapsedMs,evaDoseMicroSv,evaStart,evaPause,evaResume,evaFinish,evaReset,totalDoseMicroSv};
+  const state:AppState={language,setLanguage,t,mode,setMode,selectedCrew,setSelectedCrewId,now,apiOnline:status.isSuccess&&!status.isError,lastApiCheck,lastMeasurement,wearableLastSeen,wearablePreviewActive,equivalentPoints,personalPoints,absorbedRate,latestEquivalent,simulated:mode==='simulation',isObserved:mode==='real',evaState,evaElapsedMs,evaDoseMicroSv,evaStart,evaPause,evaResume,evaFinish,evaReset,totalDoseMicroSv};
   return <Context.Provider value={state}>{children}</Context.Provider>;
 }
 export function useApp(){const c=useContext(Context);if(!c)throw Error('AppProvider missing');return c;}

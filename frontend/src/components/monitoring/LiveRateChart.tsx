@@ -4,6 +4,7 @@ import type { EChartsOption } from 'echarts';
 import { Activity, Radio } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { formattedClock, languageLocale } from '@shared/i18n';
+import { demoCopy } from '@shared/demoCopy';
 
 interface Props { personal?: boolean; compact?: boolean; }
 const DAY_MS=86_400_000;
@@ -31,6 +32,6 @@ export function LiveRateChart({personal=false,compact=false}:Props){
     <div className="panel-heading"><Activity size={19}/><h2>{t('latestRate')}</h2><span className="readout-live"><span className={`live-indicator ${mode==='simulation'?'is-simulated':''}`}/>{mode==='simulation'?t('simulated'):mode==='real'?t('observed'):t('noData')}</span></div>
     <div className="live-rate-summary"><div><strong>{latest?latest.value.toFixed(3):'—'} <small>µSv/h</small></strong><p>{personal?t('personalExposure'):t('rateHistory')}</p></div><span>{latest?formattedClock(latest.at,language,true):t('never')}</span></div>
     <div className="chart-wrap">{recent.length? <ReactECharts option={option} notMerge lazyUpdate style={{height:compact?178:236,width:'100%'}}/>:<div className="empty-rate-chart"><Radio size={22}/><span>{t('realtimeWaiting')}</span></div>}</div>
-    <p className="panel-explain">{mode==='simulation'?t('onlySimulation'):personal?t('crewHistoryNote'):mode==='real'?t('unsupportedSource'):t('noTelemetry')}</p>
+    <p className="panel-explain">{mode==='simulation'?demoCopy(language,'liveDemo'):personal?t('crewHistoryNote'):mode==='real'?t('unsupportedSource'):t('noTelemetry')}</p>
   </section>;
 }
