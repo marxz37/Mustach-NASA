@@ -76,3 +76,29 @@ O build, o lint e os testes Vitest, Pytest e Playwright foram executados neste a
 3. Definir regras de visualização fundamentadas para a futura escala do mapa de calor.
 4. Implementar histórico e dose acumulada somente para séries dosimétricas compatíveis.
 5. Incluir novos testes automatizados para dados reais e casos de ausência de telemetria.
+
+
+## Atualização Mustach V0.3 sobre o ZIP do projeto
+
+- Preservados: layout sem menu lateral, abas superiores, visual editorial, fichas de tripulantes, visualização Corpo/Órgãos, modal de zoom com fundo desfocado e painéis de radiação/atividade solar.
+- Novo: aba **Relógio** (`/relogio`), com telas **Saúde** e **Atividade solar** navegáveis por deslize horizontal, teclado ou botões.
+- Novo: `GET /api/v1/wearable/status` retorna estado explícito de não pareamento. Não há conexão Bluetooth ou dispositivo físico nesta versão.
+- Novo: percentuais **fictícios** sobre o mapa corporal somente no modo `Prévia simulada`. Eles não indicam dose, probabilidade de dano, porcentagem de tecido afetado nem risco médico. Desativar a prévia remove todos os percentuais e cores de simulação.
+- Atualizado: identidade visual azul-marinho/ciano futurista do website e do relógio.
+- Os dados reais continuam ausentes; a interface não exibe avaliações clínicas falsas.
+
+### Após aplicar o patch
+
+```powershell
+cd frontend
+npm run lint
+npm test
+npm run build
+npm run test:e2e
+cd ..\backend
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+O patch foi gerado especificamente a partir do arquivo `myproject.zip` compartilhado nesta conversa.
+
+**Observação:** `PRÉVIA-SEM-INSTALAR.html` é um snapshot legado do projeto, não foi regenerado nesta versão. Para conferir as alterações atuais, use `iniciar-frontend.bat` e abra `http://localhost:5173`.

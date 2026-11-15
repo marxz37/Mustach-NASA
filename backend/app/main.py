@@ -47,7 +47,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     title="Mustach — Space Radiation Monitoring API",
     description="Esqueleto para integrações científicas futuras. Não fornece dosimetria individual real.",
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -94,3 +94,21 @@ def sources():
         SourceInfo(id="sep", name="NASA SEP Scoreboard", category="FORECAST", description="Previsões solares de modelos científicos."),
         SourceInfo(id="csa", name="CSA Radi-N2", category="REFERENCE", description="Referência científica de monitoramento de nêutrons."),
     ]
+
+
+class WearableStatus(BaseModel):
+    """Estado legível pelo protótipo de relógio; sem alegar pareamento ou dados clínicos."""
+
+    paired: bool = False
+    health_status: Literal["not_evaluated"] = "not_evaluated"
+    heart_rate_bpm: float | None = None
+    accumulated_dose_msv: float | None = None
+    last_health_measurement: datetime | None = None
+    solar_status: Literal["no_forecast"] = "no_forecast"
+    last_solar_update: datetime | None = None
+
+
+@app.get("/api/v1/wearable/status", response_model=WearableStatus)
+def wearable_status():
+    """A interface e o wearable compartilham a API, mas nenhum dispositivo está conectado."""
+    return WearableStatus()

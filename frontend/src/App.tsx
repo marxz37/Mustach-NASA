@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { Activity, RadioTower, ScanHeart, Wifi, WifiOff } from 'lucide-react';
+import { Activity, RadioTower, ScanHeart, Wifi, WifiOff, Watch } from 'lucide-react';
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { Overview } from '@/pages/Overview';
 import { CrewPage } from '@/pages/Crew';
+import { WatchPage } from '@/pages/Watch';
 import { getApiStatus } from '@/services/api';
 
 export default function App() {
@@ -13,13 +14,14 @@ export default function App() {
       <nav className="main-tabs" aria-label="Navegação principal">
         <NavLink to="/" end className={({isActive}) => `main-tab ${isActive?'tab-active':''}`}><Activity size={17}/> Visão geral</NavLink>
         <NavLink to="/tripulantes" className={({isActive}) => `main-tab ${isActive?'tab-active':''}`}><RadioTower size={17}/> Tripulantes</NavLink>
+        <NavLink to="/relogio" className={({isActive}) => `main-tab ${isActive?'tab-active':''}`}><Watch size={17}/> Relógio</NavLink>
       </nav>
       <div className="header-status" aria-label={status?.api === 'online' ? 'API local conectada' : 'API local não conectada'}>
         {status?.api === 'online' ? <Wifi size={15}/> : <WifiOff size={15}/>}
         <span>{status?.api === 'online' ? 'API LOCAL ONLINE' : 'API NÃO CONECTADA'}</span>
       </div>
     </header>
-    <main className="mustach-main"><Routes><Route path="/" element={<Overview/>}/><Route path="/tripulantes" element={<CrewPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></main>
+    <main className="mustach-main"><Routes><Route path="/" element={<Overview/>}/><Route path="/tripulantes" element={<CrewPage/>}/><Route path="/relogio" element={<WatchPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></main>
     <footer className="mustach-footer"><span>MUSTACH / NASA SPACE APPS CHALLENGE 2026</span><span>PROTÓTIPO DE INTERFACE • NÃO É DISPOSITIVO MÉDICO</span></footer>
   </div>;
 }

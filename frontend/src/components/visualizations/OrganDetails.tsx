@@ -69,8 +69,8 @@ export function OrganDetails({ target, onClose }: Props) {
           <div className="zoom-connection" aria-hidden="true"/>
           <div className="zoom-lens">
             <svg viewBox="0 0 210 180" role="img" aria-label={`Ampliação 2D de ${organ.name}, sem dados de dose`}>
-              <defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#686b6e"/><stop offset="1" stopColor="#2b3036"/></linearGradient></defs>
-              <path d={organ.zoomPath} transform="translate(0 9)" fill={`url(#${gradientId})`} stroke="#beaa95" strokeWidth="2.3" strokeLinejoin="round"/>
+              <defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#437a9e"/><stop offset="1" stopColor="#102b47"/></linearGradient></defs>
+              <path d={organ.zoomPath} transform="translate(0 9)" fill={`url(#${gradientId})`} stroke="#75dfff" strokeWidth="2.3" strokeLinejoin="round"/>
             </svg>
           </div>
         </div>

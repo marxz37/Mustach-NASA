@@ -24,7 +24,7 @@ export function Overview() {
   const [active, setActive] = useState<BodyTarget | null>(null);
   const [period, setPeriod] = useState<(typeof periods)[number]>('7 dias');
   const [bodyView, setBodyView] = useState<'corpo' | 'orgaos'>('corpo');
-  const [demonstration, setDemonstration] = useState(false);
+  const [demonstration, setDemonstration] = useState(true);
 
   return <div className="dashboard-page">
     <div className="dashboard-intro">
@@ -52,7 +52,7 @@ export function Overview() {
           </div>
           <label className="demo-switch"><input type="checkbox" checked={demonstration} onChange={event => setDemonstration(event.target.checked)}/> Prévia simulada</label>
         </div>
-        <p className="section-description">{bodyView === 'orgaos' ? 'Selecione um órgão para abrir sua ficha ampliada.' : 'Visualize a distribuição corporal de exposição.'} {demonstration ? 'As cores abaixo são apenas uma simulação visual, sem valores de dose.' : 'Sem medições aplicáveis, o mapa permanece neutro.'}</p>
+        <p className="section-description">{bodyView === 'orgaos' ? 'Selecione um órgão para abrir sua ficha ampliada.' : 'Visualize a distribuição corporal de exposição.'} {demonstration ? 'Cores e porcentagens são fictícias, usadas apenas para demonstrar a interface; não representam dose, risco ou saúde.' : 'Sem medições aplicáveis, o mapa permanece neutro.'}</p>
         <HeatmapBody view={bodyView} demonstration={demonstration} selected={active} onSelect={setActive}/>
         <div className="body-legend">{demonstration ? <><span className="heat-scale" aria-hidden="true"/><span>Menor intensidade ilustrativa</span><span>Maior intensidade ilustrativa</span></> : <><span className="legend-swatch"/><span>Sem dados de exposição</span><span>Escala desativada</span></>}</div>
       </section>

@@ -13,14 +13,15 @@ test('nova navegação superior sem barra lateral', async ({page}) => {
   await expect(page.getByRole('heading', {name:'Saúde do indivíduo'})).toBeVisible();
   await expect(page.locator('.individual-health')).toContainText('Sem avaliação');
   await expect(page.locator('.individual-health')).toHaveClass(/health-unknown/);
-  await expect(page.getByText('SEM DADOS · ESCALA DESATIVADA')).toBeVisible();
+  await expect(page.getByText('% ILUSTRATIVOS · NÃO REPRESENTAM DOSE OU RISCO')).toBeVisible();
 });
 
 test('mapa separa corpo e órgãos e identifica cores simuladas', async ({page}) => {
   await page.goto('/');
   await expect(page.getByRole('button',{name:'Ampliar órgão: Cérebro'})).toHaveCount(0);
+  await page.getByRole('checkbox',{name:'Prévia simulada'}).uncheck();
   await page.getByRole('checkbox',{name:'Prévia simulada'}).check();
-  await expect(page.getByText('SIMULAÇÃO VISUAL · SEM DOSIMETRIA')).toBeVisible();
+  await expect(page.getByText('% ILUSTRATIVOS · NÃO REPRESENTAM DOSE OU RISCO')).toBeVisible();
   await expect(page.getByRole('group',{name:'Mapa corporal com cores simuladas, sem dosimetria'})).toBeVisible();
   await page.getByRole('button',{name:'Órgãos', exact:true}).click();
   await expect(page.getByRole('button',{name:'Ampliar órgão: Cérebro'})).toBeVisible();
@@ -65,4 +66,35 @@ test('visão geral cabe na tela pequena', async ({page}) => {
   await expect(page.getByRole('dialog',{name:'Detalhes de Pulmões'})).toBeVisible();
   const modalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(modalOverflow).toBe(false);
+});
+
+
+test('relógio mostra saúde e atividade solar por navegação horizontal', async ({page}) => {
+  await page.goto('/relogio');
+  await expect(page.getByRole('region', {name:'Tela do relógio: Saúde do tripulante'})).toBeVisible();
+  await expect(page.getByText('Sem avaliação')).toBeVisible();
+  await page.getByRole('button',{name:'Ver atividade solar'}).click();
+  await expect(page.getByRole('region', {name:'Tela do relógio: Atividade solar'})).toBeVisible();
+  await expect(page.getByText('Sem previsão', {exact:true})).toBeVisible();
+});
+
+test('porcentagens demonstrativas aparecem somente com simulação ativa', async ({page}) => {
+  await page.goto('/');
+  await expect(page.locator('.body-percent-label').filter({hasText:'33%'})).toBeVisible();
+  await page.getByRole('checkbox',{name:'Prévia simulada'}).uncheck();
+  await expect(page.locator('.body-percent-label')).toHaveCount(0);
+});
+
+
+test('relógio alterna por deslize horizontal', async ({page}) => {
+  await page.goto('/relogio');
+  const screen = page.getByRole('region', {name:'Tela do relógio: Saúde do tripulante'});
+  const bounds = await screen.boundingBox();
+  expect(bounds).not.toBeNull();
+  if (!bounds) return;
+  await page.mouse.move(bounds.x + bounds.width * .78, bounds.y + bounds.height * .50);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width * .19, bounds.y + bounds.height * .50, {steps: 5});
+  await page.mouse.up();
+  await expect(page.getByRole('region', {name:'Tela do relógio: Atividade solar'})).toBeVisible();
 });
