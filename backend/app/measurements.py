@@ -1,5 +1,5 @@
 """Measurement contract shared by observed API records and explicitly simulated evidence."""
-from typing import Literal
+from typing import Any, Literal
 from pydantic import AwareDatetime, BaseModel, Field
 
 
@@ -19,3 +19,6 @@ class Measurement(BaseModel):
     activity_id: str | None = None
     location: str | None = None
     quality: Literal['VALID', 'REVIEW_REQUIRED', 'UNKNOWN'] = 'UNKNOWN'
+    collected_at: AwareDatetime | None = None
+    source_url: str | None = None
+    details: dict[str, Any] | None = None
