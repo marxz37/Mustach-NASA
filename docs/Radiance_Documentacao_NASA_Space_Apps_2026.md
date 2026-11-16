@@ -37,7 +37,7 @@ The demonstration follows a fictional crew member preparing for an extravehicula
 
 The demonstration reading and crew profile are fictional. They do not represent a physical sensor, an astronaut’s medical record or a NASA operational threshold.
 
-Project presentation: [View the team’s Figma slides](https://www.figma.com/slides/TyXvdmJ6oC8EWCeg9BLjaZ/RADIANCE-%E2%80%94-Space-Radiation-Companion-%7C-NASA-Space-Apps-2026?node-id=4-20&t=W6cx7vqiFIcU4XS1-0)
+Project presentation: 
 
 ## Scientific data and resources
 
@@ -92,14 +92,12 @@ The team states that the project idea is original. NASA, NOAA and CCMC data, sof
 | Team | Mustache |
 | Local event | Itabira |
 | Team member | Tiago Santos Alcantara |
-| Team member | Raynan Meneses Linhares |
 | Team member | Marx Bento Dumbá |
 | Team member | Luiz Fernando Rodrigues Salomão Da Cunha |
 
 ## Project links and references
 
 - [Project repository](https://github.com/marxz37/Mustach-NASA)
-- [Radiance slides in Figma](https://www.figma.com/slides/TyXvdmJ6oC8EWCeg9BLjaZ/RADIANCE-%E2%80%94-Space-Radiation-Companion-%7C-NASA-Space-Apps-2026?node-id=4-20&t=W6cx7vqiFIcU4XS1-0)
 - [Selected challenge: Health Monitoring Software](https://www.spaceappschallenge.org/2026/challenges/health-monitoring-software/)
 - [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/2026/)
 - [Participant terms and conditions](https://www.spaceappschallenge.org/legal/)
