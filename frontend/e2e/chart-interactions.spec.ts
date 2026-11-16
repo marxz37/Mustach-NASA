@@ -1,0 +1,47 @@
+import {test,expect} from '@playwright/test';
+import {simulationFixture} from '../../shared/testing/simulationFixture';
+
+test('rate zoom responds to wheel, persists through polling, can pan and return to live; history has native zoom and simulation-only legend',async({page})=>{
+  const now=Date.now();
+  const state=simulationFixture(now);
+  state.points=state.points.map(p=>({at:p.at,value:p.at<now-3600000?.35:.35+.025*Math.sin((p.at-now)/20000)}));
+  await page.route('**/api/v1/demo/simulation',route=>route.fulfill({json:state}));
+  await page.goto('/');
+  const rate=page.locator('.live-rate-section').first();
+  const view=rate.locator('.chart-wrap');
+  await expect(view.locator('canvas').first()).toBeVisible();
+  const span=async()=>Number(await view.getAttribute('data-view-to'))-Number(await view.getAttribute('data-view-from'));
+  expect(await span()).toBe(900000);
+  await view.scrollIntoViewIfNeeded();
+  const box=(await view.boundingBox())!;
+  await page.mouse.move(box.x+box.width*.6,box.y+box.height*.4);
+  await page.mouse.wheel(0,-400);
+  await expect.poll(span).toBeLessThan(900000);
+  const zoomed=await span();
+  await page.waitForTimeout(1500);
+  expect(await span()).toBeCloseTo(zoomed,0);
+  const from=Number(await view.getAttribute('data-view-from'));
+  // Native inside pan: drag the plot horizontally without moving the page.
+  await page.mouse.move(box.x+box.width*.6,box.y+box.height*.4);
+  await page.mouse.down();await page.mouse.move(box.x+box.width*.8,box.y+box.height*.4,{steps:8});await page.mouse.up();
+  await expect.poll(async()=>Number(await view.getAttribute('data-view-from'))).not.toBe(from);
+  await rate.getByRole('button',{name:'Live view'}).click();
+  await expect.poll(span).toBe(900000);
+  const history=page.locator('.history-section').first();
+  await expect(history.locator('.dose-demo-legend')).toHaveAttribute('data-band','low');
+  const canvas=history.locator('canvas').first();
+  await expect(canvas).toBeVisible();
+  const before=await canvas.screenshot();
+  await canvas.scrollIntoViewIfNeeded();
+  const area=(await canvas.boundingBox())!;
+  await page.mouse.move(area.x+area.width*.6,area.y+area.height*.4);
+  await page.mouse.wheel(0,-500);
+  await page.waitForTimeout(250);
+  expect((await canvas.screenshot()).equals(before)).toBe(false);
+  await history.screenshot({path:'test-results/history-zoom-legend.png'});
+  await rate.screenshot({path:'test-results/rate-zoom.png'});
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('real');
+  await expect(page.locator('.dose-demo-legend')).toHaveCount(0);
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
+  await expect(page.locator('.dose-demo-legend')).toHaveCount(0);
+});

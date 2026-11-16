@@ -43,7 +43,7 @@ for(const lang of ['en','pt','es'] as const){
         const content=el.querySelector('.watch-center')!.getBoundingClientRect();
         const notice=el.querySelector('.watch-sep-notice')!.getBoundingClientRect();
         const footer=el.querySelector('.watch-screen-footer')!.getBoundingClientRect();
-        const lastContent=el.querySelector('.watch-solar-disclaimer')??el.querySelector('.watch-health-stats');
+        const lastContent=el.querySelector('.watch-solar-disclaimer')??el.querySelector('.watch-personal-reading')??el.querySelector('.watch-health-stats');
         const operational=el.querySelector('.watch-operational-notice');
         return {contentBottom:content.bottom,lastContentBottom:lastContent!.getBoundingClientRect().bottom,nextTop:operational?.getBoundingClientRect().top??notice.top,noticeTop:notice.top,noticeBottom:notice.bottom,footerTop:footer.top,footerBottom:footer.bottom,screenBottom:el.getBoundingClientRect().bottom,overflow:document.documentElement.scrollWidth>innerWidth};
       });
