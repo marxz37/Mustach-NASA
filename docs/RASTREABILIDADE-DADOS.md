@@ -1,6 +1,6 @@
-# Rastreabilidade de dados, fontes e funcionalidades — Mustach
+# Rastreabilidade de dados, fontes e funcionalidades — Radiance
 
-**Objetivo:** registrar *onde* cada fonte científica entra no Mustach, *quais dados* são necessários, *qual arquivo/componente* deve consumir a informação e *o que ainda falta implementar*. Atualizar esta tabela ao conectar cada API.
+**Objetivo:** registrar *onde* cada fonte científica entra no Radiance, *quais dados* são necessários, *qual arquivo/componente* deve consumir a informação e *o que ainda falta implementar*. Atualizar esta tabela ao conectar cada API.
 
 - [Catálogo e links oficiais das fontes](FONTES-CIENTIFICAS.md)
 - [Contratos e limites científicos](CONTRATOS.md)
@@ -67,7 +67,7 @@ Horários: timestamp, timezone, janela de validade, frequência e latência:
 Formato/API, chave, limites de uso e histórico:
 Qualidade, calibração, incerteza e lacunas:
 Transformações e conversões justificadas:
-Contrato Mustach e arquivo de integração:
+Contrato Radiance e arquivo de integração:
 Exemplo de resposta sanitizado e teste automatizado:
 Estado: pesquisa | protótipo de integração | validado | em produção
 Data de revisão / responsável:

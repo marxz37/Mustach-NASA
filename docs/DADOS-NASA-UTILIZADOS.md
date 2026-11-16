@@ -1,4 +1,4 @@
-# Dados científicos efetivamente consultados — Mustach
+# Dados científicos efetivamente consultados — Radiance
 
 Registro da coleta local de **15/11/2026**. Os resultados abaixo descrevem a amostra salva no SQLite desta estação; um clone novo começa com banco vazio. Serviços externos mudam com o tempo. A aplicação nunca usa esses registros como avaliação médica ou autorização EVA.
 
@@ -53,7 +53,7 @@ https://iswa.ccmc.gsfc.nasa.gov/iswa_data_tree/model/heliosphere/sep_scoreboard/
 ## DONKI e pesquisa fisiológica
 
 - **DONKI:** `GET https://api.nasa.gov/DONKI/SEP?startDate=2024-05-09&endDate=2024-05-13&api_key=DEMO_KEY` foi consultado em 15/11/2026. Campos persistidos: `sepID`, `eventTime`, `instruments`, `linkedEvents`, `submissionTime`, `versionId`, `link`. `NASA_API_KEY` pode substituir `DEMO_KEY` no ambiente, nunca no front-end. Eventos são contexto histórico, não prova de causalidade nem dose. Consulta do período corrente (10–15/11/2026) devolveu lista vazia. FLR/CME ainda não integrados.
-- **OSDR fisiológico:** [OSD-575](https://osdr.nasa.gov/bio/repo/data/studies/OSD-575) descreve biomarcadores séricos de quatro participantes da Inspiration4, com amostras pré/pós-voo; não é monitoramento ao vivo e não será associado aos perfis fictícios. [OSD-881](https://osdr.nasa.gov/bio/repo/data/studies/OSD-881) é estudo de ventrículo direito **em camundongos**, com radiação experimental e dieta; não deve produzir estado clínico humano. Ambos são públicos no catálogo (ver metadados e licenças CC0 indicados nas páginas), mas **nenhum dado fisiológico foi importado ao Mustach**. Sono e outros datasets demandam estudo específico antes de uso.
+- **OSDR fisiológico:** [OSD-575](https://osdr.nasa.gov/bio/repo/data/studies/OSD-575) descreve biomarcadores séricos de quatro participantes da Inspiration4, com amostras pré/pós-voo; não é monitoramento ao vivo e não será associado aos perfis fictícios. [OSD-881](https://osdr.nasa.gov/bio/repo/data/studies/OSD-881) é estudo de ventrículo direito **em camundongos**, com radiação experimental e dieta; não deve produzir estado clínico humano. Ambos são públicos no catálogo (ver metadados e licenças CC0 indicados nas páginas), mas **nenhum dado fisiológico foi importado ao Radiance**. Sono e outros datasets demandam estudo específico antes de uso.
 - **Órgãos:** [NASA-STD-3001 Vol. 1](https://www.nasa.gov/reference/nasa-std-3001v1/) discute limites por órgãos sob dosimetria/modelagem apropriada. [MOSFET/Matroshka](https://www.asc-csa.gc.ca/eng/astronauts/space-medicine/mosfet.asp), [EVARM](https://www.asc-csa.gc.ca/eng/iss/evarm.asp) e [Radi-N2](https://www.asc-csa.gc.ca/eng/sciences/radi-n2.asp) são referências, não feeds ativos. Nenhum valor RadLab/GOES é pintado como risco real no mapa corporal.
 
 ## Reproduzir e verificar

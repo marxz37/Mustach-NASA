@@ -15,7 +15,7 @@ export function CrewPage(){
  const dose=totalDoseMicroSv('weekly',true);
  const role=(c:typeof selectedCrew)=>language==='pt'?c.rolePt:language==='es'?c.roleEs:c.role;
  return <div className="crew-page">
-  <div className="crew-intro crew-intro--compact"><span className="section-kicker">MUSTACH / {t('crewList')}</span><h1>{t('crewTitle')}</h1><p>{demo?d('overviewNote'):t('crewDescription')}</p></div>
+  <div className="crew-intro crew-intro--compact"><span className="section-kicker">RADIANCE / {t('crewList')}</span><h1>{t('crewTitle')}</h1><p>{demo?d('overviewNote'):t('crewDescription')}</p></div>
   <div className="crew-section-title"><span>{demo?d('crew'):t('crewList')}</span><span>{demo?d('crewCount'):t('crewCountZero')}</span></div>
   {demo?<>
    <div className="crew-gallery" aria-label={d('profiles')}>

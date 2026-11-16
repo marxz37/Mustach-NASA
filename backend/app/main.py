@@ -1,4 +1,4 @@
-"""Mustach local API: scientific observations, forecasts and isolated EVA demonstration."""
+"""Radiance local API: scientific observations, forecasts and isolated EVA demonstration."""
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 import os
@@ -43,7 +43,7 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(
-    title="Mustach — Space Radiation Monitoring API",
+    title="Radiance — Space Radiation Monitoring API",
     description="Dados científicos rastreáveis e protótipo EVA separado. Não fornece dosimetria clínica individual.",
     version="0.5.0",
     lifespan=lifespan,

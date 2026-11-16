@@ -27,7 +27,7 @@ class ActivityContext(BaseModel):
 
 class RemoteEvent(BaseModel):
     id: str = 'DEMO-SOLAR-01'
-    source: str = 'MUSTACH SYNTHETIC EVENT'
+    source: str = 'RADIANCE SYNTHETIC EVENT'
     provenance: Literal['SIMULATED'] = 'SIMULATED'
     activity_id: str = 'EVA-01'
     issued_at: AwareDatetime
@@ -45,7 +45,7 @@ SCENARIO_IDS = ('missing_personal', 'solar_review', 'complete', 'missing_environ
 
 
 def personal_fixture(activity: ActivityContext, at: datetime) -> Measurement:
-    return Measurement(id='DEMO-PERSONAL-001', source='MUSTACH SYNTHETIC DOSIMETER', provenance='SIMULATED',
+    return Measurement(id='DEMO-PERSONAL-001', source='RADIANCE SYNTHETIC DOSIMETER', provenance='SIMULATED',
         instrument='DEMO-PD-01', measured_at=at, quantity='dose_equivalent_rate', value=0.47, unit='µSv/h',
         mission=activity.mission, scope='PERSONAL', astronaut_id=activity.astronaut_id,
         activity_id=activity.id, location=activity.location, quality='VALID')
@@ -55,7 +55,7 @@ def build_scenario(scenario_id: ScenarioId, at: datetime | None = None) -> Scena
     at = at or current_time()
     activity = ActivityContext(scheduled_at=at + timedelta(hours=2))
     personal = personal_fixture(activity, at - timedelta(minutes=2))
-    environment = personal.model_copy(update={'id': 'DEMO-ENV-001', 'source': 'MUSTACH SYNTHETIC ENVIRONMENT',
+    environment = personal.model_copy(update={'id': 'DEMO-ENV-001', 'source': 'RADIANCE SYNTHETIC ENVIRONMENT',
         'instrument': 'DEMO-ENV-01', 'scope': 'ENVIRONMENTAL', 'astronaut_id': None, 'value': 0.43})
     if scenario_id == 'missing_personal':
         personal = None

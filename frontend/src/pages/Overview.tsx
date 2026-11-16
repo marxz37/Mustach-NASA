@@ -31,7 +31,7 @@ export function Overview(){
   const coverageHours=new Intl.NumberFormat(languageLocale[language],{maximumFractionDigits:2}).format(covered/3_600_000);
   return <div className="dashboard-page">
     <div className="dashboard-toolbar">
-      <span className="section-kicker">MUSTACH / {t('missionReadings')}</span>
+      <span className="section-kicker">RADIANCE / {t('missionReadings')}</span>
       <div className="mode-chip" data-mode={mode}><span className="status-dot"/>{modeName}</div>
     </div>
     <section className="readout-strip readout-strip--priority" aria-label={t('missionReadings')}>

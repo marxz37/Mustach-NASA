@@ -1,1 +1,1 @@
-"""Mustach API — protótipo científico sem medições reais."""
+"""Radiance API — protótipo científico sem medições reais."""

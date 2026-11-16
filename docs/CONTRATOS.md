@@ -1,4 +1,4 @@
-# Contratos científicos — Mustach
+# Contratos científicos — Radiance
 
 ## Estado inicial
 

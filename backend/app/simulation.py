@@ -54,8 +54,8 @@ def snapshot(state, at):
     iso = lambda value: datetime.fromtimestamp(value/1000, timezone.utc).isoformat()
     event_offsets = {'normal':None,'predicted':(600000,1200000,3600000),
                      'ongoing':(0,600000,2400000),'recovery':(-3600000,-2400000,0)}[scenario]
-    solar = dict(id=f"sim-{state['run_id']}-{len(state['segments'])}", source='MUSTACH SYNTHETIC FIXTURE',
-                 provider='MUSTACH LAB', model=f'SYN-SEP / {scenario}', provenance='FORECAST',
+    solar = dict(id=f"sim-{state['run_id']}-{len(state['segments'])}", source='RADIANCE SYNTHETIC FIXTURE',
+                 provider='RADIANCE LAB', model=f'SYN-SEP / {scenario}', provenance='FORECAST',
                  issued_at=iso(start), valid_from=iso(start), valid_until=iso(start+86400000),
                  occurrence_probability_percent={'normal':18,'predicted':65,'ongoing':100,'recovery':15}[scenario],
                  peak_proton_flux={'normal':2.4,'predicted':12,'ongoing':35,'recovery':4}[scenario],

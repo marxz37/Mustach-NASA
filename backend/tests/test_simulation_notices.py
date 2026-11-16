@@ -52,7 +52,7 @@ def test_scenarios_evolve_without_touching_scientific_or_eva_evidence(scenario, 
         later=simulation.access()
         assert later['scenario']==scenario and later['rate']!=initial_rate
         assert later['provenance']=='SIMULATED'
-        assert later['solar_model']['source']=='MUSTACH SYNTHETIC FIXTURE'
+        assert later['solar_model']['source']=='RADIANCE SYNTHETIC FIXTURE'
         if scenario=='recovery':
             assert later['rate']<initial_rate
         assert all(p['value']>=0 for p in later['points'])

@@ -1,15 +1,15 @@
-# Tecnologias, arquitetura e estado de adoção — Mustach
+# Tecnologias, arquitetura e estado de adoção — Radiance
 
 > Revisão: **15/11/2026**. O status abaixo foi conferido **nos arquivos desta cópia do projeto** (`package.json`, `vite.config.ts`, `backend/requirements*.txt`, estrutura dos diretórios e código). **Uma tecnologia discutida na conversa não é automaticamente uma dependência instalada.**
 
 ## Visão da solução
 
 ```text
-Mustach Web — frontend/ (React + TypeScript + Vite, porta 5173)
+Radiance Web — frontend/ (React + TypeScript + Vite, porta 5173)
               \
                +--> FastAPI — backend/ (porta 8000) --> SQLite local (observações, previsões e demo separados)
               /
-Mustach Wearable — wearable/ (React + TypeScript + Vite, porta 5174)
+Radiance Wearable — wearable/ (React + TypeScript + Vite, porta 5174)
 
 shared/ --> i18n EN/PT/ES, contratos solares, cálculo temporal e dados de demonstração
 ```
@@ -27,7 +27,7 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. `
 | Estilos Web | Tailwind CSS 4 e plugin `@tailwindcss/vite` + CSS | **Declarado** no Web; customizações extensas em CSS | `frontend/package.json`, `frontend/src/index.css` |
 | Componentes Web | `components.json`, componentes locais e padrões shadcn/ui | **Estrutura configurada / componentes próprios**; `shadcn/ui` não é dependência runtime única | `frontend/components.json`, `frontend/src/components/ui/` |
 | Ícones | Lucide React | **Usado** em ambas as aplicações | `frontend/src/`, `wearable/src/` |
-| Gráficos | Apache ECharts 6 + `echarts-for-react` | **Usado** nos gráficos do Mustach Web | `frontend/package.json`, `frontend/src/components/monitoring/` |
+| Gráficos | Apache ECharts 6 + `echarts-for-react` | **Usado** nos gráficos do Radiance Web | `frontend/package.json`, `frontend/src/components/monitoring/` |
 | Consultas e cache | TanStack Query 5 + Fetch | **Usado** nos dois front-ends | `frontend/src/context/AppContext.tsx`, `wearable/src/App.tsx`, `*/src/services/api.ts` |
 | Navegação Web | React Router 7 | **Usado** na navegação superior | `frontend/src/App.tsx` |
 | Estado | React Context / Hooks | **Usado** na seleção de origem, idioma, EVA, amostras | `frontend/src/context/AppContext.tsx` |
@@ -64,7 +64,7 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. `
 ## 3. Organização de diretórios
 
 ```text
-Mustach/
+Radiance/
 ├── frontend/     React Web: visão geral, tripulantes, mapa, gráficos, EVA
 ├── wearable/     React: prévia de relógio independente, saúde/solar
 ├── shared/       Tipos e cálculos compartilhados, simulação e idiomas

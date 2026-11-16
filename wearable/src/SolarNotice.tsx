@@ -20,7 +20,7 @@ export function useSolarNotice({mode,simulation,language}:{mode:'simulation'|'re
     return response.json() as Promise<SolarNoticeRecord[]>;
   },enabled:mode==='real',refetchInterval:5000,retry:1});
   const fictional:SolarNoticeRecord[]=simulation&&['predicted','ongoing'].includes(simulation.scenario)?[{
-    id:simulation.solar_model.id,kind:'SIMULATED',source:'MUSTACH LAB',issued_at:simulation.solar_model.issued_at,
+    id:simulation.solar_model.id,kind:'SIMULATED',source:'RADIANCE LAB',issued_at:simulation.solar_model.issued_at,
     valid_until:simulation.solar_model.valid_until!,code:simulation.scenario==='ongoing'?'proton_observed':'forecast_attention',
     detail:simulation.solar_model.model,provenance:'SIMULATED',
   }]:[];

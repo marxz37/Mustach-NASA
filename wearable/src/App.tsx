@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { radianceMarkUrl, radianceMonochromeMarkUrl } from '@shared/brand';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Radio, Info, Languages, Sun, Wifi, WifiOff } from 'lucide-react';
 import { getSimulation, simulationCopy } from '@shared/simulation';
@@ -59,7 +60,7 @@ export default function App(){
   const changeLanguage=(next:Language)=>{setLanguage(next);try{localStorage.setItem('mustach-language',next);}catch{/* local storage optional */}};
   return <div className="wearable-shell">
     <header className="wearable-header">
-      <div className="watch-header-row"><span className="section-kicker"><span className="pulse-dot"/> MUSTACH WEARABLE / {t('wearableLabel')}</span>
+      <div className="watch-header-row"><span className="section-kicker watch-brand"><img className="watch-header-mark" src={radianceMarkUrl} alt="" aria-hidden="true" width={80} height={54}/><span>RADIANCE / {t('wearableLabel')}</span></span>
         <label className="watch-language"><Languages size={15}/><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={language} onChange={e=>changeLanguage(e.target.value as Language)}>{(Object.keys(languageNames) as Language[]).map(key=><option key={key} value={key}>{languageNames[key]}</option>)}</select></label></div>
       <div className="wearable-demo-toolbar"><label className="watch-choice">{t('dataMode')}<select value={dataMode} onChange={e=>setDataMode(e.target.value as typeof dataMode)}><option value="simulation">{t('simulation')}</option><option value="real">{t('real')}</option><option value="none">{t('noData')}</option></select></label></div>
       <h1>{t('watchTitle')}</h1><p>{demo?c('watchSimulation'):t('watchCaption')}</p>
@@ -74,7 +75,7 @@ export default function App(){
           onPointerDown={event=>{dragStart.current=event.clientX;if(event.pointerType!=='mouse')event.currentTarget.setPointerCapture(event.pointerId);}}
           onPointerUp={event=>handlePointerEnd(event.clientX)} onPointerCancel={()=>{dragStart.current=null;}}
           onKeyDown={event=>{if(event.key==='ArrowRight'){event.preventDefault();goto('solar');}if(event.key==='ArrowLeft'){event.preventDefault();goto('health');}}}>
-          <div className="watch-screen-top"><span className="watch-wordmark">M<span>✳</span></span><span className="watch-signal"><span className={`watch-signal-dot watch-signal-dot--${tone}`}/> {demo?t('demoWatchLabel'):t('notPaired')}</span></div>
+          <div className="watch-screen-top"><span className="watch-wordmark"><img className="watch-brand-mark" src={radianceMonochromeMarkUrl} alt="Radiance" width={80} height={54}/></span><span className="watch-signal"><span className={`watch-signal-dot watch-signal-dot--${tone}`}/> {demo?t('demoWatchLabel'):t('notPaired')}</span></div>
           {screen==='health'?
             <div className="watch-center" key="health">
               <div className={`watch-main-icon watch-main-icon--${tone}`}><Radio size={54} strokeWidth={1.25}/></div>

@@ -23,7 +23,8 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 .watch-screen { height: 100%; width: 100%; position: relative; overflow: hidden; background: radial-gradient(circle at 50% 48%, #0c2b49 0, #061729 64%, #020b17 100%); border: 1px solid #31739880; border-radius: 47px; color: #effbff; display: flex; flex-direction: column; touch-action: pan-y; user-select: none; outline-offset: 5px; }
 .watch-screen::after { content: ''; position: absolute; inset: 8px; border: 1px solid #579ec51d; border-radius: 40px; pointer-events: none; }
 .watch-screen-top { display: flex; justify-content: space-between; align-items: center; padding: 23px 19px 5px; gap: 7px; }
-.watch-wordmark { font: 750 18px 'Segoe UI', sans-serif; letter-spacing: -.05em; }.watch-wordmark span { color: #56ccef; font-size: 12px; margin-left: 1px; }
+.watch-wordmark { display: inline-flex; align-items: center; color: #b8deef; }
+.watch-brand-mark { display: block; width: 32px; height: auto; flex: none; }
 .watch-signal { color: #82aac2; font: 8px 'JetBrains Mono', monospace; white-space: nowrap; }.watch-signal-dot { width: 5px; height: 5px; display: inline-block; background: #7e98ad; border-radius: 50%; margin-right: 3px; }
 .watch-center { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; animation: watch-page-in .24s ease-out; padding: 0 17px; }
 @keyframes watch-page-in { from { opacity: .3; transform: translateX(9px); } to { opacity: 1; transform: none; } }
@@ -52,6 +53,10 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; } }
 /* V0.4: language switcher and web-only sync diagnostics */
 .watch-header-row { display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap; }
+.watch-brand { display: inline-flex; align-items: center; gap: 11px; line-height: 1.6; }
+.watch-header-mark { display: block; width: 42px; height: auto; flex: none; }
+.wearable-header h1 { padding-bottom: 16px; position: relative; }
+.wearable-header h1::after { content: ''; position: absolute; bottom: 0; left: 0; width: 34px; height: 2px; background: #ffd557; }
 .watch-language { display:flex;align-items:center;gap:6px;color:#82d8f7;font-size:11px; }
 .watch-language select { background:#0b243c;color:#e9f8ff;border:1px solid #245f85;padding:7px 9px;font:11px 'DM Sans',sans-serif; }
 .watch-sync { display:flex;gap:14px;flex-wrap:wrap;border-top:1px solid #23415a;padding-top:12px;margin-top:15px!important;font-size:10px!important; }

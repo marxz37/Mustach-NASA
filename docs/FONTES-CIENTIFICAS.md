@@ -1,4 +1,4 @@
-# Catálogo de fontes científicas — Mustach
+# Catálogo de fontes científicas — Radiance
 
 > Última revisão documental: **15/11/2026**. Este catálogo cobre as fontes consultadas nas pesquisas do NASA Space Apps Challenge 2026 e candidatas às próximas etapas. **Estar listado aqui não significa que a fonte já esteja conectada ao software.**
 >
@@ -19,7 +19,7 @@ Consulte também:
 
 ## 1. Dados e serviços candidatos à integração
 
-| ID | Fonte oficial | Dados / natureza | Uso planejado no Mustach | Estado |
+| ID | Fonte oficial | Dados / natureza | Uso planejado no Radiance | Estado |
 |---|---|---|---|---|
 | **D01** | [NASA OSDR RadLab — documentação da API](https://visualization.osdr.nasa.gov/radlab/gui/data-api/) · [DosTel1](https://visualization.osdr.nasa.gov/radlab/gui/knowledgebase/dostel1) | Série histórica DosTel1/ISS; `absorbed_dose_rate` em µGy/h e `flux` em cm⁻² sr⁻¹ s⁻¹ | Histórico instrumental, sem dosimetria individual | **Integrada e testada** para DosTel1 |
 | **D02** | [NOAA SWPC — GOES Proton Flux](https://www.swpc.noaa.gov/products/goes-proton-flux) · [JSON GOES](https://services.swpc.noaa.gov/json/goes/primary/integral-protons-6-hour.json) · [probabilidades](https://services.swpc.noaa.gov/json/solar_probabilities.json) | Fluxo integral observado em ≥10, ≥50, ≥100 MeV; probabilidade S1+ para três dias | Série observada e A do painel solar | **Integrada e testada** |

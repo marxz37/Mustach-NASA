@@ -1,6 +1,8 @@
-# Mustach — NASA Space Apps Challenge 2026
+# Radiance — NASA Space Apps Challenge 2026
 
 Protótipo de acompanhamento de informações de exposição radiológica individual e ambiental, relacionadas à preparação de uma atividade. Não é dispositivo médico nem mecanismo de autorização de EVA.
+
+**Identidade RADIANCE:** Web e Wearable compartilham a logo vetorial de asas em azul/amarelo, também usada no favicon. A assinatura é *Context-aware radiation monitoring*, com tradução no cabeçalho PT/ES. O nome público foi atualizado; o repositório `Mustach-NASA` e os identificadores de configuração/preferências existentes continuam compatíveis. [Marca e regras visuais](docs/DESIGN-SYSTEM.md).
 
 ## Documentação do projeto
 
@@ -39,13 +41,13 @@ O motor EVA continua funcionando na API local sem chamadas externas. Com interne
 
 | Aplicação | Pasta | Desenvolvimento |
 | --- | --- | --- |
-| Mustach Web | `frontend/` | <http://localhost:5173> |
-| Mustach Wearable | `wearable/` | <http://localhost:5174> |
+| Radiance Web | `frontend/` | <http://localhost:5173> |
+| Radiance Wearable | `wearable/` | <http://localhost:5174> |
 | API compartilhada | `backend/` | <http://localhost:8000/docs> |
 
 O Wearable é uma aplicação React + TypeScript + Vite independente que simula a tela do relógio no navegador. Não há conexão com smartwatch, Bluetooth ou sensores físicos. Os dois front-ends usam a mesma FastAPI; `shared/solar.ts` concentra o contrato e a formatação da previsão exibida nos dois aplicativos. `shared/i18n.ts` contém os textos EN/PT/ES, e `shared/radiation.ts` contém cálculos de integração temporal de taxas compatíveis.
 
-O Mustach Web conserva as abas superiores **Visão geral** e **Tripulantes**, sem sidebar. O mapa corporal 2D **não apresenta porcentagens**; o modal de órgãos, o painel de radiação, o histórico de dose e a interface dos tripulantes continuam no Web. A aba antiga `Relógio` foi removida.
+O Radiance Web conserva as abas superiores **Visão geral** e **Tripulantes**, sem sidebar. O mapa corporal 2D **não apresenta porcentagens**; o modal de órgãos, o painel de radiação, o histórico de dose e a interface dos tripulantes continuam no Web. A aba antiga `Relógio` foi removida.
 
 ## Iniciar no Windows
 
@@ -100,7 +102,7 @@ A coleta não ocorre automaticamente ao iniciar a API. Na pasta `backend/`, com 
 .\.venv\Scripts\python.exe -m app.backup backup ..\work\mustach-backup.sqlite3
 ```
 
-`app.collect all` tenta todas as fontes de modo independente; falhas são registradas em `ingestion_runs`. Para o DONKI, configure `NASA_API_KEY` no ambiente se a chave pública `DEMO_KEY` atingir sua cota. Nunca grave a chave no Git. Para restauração, **pare a API**, execute `python -m app.backup restore <arquivo> --force`; uma cópia `.pre-restore` é criada antes da substituição. O nome legado `sentinela.sqlite3` e `SENTINELA_DATABASE_PATH` continuam aceitos. Para importações locais, `POST /api/v1/science/measurements` exige `MUSTACH_INGEST_TOKEN` no servidor e cabeçalho `X-Mustach-Ingest-Token`; sem token configurado, a escrita fica desativada.
+`app.collect all` tenta todas as fontes de modo independente; falhas são registradas em `ingestion_runs`. Para o DONKI, configure `NASA_API_KEY` no ambiente se a chave pública `DEMO_KEY` atingir sua cota. Nunca grave a chave no Git. Para restauração, **pare a API**, execute `python -m app.backup restore <arquivo> --force`; uma cópia `.pre-restore` é criada antes da substituição. O nome legado `sentinela.sqlite3` e `SENTINELA_DATABASE_PATH` continuam aceitos. Para importações locais, `POST /api/v1/science/measurements` exige `MUSTACH_INGEST_TOKEN` no servidor e cabeçalho `X-Radiance-Ingest-Token`; sem token configurado, a escrita fica desativada.
 
 ### Como testar os refinamentos
 
@@ -120,7 +122,7 @@ A coleta não ocorre automaticamente ao iniciar a API. Na pasta `backend/`, com 
 - **Saúde (histórico V0.5):** havia um painel de indicadores ilustrativos no dashboard, mas **na versão atual os dados específicos dos tripulantes ficam exclusivamente na aba Tripulantes**. Não são avaliação médica nem indicador validado de segurança radiológica.
 - **EVA:** mantém cronômetro independente, controles de pausa e reset e cálculo sintético de dose da sessão quando possível. Adicionamos um registro de EVA anterior **100% fictício** apenas para preencher a experiência de demonstração.
 - **Atividade solar:** em Simulação A/B/C vêm do cenário fictício compartilhado da FastAPI, identificado como `SYNTHETIC FIXTURE`. Nenhum prognóstico da NOAA, CCMC ou NASA foi inventado como dado real.
-- **Mustach Wearable (histórico V0.5):** a primeira versão da prévia mostrava perfis fictícios. Na V0.6, o relógio passou a mostrar uma faixa sintética ambiental. Na V2 refinada, a primeira tela acompanha a leitura pessoal associada à atividade e a avaliação compartilhada; a segunda resume o clima solar. Não existe conexão com smartwatch físico.
+- **Radiance Wearable (histórico V0.5):** a primeira versão da prévia mostrava perfis fictícios. Na V0.6, o relógio passou a mostrar uma faixa sintética ambiental. Na V2 refinada, a primeira tela acompanha a leitura pessoal associada à atividade e a avaliação compartilhada; a segunda resume o clima solar. Não existe conexão com smartwatch físico.
 - **Conexão:** os horários de última consulta à API e última medição são distintos. O Wearable continua enviando batimentos de presença da **prévia web** para a API, e isso não representa um relógio físico pareado.
 - **Três idiomas:** inglês (padrão), português e espanhol, inclusive os textos novos dos estados demonstrativos. Cada aplicativo guarda sua preferência no próprio navegador.
 - **Mapa de calor:** continua 2D e sem porcentagens. Na V0.6, o gradiente passou a reagir às taxas sintéticas em **faixas fictícias**; isso não é uma estimativa de dose em órgãos nem um limiar de saúde.

@@ -4,6 +4,30 @@ import { simulationFixture } from '../../shared/testing/simulationFixture';
 
 test.beforeEach(async({page})=>{await page.route('**/api/v1/demo/simulation',route=>route.fulfill({json:simulationFixture()}));});
 
+test('watch logo renders blue wings with a transparent background instead of a filled rectangle',async({page},info)=>{
+  await page.goto('/');
+  const logo=page.getByRole('img',{name:'Radiance',exact:true});
+  await expect(logo).toBeVisible();
+  const pixels=await logo.evaluate(async(element:HTMLImageElement)=>{
+    await element.decode();
+    const canvas=document.createElement('canvas');canvas.width=80;canvas.height=54;
+    const ctx=canvas.getContext('2d')!;ctx.drawImage(element,0,0,80,54);
+    const {data}=ctx.getImageData(0,0,80,54);
+    let solid=0,yellow=0;
+    for(let i=0;i<data.length;i+=4){
+      if(data[i+3]===255)solid++;
+      if(data[i+3]>0&&data[i]>200&&data[i+1]>150&&data[i+2]<150)yellow++;
+    }
+    return {background:ctx.getImageData(40,0,1,1).data[3],solid,yellow};
+  });
+  expect(pixels.background).toBe(0);
+  expect(pixels.solid).toBeGreaterThan(20);
+  expect(pixels.solid).toBeLessThan(80*54/2);
+  expect(pixels.yellow).toBe(0);
+  await expect(page.locator('.watch-wordmark')).toHaveText('');
+  await page.locator('.watch-screen').screenshot({path:info.outputPath('fixed-logo.png'),animations:'disabled'});
+});
+
 test('wearable displays a passive notice inside the watch, with no external review or mutation controls',async({page})=>{
   const writes:string[]=[];
   page.on('request',request=>{if(request.url().includes('/demo/operational-event')&&request.method()==='POST')writes.push(request.url());});
@@ -44,7 +68,7 @@ test('unknown review state produces an unavailable notice rather than silently c
 
 test('independent English watch preview shows health and solar by buttons',async({page})=>{
   await page.goto('/');
-  await expect(page).toHaveTitle('Mustach Wearable');
+  await expect(page).toHaveTitle('Radiance Wearable');
   await expect(page.getByRole('region',{name:'Screens: PERSONAL EXPOSURE'})).toBeVisible();
   await expect(page.getByText('READING TIME')).toBeVisible();
   await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();

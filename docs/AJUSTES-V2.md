@@ -1,4 +1,4 @@
-# Mustach — Refinamento funcional da V2
+# Radiance — Refinamento funcional da V2
 
 ## Correção principal
 

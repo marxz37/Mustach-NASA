@@ -20,7 +20,7 @@ DONKI_SEP_BASE = 'https://api.nasa.gov/DONKI/SEP'
 
 
 def fetch_text(url: str) -> str:
-    with urlopen(Request(url, headers={'User-Agent': 'Mustach-Research/0.5 (NASA Space Apps)'}), timeout=20) as response:
+    with urlopen(Request(url, headers={'User-Agent': 'Radiance-Research/0.5 (NASA Space Apps)'}), timeout=20) as response:
         content = response.read(4_000_001)
         if len(content) > 4_000_000:
             raise ValueError('Scientific response exceeds 4 MB limit')
@@ -33,7 +33,7 @@ def fetch_json(url: str):
 
 def fetch_json_with_url(url: str):
     """Return data and the resolved source URL (important for CCMC's latest redirect)."""
-    with urlopen(Request(url, headers={'User-Agent': 'Mustach-Research/0.5 (NASA Space Apps)'}), timeout=20) as response:
+    with urlopen(Request(url, headers={'User-Agent': 'Radiance-Research/0.5 (NASA Space Apps)'}), timeout=20) as response:
         content = response.read(4_000_001)
         if len(content) > 4_000_000:
             raise ValueError('Scientific response exceeds 4 MB limit')

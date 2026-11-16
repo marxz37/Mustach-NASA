@@ -7,5 +7,5 @@ if errorlevel 1 goto erro
 exit /b 0
 :erro
 echo.
-echo Falha ao iniciar o Mustach Web. Verifique Node.js 22.12+ e acesso a internet.
+echo Falha ao iniciar o Radiance Web. Verifique Node.js 22.12+ e acesso a internet.
 pause
