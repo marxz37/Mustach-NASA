@@ -1,5 +1,8 @@
 import {expect,test} from '@playwright/test';
 import events from '../../shared/testing/operational-events.json' with {type:'json'};
+import { simulationFixture } from '../../shared/testing/simulationFixture';
+
+test.beforeEach(async({page})=>{await page.route('**/api/v1/demo/simulation',route=>route.fulfill({json:simulationFixture()}));});
 
 const demoEvent=events.missing_personal;
 

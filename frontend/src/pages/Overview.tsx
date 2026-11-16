@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Activity, Info, Radio, Sun, Zap } from 'lucide-react';
-import { demoSolarModel } from '@shared/demo';
 import { demonstrationBand } from '@shared/demoBands';
 import { formatSolarProbability } from '@shared/solar';
 import { equivalentDoseCoverage } from '@shared/radiation';
@@ -18,8 +17,8 @@ import { useApp } from '@/context/AppContext';
 export function Overview(){
   const [selected,setSelected]=useState<BodyTarget|null>(null);
   const [bodyView,setBodyView]=useState<'corpo'|'orgaos'>('corpo');
-  const {t,mode,simulated,absorbedRate,latestEquivalent,now,language,totalDoseMicroSv,equivalentPoints}=useApp();
-  const model=simulated?demoSolarModel(now):null;
+  const {t,mode,simulated,absorbedRate,latestEquivalent,now,language,totalDoseMicroSv,equivalentPoints,simulation,simulationOffline}=useApp();
+  const model=simulated&&!simulationOffline?simulation?.solar_model:null;
   // Fictional display bands only. Real measurements cannot be assessed against these values.
   const tier=simulated?demonstrationBand(latestEquivalent):'unknown';
   const tierLabel=tier==='baseline'?t('statusNominal'):tier==='attention'?t('statusAttention'):tier==='high'?t('statusHighExposure'):t('unavailable');

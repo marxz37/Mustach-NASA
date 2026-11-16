@@ -10,6 +10,9 @@ export interface SolarForecastModel {
   forecast_horizon_day?:number|null;threshold?:string|null;location?:string|null;source_url?:string|null;
 }
 export interface SolarForecastResponse {status:'available'|'no_forecast';models:SolarForecastModel[];}
+export function isForecastCurrent(model:SolarForecastModel,now=Date.now()):boolean {
+  return Number.isFinite(Date.parse(model.issued_at))&&Date.parse(model.issued_at)<=now&&!!model.valid_until&&Date.parse(model.valid_until)>now;
+}
 const num=(value:number,language:Language)=>new Intl.NumberFormat(languageLocale[language],{maximumFractionDigits:2}).format(value);
 export function formatSolarTime(value:string|null|undefined,language:Language='en'):string {
   if(!value)return '—';const d=new Date(value);if(Number.isNaN(d.getTime()))return '—';

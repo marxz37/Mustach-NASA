@@ -365,18 +365,10 @@ a { color: inherit; text-decoration: none; }
 .solar-observations{border-top:1px solid var(--line);padding-top:16px;margin-top:12px}
 .solar-observations-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#d9ecf7;font-size:12px}
 .solar-archive-toggle{border:0;background:transparent;color:#7ddbea;padding:4px 0;cursor:pointer;font-size:11px;text-align:left}
-.notification-center{position:relative}
-.notification-trigger,.notification-head button{position:relative;display:grid;place-items:center;border:1px solid #35657e;border-radius:4px;background:#0a2438;color:#b5ddec;width:35px;height:35px;cursor:pointer}
-.notification-count{position:absolute;top:-7px;right:-7px;min-width:17px;height:17px;border-radius:50%;background:#66d8ed;color:#062031;font-size:10px;line-height:17px;text-align:center}
-.notification-popover{position:absolute;z-index:30;top:42px;right:0;width:min(360px,calc(100vw - 24px));max-height:65vh;overflow:auto;padding:15px;background:#071827;border:1px solid #35657e;box-shadow:0 20px 55px #0009;color:#d9ecf7}
-.notification-head{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #24465b;padding-bottom:10px}
-.notification-popover article{padding:12px 0;border-bottom:1px solid #24465b;font-size:11px;line-height:1.5}
-.notification-popover article.is-read{opacity:.6}
-.notification-popover article div{display:flex;justify-content:space-between;gap:8px}
-.notification-popover article p{margin:6px 0;color:#a8c8d7}
-.notification-popover article small{display:block;color:#86a9ba;overflow-wrap:anywhere}
-.notification-popover article button{margin-top:7px;background:transparent;border:0;color:#77d8ec;padding:0;cursor:pointer}
-.notification-disclaimer{font-size:10px;color:#8daec0}
+.simulation-controls{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap;margin:12px auto;padding:12px 24px;max-width:1600px;color:#a8ccdf;border-block:1px solid #24465b;font-size:11px}
+.simulation-controls label{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.simulation-controls select,.simulation-controls button{max-width:100%;padding:7px 9px;background:#0a2438;color:#cdeafa;border:1px solid #35657e;font:inherit}
+.simulation-controls button{cursor:pointer}.simulation-controls small{color:#88abc1}.simulation-controls p{margin:0}
 .overview-priority-grid .live-rate-summary{margin-top:13px}
 .overview-priority-grid .live-rate-summary strong{font-size:25px}
 .overview-priority-grid .chart-wrap{margin-top:7px}

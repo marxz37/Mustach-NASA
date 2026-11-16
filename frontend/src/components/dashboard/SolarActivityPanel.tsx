@@ -5,23 +5,24 @@ import type { EChartsOption } from 'echarts';
 import { Activity, Clock3, Sun, Zap } from 'lucide-react';
 import { getScientificMeasurements, getSolarForecast, getSolarForecastHistory } from '@/services/api';
 import { useApp } from '@/context/AppContext';
-import { demoSolarModel } from '@shared/demo';
-import { formatSolarEnergy, formatSolarFlux, formatSolarProbability, formatSolarTime, formatSolarWindow } from '@shared/solar';
+import { formatSolarEnergy, formatSolarFlux, formatSolarProbability, formatSolarTime, formatSolarWindow, isForecastCurrent } from '@shared/solar';
 
 export function SolarActivityPanel(){
   const [selectedModelId,setSelectedModelId]=useState<string|null>(null);
   const [showArchive,setShowArchive]=useState(false);
   const [channel,setChannel]=useState('>=10 MeV');
-  const {t,language,mode,now}=useApp();
+  const {t,language,mode,now,simulation,simulationOffline}=useApp();
   const {data,isError}=useQuery({queryKey:['solar-forecast'],queryFn:getSolarForecast,refetchInterval:60_000,retry:1});
   const history=useQuery({queryKey:['solar-forecast-history'],queryFn:getSolarForecastHistory,enabled:mode==='real',refetchInterval:60_000,retry:1});
   const goes=useQuery({queryKey:['goes-observed',Math.floor(now/300_000)],
     queryFn:()=>getScientificMeasurements({source:'NOAA GOES/SWPC',quantity:'integral_proton_flux',start:new Date(now-21_600_000).toISOString(),limit:2000}),
     enabled:mode==='real',retry:1});
-  const current=mode==='real'&&!isError?(data?.models.find(item=>item.id===selectedModelId)??data?.models[0]):undefined;
+  const currentModels=data?.models.filter(model=>isForecastCurrent(model,now));
+  const current=mode==='real'&&!isError?(currentModels?.find(item=>item.id===selectedModelId)??currentModels?.[0]):undefined;
   const archived=!history.isError?history.data?.find(item=>item.valid_until&&Date.parse(item.valid_until)<now):undefined;
-  const model=mode==='simulation'?demoSolarModel(now):mode==='real'&&!isError?(showArchive?archived:current):undefined;
-  const goesPoints=(goes.data??[]).filter(item=>item.details?.energy_channel===channel).sort((a,b)=>Date.parse(a.measured_at)-Date.parse(b.measured_at));
+  const model=mode==='simulation'?(simulationOffline?undefined:simulation?.solar_model):mode==='real'&&!isError?(showArchive?archived:current):undefined;
+  const channelPoints=(goes.data??[]).filter(item=>item.details?.energy_channel===channel).sort((a,b)=>Date.parse(a.measured_at)-Date.parse(b.measured_at));
+  const goesPoints=channelPoints.filter(item=>item.instrument===channelPoints.at(-1)?.instrument);
   const goesOption:EChartsOption={animation:false,grid:{left:52,right:15,top:15,bottom:32},
     tooltip:{trigger:'axis'},xAxis:{type:'time',axisLabel:{color:'#89abc4'},axisLine:{lineStyle:{color:'#2c5775'}}},
     yAxis:{type:'value',name:'pfu',nameTextStyle:{color:'#89abc4'},axisLabel:{color:'#89abc4'},splitLine:{lineStyle:{color:'#17364c',type:'dashed'}}},
