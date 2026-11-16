@@ -15,6 +15,8 @@ from .db import (get_alerts, get_demo_event, get_events, get_forecasts, get_inge
 from . import operational as op
 from .operational import OperationalAssessment, ScenarioId, ScenarioInputs
 from .measurements import Measurement
+from . import simulation
+from .solar_notices import eligible_notices
 
 
 class ApiStatus(BaseModel):
@@ -182,7 +184,7 @@ def sources():
     return [
         info('radlab', 'NASA RadLab', 'OBSERVED', 'Medições instrumentais históricas.', 'radlab'),
         info('noaa', 'NOAA SWPC', 'OBSERVED', 'Fluxos integrais de prótons GOES.', 'goes'),
-        info('donki', 'NASA DONKI', 'EVENT', 'Eventos solares registrados; não integrado.', 'donki'),
+        info('donki', 'NASA DONKI', 'EVENT', 'Catálogo de eventos SEP registrados, sem inferência causal.', 'donki'),
         info('sep', 'NASA CCMC SEP Scoreboard', 'FORECAST', 'Previsões de modelos no CCMC.', 'ccmc'),
         info('csa', 'CSA Radi-N2', 'REFERENCE', 'Referência de monitoramento de nêutrons.', 'csa'),
     ]
@@ -204,6 +206,31 @@ class WearableStatus(BaseModel):
 def wearable_status():
     """A interface e o wearable compartilham a API, mas nenhum dispositivo está conectado."""
     return WearableStatus()
+
+
+@app.get('/api/v1/wearable/solar-notices')
+def wearable_solar_notices():
+    return eligible_notices()
+
+
+class SimulationCommand(BaseModel):
+    action: Literal['select', 'start', 'pause', 'resume', 'reset', 'speed']
+    expected_revision: int = Field(ge=1)
+    scenario: Literal['normal', 'predicted', 'ongoing', 'recovery'] | None = None
+    speed: Literal[1, 10, 60] | None = None
+
+
+@app.get('/api/v1/demo/simulation')
+def simulation_state():
+    return simulation.access()
+
+
+@app.post('/api/v1/demo/simulation')
+def simulation_command(body: SimulationCommand):
+    try:
+        return simulation.access(**body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 # Dev-only presence signal from the standalone wearable WEB PREVIEW.
 # This is not a physical watch pairing, and carries no personal health data.
