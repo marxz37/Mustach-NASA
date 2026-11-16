@@ -11,7 +11,7 @@
 | Team members | Tiago Santos Alcantara; Marx Bento Dumbá; Luiz Fernando Rodrigues Salomão Da Cunha |
 | Local event | Itabira |
 | Source code | [github.com/marxz37/Mustach-NASA](https://github.com/marxz37/Mustach-NASA) |
-| Project presentation | [Open the Radiance slides in Figma](https://www.figma.com/slides/TyXvdmJ6oC8EWCeg9BLjaZ/RADIANCE-%E2%80%94-Space-Radiation-Companion-%7C-NASA-Space-Apps-2026?node-id=4-20&t=W6cx7vqiFIcU4XS1-0) |
+| Project presentation | [slides in Canvas](https://canva.link/78vnhwezu07j4b4) |
 
 ## Project summary
 
