@@ -1,6 +1,29 @@
 import {test,expect} from '@playwright/test';
 import {simulationFixture} from '../../shared/testing/simulationFixture';
 
+test('solar notices only appear in eligible scenarios and clear on acknowledgement, recovery, expiry or no-data',async({page})=>{
+  let state=simulationFixture();
+  await page.route('**/api/v1/demo/simulation',route=>route.fulfill({json:state}));
+  await page.goto('/');
+  await expect(page.locator('.watch-main-title')).toHaveText('Normal conditions');
+  await expect(page.locator('.watch-operational-notice,.watch-sep-notice')).toHaveCount(0);
+  state={...state,scenario:'predicted',solar_model:{...state.solar_model,id:'predicted-1',occurrence_probability_percent:65,peak_proton_flux:12,peak_proton_flux_unit:'pfu'}};
+  await expect(page.locator('.watch-sep-notice')).toContainText('SEP forecast for review');
+  await expect(page.locator('.watch-sep-notice')).toContainText('65%');
+  await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();
+  await expect(page.locator('.watch-sep-notice')).toBeVisible();
+  await page.getByRole('button',{name:'Acknowledge / silence'}).click();
+  await expect(page.locator('.watch-sep-notice')).toHaveCount(0);
+  state={...state,scenario:'ongoing',solar_model:{...state.solar_model,id:'ongoing-1',occurrence_probability_percent:100}};
+  await expect(page.locator('.watch-sep-notice')).toContainText('Proton event reported');
+  state={...state,scenario:'recovery'};
+  await expect(page.locator('.watch-sep-notice')).toHaveCount(0);
+  state={...state,scenario:'predicted',solar_model:{...state.solar_model,id:'expired-1',valid_until:new Date(state.now-1).toISOString()}};
+  await expect(page.locator('.watch-sep-notice')).toHaveCount(0);
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
+  await expect(page.locator('.watch-sep-notice,.watch-operational-notice')).toHaveCount(0);
+});
+
 test('new SEP notice vibrates once, survives reload silently, can be acknowledged and never leaks into no-data mode',async({page})=>{
   await page.addInitScript(()=>{Object.defineProperty(navigator,'vibrate',{value:()=>{(window as unknown as {buzz:number}).buzz=((window as unknown as {buzz:number}).buzz??0)+1;return true;},configurable:true});});
   let eligible=false;
@@ -30,9 +53,9 @@ test('new SEP notice vibrates once, survives reload silently, can be acknowledge
 });
 
 for(const lang of ['en','pt','es'] as const){
-  test(`SEP visual fallback fits at 320px with operational notice in ${lang}`,async({page})=>{
+  test(`SEP visual fallback fits at 320px without a permanent pre-EVA notice in ${lang}`,async({page})=>{
     await page.addInitScript(language=>{localStorage.setItem('mustach-language',language);Object.defineProperty(navigator,'vibrate',{value:undefined,configurable:true});},lang);
-    const snapshot=simulationFixture();snapshot.scenario='predicted';
+    const snapshot=simulationFixture();snapshot.scenario='predicted';snapshot.solar_model={...snapshot.solar_model,occurrence_probability_percent:65,peak_proton_flux:12,peak_proton_flux_unit:'pfu'};
     await page.route('**/api/v1/demo/simulation',route=>route.fulfill({json:snapshot}));
     await page.setViewportSize({width:320,height:740});
     await page.goto('/');
@@ -44,8 +67,7 @@ for(const lang of ['en','pt','es'] as const){
         const notice=el.querySelector('.watch-sep-notice')!.getBoundingClientRect();
         const footer=el.querySelector('.watch-screen-footer')!.getBoundingClientRect();
         const lastContent=el.querySelector('.watch-solar-disclaimer')??el.querySelector('.watch-personal-reading')??el.querySelector('.watch-health-stats');
-        const operational=el.querySelector('.watch-operational-notice');
-        return {contentBottom:content.bottom,lastContentBottom:lastContent!.getBoundingClientRect().bottom,nextTop:operational?.getBoundingClientRect().top??notice.top,noticeTop:notice.top,noticeBottom:notice.bottom,footerTop:footer.top,footerBottom:footer.bottom,screenBottom:el.getBoundingClientRect().bottom,overflow:document.documentElement.scrollWidth>innerWidth};
+        return {contentBottom:content.bottom,lastContentBottom:lastContent!.getBoundingClientRect().bottom,nextTop:notice.top,noticeTop:notice.top,noticeBottom:notice.bottom,footerTop:footer.top,footerBottom:footer.bottom,screenBottom:el.getBoundingClientRect().bottom,overflow:document.documentElement.scrollWidth>innerWidth};
       });
       expect(geometry.contentBottom).toBeLessThanOrEqual(geometry.noticeTop);
       expect(geometry.lastContentBottom).toBeLessThanOrEqual(geometry.nextTop);

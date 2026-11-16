@@ -28,42 +28,44 @@ test('watch logo renders blue wings with a transparent background instead of a f
   await page.locator('.watch-screen').screenshot({path:info.outputPath('fixed-logo.png'),animations:'disabled'});
 });
 
-test('wearable displays a passive notice inside the watch, with no external review or mutation controls',async({page})=>{
+test('pre-EVA review remains on board without a permanent banner or mutation controls on the watch',async({page})=>{
   const writes:string[]=[];
   page.on('request',request=>{if(request.url().includes('/demo/operational-event')&&request.method()==='POST')writes.push(request.url());});
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({json:events.missing_personal_recorded}));
   await page.goto('/');
   const notice=page.locator('.watch-screen .watch-operational-notice');
-  await expect(notice).toContainText('Pre-EVA review pending');
-  await expect(notice).toContainText('Consult the board panel');
-  await expect(notice).toHaveAttribute('data-event-id','DEMO-EVT-001');
+  await expect(notice).toHaveCount(0);
+  await expect(page.locator('.watch-personal-status')).toHaveText('Missing');
   await expect(page.locator('.watch-verification')).toHaveCount(0);
   await expect(page.getByRole('checkbox')).toHaveCount(0);
   await expect(page.getByRole('button',{name:/Record consultation|Open team guide/})).toHaveCount(0);
   await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();
-  await expect(notice).toBeVisible();
+  await expect(notice).toHaveCount(0);
   expect(writes).toEqual([]);
   await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
   await expect(page.locator('.watch-main-title')).toHaveCount(0);
   await expect(notice).toHaveCount(0);
 });
 
-test('watch follows server relevance after board changes without locally classifying the event',async({page})=>{
+test('watch follows personal evidence after board changes without presenting it as a solar notice',async({page})=>{
   let event=events.missing_personal;
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({json:event}));
   await page.goto('/');
-  await expect(page.locator('.watch-operational-notice')).toBeVisible();
+  await expect(page.locator('.watch-personal-status')).toHaveText('Missing');
   event=events.complete_recorded;
-  await expect(page.locator('.watch-operational-notice')).toHaveCount(0,{timeout:7000});
+  await expect(page.locator('.watch-personal-status')).toHaveText('Usable',{timeout:7000});
   event=events.solar_review_recorded;
-  await expect(page.locator('.watch-operational-notice')).toContainText('Pre-EVA review pending',{timeout:7000});
+  await expect(page.locator('.watch-operational-notice')).toHaveCount(0);
+  await expect(page.locator('.watch-sep-notice')).toHaveCount(0);
 });
 
-test('unknown review state produces an unavailable notice rather than silently clearing the occurrence',async({page})=>{
+test('unavailable personal review does not masquerade as a pending EVA or solar warning',async({page})=>{
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({status:503,json:{}}));
   await page.goto('/');
-  await expect(page.locator('.watch-operational-notice')).toContainText('Pre-EVA review unavailable');
-  await expect(page.locator('.watch-operational-notice')).toContainText('Consult the board panel');
+  await expect(page.locator('.watch-main-title')).toHaveText('Normal conditions');
+  await expect(page.locator('.watch-operational-notice')).toHaveCount(0);
+  await expect(page.locator('.watch-personal-reading')).toHaveCount(0);
+  await expect(page.locator('.watch-sep-notice')).toHaveCount(0);
 });
 
 test('independent English watch preview shows health and solar by buttons',async({page})=>{
@@ -119,20 +121,18 @@ test('watch solar page stays inside its screen at standard size',async({page})=>
 });
 
 for(const language of ['en','pt','es']){
-  test(`passive notice fits both watch pages at 320px in ${language}`,async({page})=>{
+  test(`both watch pages fit without a permanent pre-EVA notice at 320px in ${language}`,async({page})=>{
     await page.setViewportSize({width:320,height:720});
     await page.addInitScript(lang=>localStorage.setItem('mustach-language',lang),language);
     await page.goto('/');
-    await expect(page.locator('.watch-operational-notice')).toBeVisible();
+    await expect(page.locator('.watch-operational-notice')).toHaveCount(0);
     for(const content of ['.watch-health-stats','.watch-solar-disclaimer']){
       if(content.includes('solar'))await page.locator('.watch-nav-button').last().click();
       const geometry=await page.locator(content).evaluate(element=>{
-        const notice=document.querySelector('.watch-operational-notice')!.getBoundingClientRect();
         const footer=document.querySelector('.watch-screen-footer')!.getBoundingClientRect();
-        return {contentBottom:element.getBoundingClientRect().bottom,noticeTop:notice.top,noticeBottom:notice.bottom,footerTop:footer.top,overflow:document.documentElement.scrollWidth>innerWidth};
+        return {contentBottom:element.getBoundingClientRect().bottom,footerTop:footer.top,overflow:document.documentElement.scrollWidth>innerWidth};
       });
-      expect(geometry.contentBottom).toBeLessThanOrEqual(geometry.noticeTop);
-      expect(geometry.noticeBottom).toBeLessThanOrEqual(geometry.footerTop);
+      expect(geometry.contentBottom).toBeLessThanOrEqual(geometry.footerTop);
       expect(geometry.overflow).toBe(false);
     }
   });
@@ -149,14 +149,13 @@ test('individual summary uses the same received measurement, timestamp and revis
   event={...events.personal_received};
   await expect(page.locator('.watch-personal-status')).toHaveText('Usable',{timeout:7000});
   await expect(page.locator('.watch-personal-reading')).toContainText('0.470');
-  await expect(page.locator('.watch-operational-notice')).toContainText('Review remote event');
-  await expect(page.locator('.watch-operational-notice')).toContainText('Pre-EVA review pending');
+  await expect(page.locator('.watch-operational-notice')).toHaveCount(0);
 });
 
 test('outdated reading stays unavailable even when a local environmental sample could be normal',async({page})=>{
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({json:events.stale_personal}));
   await page.goto('/');
   await expect(page.locator('.watch-personal-status')).toHaveText('Outdated');
-  await expect(page.locator('.watch-operational-notice')).toContainText('Check a recent individual reading');
+  await expect(page.locator('.watch-operational-notice')).toHaveCount(0);
   await expect(page.locator('.watch-personal-reading')).toContainText('—');
 });

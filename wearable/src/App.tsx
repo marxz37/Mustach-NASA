@@ -8,7 +8,6 @@ import { useSolarNotice } from './SolarNotice';
 import { formatSolarFlux, formatSolarProbability, isForecastCurrent } from '@shared/solar';
 import { translate, formattedClock, languageNames, languageLocale, type Language, type TranslationKey } from '@shared/i18n';
 import { getSolarForecast, getWearableStatus, sendWearableHeartbeat } from './services/api';
-import { OperationalNotice } from './OperationalCheck';
 import { getOperationalEvent } from '@shared/operational';
 import { operationalCopy, type OperationalCopyKey } from '@shared/operationalCopy';
 import { demonstrationBand } from '@shared/demoBands';
@@ -39,7 +38,6 @@ export default function App(){
   const {data:forecast,isError:forecastError}=useQuery({queryKey:['solar-forecast'],queryFn:getSolarForecast,refetchInterval:60_000,retry:1});
   const [lastHeartbeat,setLastHeartbeat]=useState<number|null>(null);
   const verification=useQuery({queryKey:['operational-event'],queryFn:()=>getOperationalEvent(import.meta.env.VITE_API_BASE_URL??''),enabled:demo,refetchInterval:3000,retry:1});
-  const hasNotice=demo&&(verification.isError||!!verification.data?.assessment.requires_attention);
   useEffect(()=>{const timer=window.setInterval(()=>setWallNow(Date.now()),1000);return()=>window.clearInterval(timer);},[]);
   useEffect(()=>{
     let active=true;
@@ -75,7 +73,7 @@ export default function App(){
     <main className="watch-exhibit">
       <div className="watch-decoration watch-decoration--one" aria-hidden="true"/><div className="watch-decoration watch-decoration--two" aria-hidden="true"/>
       <div className="watch-device" aria-label={t('watchTitle')}><div className="watch-strap watch-strap--top" aria-hidden="true"/><div className="watch-case">
-        <div className={`watch-screen ${demo?'watch-screen--simulation':''} ${hasNotice||solarNotice.active?'watch-screen--notice':''} ${solarNotice.active?'watch-screen--sep':''}`} role="region" aria-roledescription="carousel" aria-label={`${t('screens')}: ${screen==='health'?firstScreen:t('watchPageSolar')}`} tabIndex={0}
+        <div className={`watch-screen ${demo?'watch-screen--simulation':''} ${solarNotice.active?'watch-screen--notice watch-screen--sep':''}`} role="region" aria-roledescription="carousel" aria-label={`${t('screens')}: ${screen==='health'?firstScreen:t('watchPageSolar')}`} tabIndex={0}
           onPointerDown={event=>{dragStart.current=event.clientX;if(event.pointerType!=='mouse')event.currentTarget.setPointerCapture(event.pointerId);}}
           onPointerUp={event=>handlePointerEnd(event.clientX)} onPointerCancel={()=>{dragStart.current=null;}}
           onKeyDown={event=>{if(event.key==='ArrowRight'){event.preventDefault();goto('solar');}if(event.key==='ArrowLeft'){event.preventDefault();goto('health');}}}>
@@ -111,7 +109,6 @@ export default function App(){
               </div>
               <p className="watch-solar-disclaimer">{t('fluxNotDose')}</p>
             </div>}
-          {demo&&<OperationalNotice language={language} event={verification.data} stale={verification.isError}/>}
           {solarNotice.notice}
           <div className="watch-screen-footer"><div className="watch-dots" aria-label={t('screens')}><span className={screen==='health'?'active':''}/><span className={screen==='solar'?'active':''}/></div><small>{screen==='health'?t('swipeSolar'):demo?`← ${firstScreen}`:t('swipeHealth')}</small></div>
         </div><div className="watch-crown" aria-hidden="true"/></div><div className="watch-strap watch-strap--bottom" aria-hidden="true"/></div>

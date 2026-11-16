@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { SimulationState } from '@shared/simulation';
 import type { Language } from '@shared/i18n';
 import { formatSolarTime } from '@shared/solar';
-import { noticeCopy, type SolarNoticeRecord, consumeArrival } from './notices';
+import { noticeCopy, type SolarNoticeRecord, consumeArrival, simulatedSolarNotices } from './notices';
 
 function load(key:string):string[]{try{const v:unknown=JSON.parse(localStorage.getItem(key)??'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'):[];}catch{return [];}}
 function save(key:string,ids:string[]){try{localStorage.setItem(key,JSON.stringify(ids.slice(-500)));}catch{/* optional storage */}}
@@ -19,11 +19,7 @@ export function useSolarNotice({mode,simulation,language}:{mode:'simulation'|'re
     if(!response.ok)throw Error(`Solar notices HTTP ${response.status}`);
     return response.json() as Promise<SolarNoticeRecord[]>;
   },enabled:mode==='real',refetchInterval:5000,retry:1});
-  const fictional:SolarNoticeRecord[]=simulation&&['predicted','ongoing'].includes(simulation.scenario)?[{
-    id:simulation.solar_model.id,kind:'SIMULATED',source:'RADIANCE LAB',issued_at:simulation.solar_model.issued_at,
-    valid_until:simulation.solar_model.valid_until!,code:simulation.scenario==='ongoing'?'proton_observed':'forecast_attention',
-    detail:simulation.solar_model.model,provenance:'SIMULATED',
-  }]:[];
+  const fictional=simulatedSolarNotices(simulation,language);
   const notices=mode==='simulation'?fictional:mode==='real'&&!query.isError?(query.data??[]).filter(n=>Date.parse(n.issued_at)<=Date.now()&&Date.now()<Date.parse(n.valid_until)):[];
   const signature=notices.map(n=>n.id).join('|');
   useEffect(()=>{
