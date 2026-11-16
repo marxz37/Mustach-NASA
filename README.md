@@ -4,6 +4,13 @@ Protótipo de acompanhamento de informações de exposição radiológica indivi
 
 **Identidade RADIANCE:** Web e Wearable compartilham a logo vetorial de asas em azul/amarelo, também usada no favicon. A assinatura é *Context-aware radiation monitoring*, com tradução no cabeçalho PT/ES. O nome público foi atualizado; o repositório `Mustach-NASA` e os identificadores de configuração/preferências existentes continuam compatíveis. [Marca e regras visuais](docs/DESIGN-SYSTEM.md).
 
+## Transparência sobre uso de IA
+
+- **OpenAI Codex:** apoio à implementação e revisão de código dos front-ends e back-end, testes automatizados e documentação. Os rodapés do Web e Wearable identificam esse apoio em EN/PT/ES.
+- **Imagens:** os retratos dos perfis fictícios foram gerados artificialmente, conforme já registrado neste README. Cada retrato exibido recebe a marca “Imagem gerada por IA · perfil fictício”. O gerador específico não está registrado no projeto; não se atribui uma ferramenta/modelo sem confirmação.
+- **Dados científicos:** as observações NASA/NOAA e previsões de modelos conservam fontes e proveniência próprias; não são apresentadas como dados produzidos por IA. A simulação continua identificada como fictícia.
+- Os avisos de IA são textuais, sem logotipos, bandeiras ou identificadores de missões da NASA. A identidade Radiance permanece preservada. Essas indicações não substituem o preenchimento das ferramentas efetivamente utilizadas no formulário do desafio.
+
 ## Documentação do projeto
 
 Toda a pesquisa científica, rastreabilidade e stack ficam no GitHub, **não em páginas do aplicativo**:
@@ -108,7 +115,7 @@ A coleta não ocorre automaticamente ao iniciar a API. Na pasta `backend/`, com 
 
 **Ajustes visuais dos gráficos e relógio:** a taxa simulada abre nos últimos 15 minutos, dentro do histórico de 24h. Scroll/pinça aproxima e arraste navega; a barra inferior também ajusta a janela. `Live view / Vista ao vivo` retoma o acompanhamento. O histórico acumulado tem o mesmo zoom. O zoom manual não é desfeito pelo polling. A grade simulada é ancorada à execução; o ECharts usa amostragem visual LTTB, sem reduzir os dados usados para calcular dose.
 
-A legenda do acumulado aparece **somente em Simulação**. Seus cortes ilustrativos são 0,45 e 0,58 µSv/h multiplicados por 24h ou 168h (10,8/13,92 µSv diários; 75,6/97,44 µSv semanais). Não são limites clínicos, recomendações nem padrões NASA. A cobertura indicada continua necessária para interpretar uma janela parcial. Dados reais e Sem dados não recebem essa classificação de cor.
+A legenda colorida de faixas do acumulado foi removida. O histórico mantém valores, unidade, cobertura e zoom, sem classificação baixa/intermediária/elevada. A identificação geral de Simulação continua visível.
 
 No Wearable em Simulação, a primeira tela mostra taxa **ambiental fictícia**, cenário, velocidade, revisão e horário com segundos do estado compartilhado. A evidência pessoal pré-EVA continua em uma linha secundária separada: sua ausência não congela a simulação nem é preenchida pela taxa ambiental. O aviso pré-EVA e o resumo solar continuam preservados. `frontend/e2e/chart-live.spec.ts` verifica 1×/10×/60× com as duas aplicações e API reais.
 

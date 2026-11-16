@@ -369,9 +369,10 @@ a { color: inherit; text-decoration: none; }
 .simulation-controls button{cursor:pointer}.simulation-controls small{color:#88abc1}.simulation-controls p{margin:0}
 .chart-interaction-note{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:5px 0 9px;color:#7fa9bf;font-size:10px;line-height:1.5}
 .chart-interaction-note button{border:0;border-bottom:1px solid #46768b;padding:2px 0;background:none;color:#9ce9fb;font:inherit;cursor:pointer}
-.dose-demo-legend{display:flex;gap:5px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0;color:#89aabb;font-size:10px;line-height:1.5}
-.dose-demo-legend>div{display:flex;gap:13px;flex-wrap:wrap}.dose-demo-legend>div>span{display:inline-flex;align-items:center;gap:5px}.dose-demo-legend .is-current{color:#e0f3ff}
-.dose-demo-legend i{width:6px;height:6px;border-radius:50%;display:inline-block}.dose-band-low{background:#6bca9b}.dose-band-attention{background:#e0bd60}.dose-band-high{background:#ec756e}
+.mustach-footer{flex-wrap:wrap}
+.ai-disclosure{flex-basis:100%;font:inherit;font-size:10px;letter-spacing:0;line-height:1.5;color:#8cabbf}
+.crew-image-wrap{position:relative;display:block;flex:none;line-height:0}
+.ai-image-watermark{position:absolute;bottom:0;left:0;right:0;padding:5px 4px;background:#031424d9;color:#d4eaf5;font:8px/1.35 'DM Sans',sans-serif;text-align:center;white-space:normal}
 .overview-priority-grid .live-rate-summary{margin-top:13px}
 .overview-priority-grid .live-rate-summary strong{font-size:25px}
 .overview-priority-grid .chart-wrap{margin-top:7px}

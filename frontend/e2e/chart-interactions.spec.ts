@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {simulationFixture} from '../../shared/testing/simulationFixture';
 
-test('rate zoom responds to wheel, persists through polling, can pan and return to live; history has native zoom and simulation-only legend',async({page})=>{
+test('rate zoom responds to wheel, persists through polling, can pan and return to live; history keeps native zoom without the removed legend',async({page})=>{
   const now=Date.now();
   const state=simulationFixture(now);
   state.points=state.points.map(p=>({at:p.at,value:p.at<now-3600000?.35:.35+.025*Math.sin((p.at-now)/20000)}));
@@ -28,7 +28,7 @@ test('rate zoom responds to wheel, persists through polling, can pan and return 
   await rate.getByRole('button',{name:'Live view'}).click();
   await expect.poll(span).toBe(900000);
   const history=page.locator('.history-section').first();
-  await expect(history.locator('.dose-demo-legend')).toHaveAttribute('data-band','low');
+  await expect(history.locator('.dose-demo-legend')).toHaveCount(0);
   const canvas=history.locator('canvas').first();
   await expect(canvas).toBeVisible();
   const before=await canvas.screenshot();
@@ -38,7 +38,7 @@ test('rate zoom responds to wheel, persists through polling, can pan and return 
   await page.mouse.wheel(0,-500);
   await page.waitForTimeout(250);
   expect((await canvas.screenshot()).equals(before)).toBe(false);
-  await history.screenshot({path:'test-results/history-zoom-legend.png'});
+  await history.screenshot({path:'test-results/history-zoom-no-legend.png'});
   await rate.screenshot({path:'test-results/rate-zoom.png'});
   await page.getByRole('combobox',{name:'Data source'}).selectOption('real');
   await expect(page.locator('.dose-demo-legend')).toHaveCount(0);

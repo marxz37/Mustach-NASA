@@ -6,6 +6,7 @@ import { EVAClock } from '@/components/monitoring/EVAClock';
 import { DEMO_CREW } from '@shared/demo';
 import { demoCopy } from '@shared/demoCopy';
 import { languageLocale } from '@shared/i18n';
+import { aiDisclosure } from '@shared/aiDisclosure';
 
 export function CrewPage(){
  const {t,language,mode,selectedCrew,setSelectedCrewId,totalDoseMicroSv}=useApp();
@@ -22,7 +23,7 @@ export function CrewPage(){
     {DEMO_CREW.map(c=>{
      const active=c.id===selectedCrew.id;
      return <button type="button" key={c.id} aria-pressed={active} onClick={()=>setSelectedCrewId(c.id)} className={`crew-tile ${active?'selected':''}`}>
-      <img src={`/crew/${c.portrait}`} alt={`${c.name} — fictional astronaut portrait`} loading="lazy"/>
+      <span className="crew-image-wrap"><img src={`/crew/${c.portrait}`} alt={`${c.name} — ${aiDisclosure[language].portrait}`} loading="lazy"/><small className="ai-image-watermark">{aiDisclosure[language].portrait}</small></span>
       <span className="crew-tile-info"><strong>{c.name}</strong><small>{role(c)}</small><span className="crew-mini-bars" aria-hidden="true">{Array.from({length:11},(_,i)=><i key={i} style={{height:`${14+Math.abs(Math.sin(i*1.8+c.multiplier*3))*24}px`}}/>)}</span></span>
       <span className="crew-tile-index">0{DEMO_CREW.indexOf(c)+1}</span>
      </button>;

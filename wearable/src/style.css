@@ -48,6 +48,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 .watch-nav-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #367998; background: #0b2945; color: #b5e9fa; border-radius: 50%; }.watch-nav-button:hover:not(:disabled) { background: #0c4564; }.watch-nav-button:disabled { opacity: .32; cursor: not-allowed; }
 .wearable-footer { display: flex; flex-direction: column; align-items: center; gap: 10px; border-top: 1px solid #1e425c; padding-top: 15px; color: #8db2ca; font-size: 11px; text-align: center; }
 .wearable-footer p { display: flex; align-items: center; gap: 8px; margin: 0; line-height: 1.5; }.wearable-footer svg { flex: none; }.wearable-footer span { font: 10px 'JetBrains Mono', monospace; }
+.wearable-footer .ai-disclosure{display:block;margin-top:10px;color:#8cabbf;font-size:10px;line-height:1.5}
 @media (max-width: 760px) { .wearable-shell { padding: 30px 18px 28px; }.wearable-header h1 { font-size: 40px; }.watch-exhibit { min-height: 570px; } }
 @media (max-width: 420px) { .watch-case { width: 266px; height: 357px; border-radius: 52px; }.watch-screen { border-radius: 41px; }.watch-strap { width: 136px; }.watch-controls { gap: 17px; }.watch-screen-footer small { font-size: 6px; }.watch-solar-summary > div { grid-template-columns: 80px minmax(0,1fr); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; } }

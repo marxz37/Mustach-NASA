@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { radianceMarkUrl, radianceMonochromeMarkUrl } from '@shared/brand';
+import { aiDisclosure } from '@shared/aiDisclosure';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Radio, Info, Languages, Sun, Wifi, WifiOff } from 'lucide-react';
 import { getSimulation, simulationCopy } from '@shared/simulation';
@@ -116,6 +117,6 @@ export default function App(){
         </div><div className="watch-crown" aria-hidden="true"/></div><div className="watch-strap watch-strap--bottom" aria-hidden="true"/></div>
       <div className="watch-controls" role="group" aria-label={t('screens')}><button className="watch-nav-button" type="button" onClick={()=>goto('health')} disabled={screen==='health'} aria-label={firstScreen}><ArrowLeft size={18}/></button><span>{screen==='health'?'01 / 02':'02 / 02'} — {screen==='health'?firstScreen:t('watchPageSolar')}</span><button className="watch-nav-button" type="button" onClick={()=>goto('solar')} disabled={screen==='solar'} aria-label={t('watchPageSolar')}><ArrowRight size={18}/></button></div>
     </main>
-    <footer className="wearable-footer"><p><Info size={15}/>{t('protoDisclaimer')}</p></footer>
+    <footer className="wearable-footer"><p><Info size={15}/>{t('protoDisclaimer')}</p><small className="ai-disclosure">{aiDisclosure[language].development}</small></footer>
   </div>;
 }

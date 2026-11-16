@@ -1,5 +1,6 @@
 import { Activity, RadioTower, Wifi, WifiOff, Watch, Languages } from 'lucide-react';
 import { radianceMarkUrl } from '@shared/brand';
+import { aiDisclosure } from '@shared/aiDisclosure';
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { Overview } from '@/pages/Overview';
 import { CrewPage } from '@/pages/Crew';
@@ -26,6 +27,6 @@ export default function App() {
     {mode==='simulation'&&<p className="source-note">{t('simulationNotice')}</p>}
     <SimulationControls/>
     <main className="mustach-main"><Routes><Route path="/" element={<Overview/>}/><Route path="/tripulantes" element={<CrewPage/>}/><Route path="*" element={<Navigate to="/" replace/>}/></Routes></main>
-    <footer className="mustach-footer"><span>RADIANCE / NASA SPACE APPS CHALLENGE 2026</span><span>{t('protoDisclaimer')}</span></footer>
+    <footer className="mustach-footer"><span>RADIANCE / NASA SPACE APPS CHALLENGE 2026</span><span>{t('protoDisclaimer')}</span><small className="ai-disclosure">{aiDisclosure[language].development}</small></footer>
   </div>;
 }
