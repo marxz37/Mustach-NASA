@@ -71,8 +71,6 @@ Declared versions are in the committed manifests/lockfiles, not claims about the
 | Git | https://git-scm.com/ | Git contributors | Development Tool | Version control for source and documentation. | Repository commit history and `.gitignore` |
 | GitHub and GitHub Actions | https://github.com/marxz37/Mustach-NASA | GitHub | Development Tool | Repository hosting and configured build/lint/unit-test workflow; not evidence that every current remote check passed. | `.github/workflows/checks.yml`, repository history |
 | OpenAI Codex — AI-Assisted Development | https://openai.com/codex/ | OpenAI | Development Tool | Documented assistance with code, tests, review and documentation; not a scientific measurement or diagnostic engine. | `shared/aiDisclosure.ts`, Web/Wearable footers, `README.md` AI-Assisted Development |
-| Anthropic Claude — Team-Declared AI Assistance | https://claude.com/product/overview | Anthropic | Development Tool | The team narrative declares Claude use. No model/version or task-level attribution is recorded; do not infer that Claude generated the portraits or produced scientific observations. | `docs/Radiance_Documentacao_NASA_Space_Apps_2026.md`, Originality and AI tools |
-| Figma Slides — Team Presentation | https://www.figma.com/slides/ | Figma | Development Tool | Presentation linked by the team in the project narrative. This is not evidence of runtime integration or of implementing the application from a Figma design; external file contents were not audited. | `docs/Radiance_Documentacao_NASA_Space_Apps_2026.md`, Project presentation link |
 
 ### Images, typography and graphic resources
 
