@@ -1,21 +1,27 @@
-"""API REST do protótipo. Nenhuma integração da NASA/NOAA está ativa nesta fase."""
+"""Mustach local API: scientific observations, forecasts and isolated EVA demonstration."""
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
+import os
+from hmac import compare_digest
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, model_validator
+from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
-from .db import get_demo_event, get_measurements, init_db, update_demo_event
+from .db import (get_alerts, get_demo_event, get_events, get_forecasts, get_ingestion_runs,
+                 get_measurements, get_measurement_stats, get_source_states, init_db, record_ingestion, save_measurements,
+                 update_demo_event)
 from . import operational as op
 from .operational import OperationalAssessment, ScenarioId, ScenarioInputs
 from .measurements import Measurement
+from . import simulation
+from .solar_notices import eligible_notices
 
 
 class ApiStatus(BaseModel):
     api: Literal["online"] = "online"
-    mode: Literal["empty_prototype"] = "empty_prototype"
+    mode: Literal["empty_prototype", "scientific_data"] = "empty_prototype"
     measurements: int = 0
     last_update: datetime | None = None
 
@@ -26,6 +32,8 @@ class SourceInfo(BaseModel):
     category: str
     connected: bool = False
     description: str
+    last_attempt_at: datetime | None = None
+    error: str | None = None
 
 
 @asynccontextmanager
@@ -36,8 +44,8 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(
     title="Mustach — Space Radiation Monitoring API",
-    description="Esqueleto para integrações científicas futuras. Não fornece dosimetria individual real.",
-    version="0.4.0",
+    description="Dados científicos rastreáveis e protótipo EVA separado. Não fornece dosimetria clínica individual.",
+    version="0.5.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -59,13 +67,55 @@ def health():
 
 @app.get("/api/v1/status", response_model=ApiStatus)
 def api_status():
-    rows = get_measurements()
-    return ApiStatus(measurements=len(rows), last_update=None)
+    count, collected_at = get_measurement_stats()
+    return ApiStatus(mode='scientific_data' if count else 'empty_prototype', measurements=count,
+                     last_update=datetime.fromisoformat(collected_at) if collected_at else None)
 
 
 @app.get("/api/v1/measurements", response_model=list[Measurement])
-def measurements(limit: int = Query(default=500, ge=1, le=2000)):
-    return get_measurements(limit=limit)
+def measurements(limit: int = Query(default=500, ge=1, le=2000), source: str | None = None,
+                 quantity: str | None = None, start: AwareDatetime | None = None, end: AwareDatetime | None = None):
+    if start and end and end <= start:
+        raise HTTPException(status_code=422, detail='end must follow start')
+    return get_measurements(limit=limit, source=source, quantity=quantity,
+                            start=start.astimezone(timezone.utc).isoformat() if start else None,
+                            end=end.astimezone(timezone.utc).isoformat() if end else None)
+
+
+@app.get('/api/v1/science/ingestion-runs')
+def ingestion_runs(limit: int = Query(default=30, ge=1, le=100)):
+    return get_ingestion_runs(limit)
+
+
+@app.get('/api/v1/solar/alerts')
+def solar_alerts(limit: int = Query(default=20, ge=1, le=100)):
+    return get_alerts(limit)
+
+
+@app.post('/api/v1/science/measurements', status_code=201)
+def receive_scientific_measurement(measurement: Measurement, x_mustach_ingest_token: str | None = Header(default=None)):
+    expected = os.getenv('MUSTACH_INGEST_TOKEN')
+    if not expected:
+        raise HTTPException(status_code=503, detail='Scientific ingestion is disabled')
+    if not x_mustach_ingest_token or not compare_digest(x_mustach_ingest_token, expected):
+        raise HTTPException(status_code=401, detail='Invalid ingestion token')
+    if measurement.source not in ('LOCAL_IMPORT', 'LOCAL_SENSOR') or measurement.provenance != 'OBSERVED':
+        raise HTTPException(status_code=422, detail='Only local observed records are accepted here')
+    accepted_units = {'absorbed_dose_rate': ('µGy/h', 'uGy/h', 'μGy/h'),
+                      'dose_equivalent_rate': ('µSv/h', 'uSv/h', 'μSv/h', 'mSv/h'),
+                      'integral_proton_flux': ('pfu',)}
+    if measurement.quantity not in accepted_units or measurement.unit not in accepted_units[measurement.quantity]:
+        record_ingestion('local-measurement', 'ERROR', error='Leitura incompatível: grandeza ou unidade não aceita')
+        raise HTTPException(status_code=422, detail='Incompatible quantity and unit')
+    if measurement.scope == 'PERSONAL' and not measurement.astronaut_id:
+        raise HTTPException(status_code=422, detail='Personal measurement requires astronaut_id')
+    if measurement.measured_at > datetime.now(timezone.utc):
+        raise HTTPException(status_code=422, detail='Measurement timestamp is in the future')
+    try:
+        added = save_measurements([measurement.model_copy(update={'collected_at': datetime.now(timezone.utc)})])
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {'id': measurement.id, 'inserted': added == 1}
 
 
 @app.get("/api/v1/crew", response_model=list[dict])
@@ -75,7 +125,7 @@ def crew():
 
 @app.get("/api/v1/solar-events", response_model=list[dict])
 def solar_events():
-    return []
+    return get_events()
 
 
 class SolarForecastModel(BaseModel):
@@ -97,6 +147,10 @@ class SolarForecastModel(BaseModel):
     event_start_at: datetime | None = None
     event_peak_at: datetime | None = None
     event_end_at: datetime | None = None
+    forecast_horizon_day: int | None = None
+    threshold: str | None = None
+    location: str | None = None
+    source_url: str | None = None
 
 
 class SolarForecastResponse(BaseModel):
@@ -106,18 +160,33 @@ class SolarForecastResponse(BaseModel):
 
 @app.get("/api/v1/solar/forecast", response_model=SolarForecastResponse)
 def solar_forecast():
-    """Contrato compartilhado para previsões futuras de SEP; nenhuma fonte está conectada."""
-    return SolarForecastResponse()
+    """Only unexpired scientific forecasts appear as current; archives remain in SQLite."""
+    now = datetime.now(timezone.utc)
+    models = [item for item in get_forecasts() if datetime.fromisoformat(item['issued_at']) <= now
+              and (not item.get('valid_until') or datetime.fromisoformat(item['valid_until']) >= now)]
+    return SolarForecastResponse(status='available' if models else 'no_forecast', models=models)
+
+
+@app.get('/api/v1/solar/forecast/history', response_model=list[SolarForecastModel])
+def solar_forecast_history(limit: int = Query(default=50, ge=1, le=100)):
+    return get_forecasts(limit)
 
 
 @app.get("/api/v1/sources", response_model=list[SourceInfo])
 def sources():
+    states = get_source_states()
+    def info(id: str, name: str, category: str, description: str, state_key: str):
+        state = states.get(state_key)
+        return SourceInfo(id=id, name=name, category=category, description=description,
+                          connected=state is not None and state['status'] == 'OK',
+                          last_attempt_at=state['attempted_at'] if state else None,
+                          error=state['error'] if state else None)
     return [
-        SourceInfo(id="radlab", name="NASA RadLab", category="OBSERVED", description="Medições de radiação de instrumentos espaciais."),
-        SourceInfo(id="noaa", name="NOAA SWPC", category="OBSERVED", description="Fluxos de prótons GOES."),
-        SourceInfo(id="donki", name="NASA DONKI", category="EVENT", description="Eventos solares registrados."),
-        SourceInfo(id="sep", name="NASA SEP Scoreboard", category="FORECAST", description="Previsões solares de modelos científicos."),
-        SourceInfo(id="csa", name="CSA Radi-N2", category="REFERENCE", description="Referência científica de monitoramento de nêutrons."),
+        info('radlab', 'NASA RadLab', 'OBSERVED', 'Medições instrumentais históricas.', 'radlab'),
+        info('noaa', 'NOAA SWPC', 'OBSERVED', 'Fluxos integrais de prótons GOES.', 'goes'),
+        info('donki', 'NASA DONKI', 'EVENT', 'Catálogo de eventos SEP registrados, sem inferência causal.', 'donki'),
+        info('sep', 'NASA CCMC SEP Scoreboard', 'FORECAST', 'Previsões de modelos no CCMC.', 'ccmc'),
+        info('csa', 'CSA Radi-N2', 'REFERENCE', 'Referência de monitoramento de nêutrons.', 'csa'),
     ]
 
 
@@ -137,6 +206,31 @@ class WearableStatus(BaseModel):
 def wearable_status():
     """A interface e o wearable compartilham a API, mas nenhum dispositivo está conectado."""
     return WearableStatus()
+
+
+@app.get('/api/v1/wearable/solar-notices')
+def wearable_solar_notices():
+    return eligible_notices()
+
+
+class SimulationCommand(BaseModel):
+    action: Literal['select', 'start', 'pause', 'resume', 'reset', 'speed']
+    expected_revision: int = Field(ge=1)
+    scenario: Literal['normal', 'predicted', 'ongoing', 'recovery'] | None = None
+    speed: Literal[1, 10, 60] | None = None
+
+
+@app.get('/api/v1/demo/simulation')
+def simulation_state():
+    return simulation.access()
+
+
+@app.post('/api/v1/demo/simulation')
+def simulation_command(body: SimulationCommand):
+    try:
+        return simulation.access(**body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 # Dev-only presence signal from the standalone wearable WEB PREVIEW.
 # This is not a physical watch pairing, and carries no personal health data.

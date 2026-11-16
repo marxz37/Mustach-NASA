@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, Radio, Info, Languages, Sun, Wifi, WifiOff } from 'lucide-react';
-import { demoSolarModel } from '@shared/demo';
-import { formatSolarFlux, formatSolarProbability } from '@shared/solar';
+import { getSimulation, simulationCopy } from '@shared/simulation';
+import { useSolarNotice } from './SolarNotice';
+import { formatSolarFlux, formatSolarProbability, isForecastCurrent } from '@shared/solar';
 import { translate, formattedClock, languageNames, languageLocale, type Language, type TranslationKey } from '@shared/i18n';
 import { getSolarForecast, getWearableStatus, sendWearableHeartbeat } from './services/api';
 import { OperationalNotice } from './OperationalCheck';
@@ -22,8 +23,12 @@ function shortTime(value:string|null|undefined,language:Language){
 export default function App(){
   const [screen,setScreen]=useState<Screen>('health');
   const [language,setLanguage]=useState<Language>(defaultLanguage);
-  const [demo,setDemo]=useState(true);
-  const [now,setNow]=useState(Date.now());
+  const [dataMode,setDataMode]=useState<'simulation'|'real'|'none'>('simulation');
+  const [wallNow,setWallNow]=useState(Date.now());
+  const demo=dataMode==='simulation';
+  const simulationQuery=useQuery({queryKey:['shared-simulation'],queryFn:()=>getSimulation(import.meta.env.VITE_API_BASE_URL??''),enabled:demo,refetchInterval:1000,retry:1});
+  const simulation=simulationQuery.isError?undefined:simulationQuery.data;
+  const solarNotice=useSolarNotice({mode:dataMode,simulation,language});
   const dragStart=useRef<number|null>(null);
   const t=(key:TranslationKey)=>translate(language,key);
   const c=(key:OperationalCopyKey)=>operationalCopy(language,key);
@@ -32,7 +37,7 @@ export default function App(){
   const [lastHeartbeat,setLastHeartbeat]=useState<number|null>(null);
   const verification=useQuery({queryKey:['operational-event'],queryFn:()=>getOperationalEvent(import.meta.env.VITE_API_BASE_URL??''),enabled:demo,refetchInterval:3000,retry:1});
   const hasNotice=demo&&(verification.isError||!!verification.data?.assessment.requires_attention);
-  useEffect(()=>{const interval=window.setInterval(()=>setNow(Date.now()),2000);return()=>window.clearInterval(interval);},[]);
+  useEffect(()=>{const timer=window.setInterval(()=>setWallNow(Date.now()),1000);return()=>window.clearInterval(timer);},[]);
   useEffect(()=>{
     let active=true;
     const ping=()=>{void sendWearableHeartbeat().then(()=>{if(active)setLastHeartbeat(Date.now());}).catch(()=>{/* offline remains visible */});};
@@ -47,7 +52,8 @@ export default function App(){
   const tone=current&&event.assessment.requires_attention?'attention':'unknown';
   const label=current&&check?c(check.state):t('unavailable');
   const description=current?`${c(event.assessment.requires_attention?'pending':'recorded')} · ${event.evidence.activity?.astronaut_name ?? event.activity}`:c('watchUnknown');
-  const model=demo?demoSolarModel(now):forecast?.models[0];
+  const currentModels=forecast?.models.filter(model=>isForecastCurrent(model,wallNow));
+  const model=demo?simulation?.solar_model:dataMode==='real'&&!forecastError?(currentModels?.find(item=>item.source==='NOAA SWPC'&&item.forecast_horizon_day===1)??currentModels?.[0]):undefined;
   const goto=(next:Screen)=>setScreen(next);
   const handlePointerEnd=(x:number)=>{if(dragStart.current===null)return;const dx=x-dragStart.current;dragStart.current=null;if(Math.abs(dx)>=50)goto(dx<0?'solar':'health');};
   const changeLanguage=(next:Language)=>{setLanguage(next);try{localStorage.setItem('mustach-language',next);}catch{/* local storage optional */}};
@@ -55,14 +61,16 @@ export default function App(){
     <header className="wearable-header">
       <div className="watch-header-row"><span className="section-kicker"><span className="pulse-dot"/> MUSTACH WEARABLE / {t('wearableLabel')}</span>
         <label className="watch-language"><Languages size={15}/><span className="sr-only">{t('language')}</span><select aria-label={t('language')} value={language} onChange={e=>changeLanguage(e.target.value as Language)}>{(Object.keys(languageNames) as Language[]).map(key=><option key={key} value={key}>{languageNames[key]}</option>)}</select></label></div>
-      <div className="wearable-demo-toolbar"><label className="watch-choice">{t('dataMode')}<select value={demo?'simulation':'none'} onChange={e=>setDemo(e.target.value==='simulation')}><option value="simulation">{t('simulation')}</option><option value="none">{t('noData')}</option></select></label></div>
+      <div className="wearable-demo-toolbar"><label className="watch-choice">{t('dataMode')}<select value={dataMode} onChange={e=>setDataMode(e.target.value as typeof dataMode)}><option value="simulation">{t('simulation')}</option><option value="real">{t('real')}</option><option value="none">{t('noData')}</option></select></label></div>
       <h1>{t('watchTitle')}</h1><p>{demo?c('watchSimulation'):t('watchCaption')}</p>
+      {demo&&<p className="watch-simulation-state" data-testid="shared-scenario">{simulation?`${simulationCopy[language][simulation.scenario]} · ${simulationCopy[language][simulation.running?'running':'paused']} · ${simulation.speed}× · ${simulation.rate.toFixed(3)} µSv/h (${t('doseAmbient')}) · ${new Date(simulation.now).toISOString()}`:simulationCopy[language].offline}</p>}
+      {solarNotice.settings}
       <p className="watch-sync"><span>{wearableConnected&&!wearableError?<Wifi size={13}/>:<WifiOff size={13}/>} {wearableConnected&&!wearableError?t('apiOnline'):t('apiOffline')}</span><span>{t('lastSync')}: {formattedClock(lastHeartbeat,language,true)}</span><span>{t('deviceNote')}</span></p>
     </header>
     <main className="watch-exhibit">
       <div className="watch-decoration watch-decoration--one" aria-hidden="true"/><div className="watch-decoration watch-decoration--two" aria-hidden="true"/>
       <div className="watch-device" aria-label={t('watchTitle')}><div className="watch-strap watch-strap--top" aria-hidden="true"/><div className="watch-case">
-        <div className={`watch-screen ${hasNotice?'watch-screen--notice':''}`} role="region" aria-roledescription="carousel" aria-label={`${t('screens')}: ${screen==='health'?t('watchPageHealth'):t('watchPageSolar')}`} tabIndex={0}
+        <div className={`watch-screen ${hasNotice||solarNotice.active?'watch-screen--notice':''} ${solarNotice.active?'watch-screen--sep':''}`} role="region" aria-roledescription="carousel" aria-label={`${t('screens')}: ${screen==='health'?t('watchPageHealth'):t('watchPageSolar')}`} tabIndex={0}
           onPointerDown={event=>{dragStart.current=event.clientX;if(event.pointerType!=='mouse')event.currentTarget.setPointerCapture(event.pointerId);}}
           onPointerUp={event=>handlePointerEnd(event.clientX)} onPointerCancel={()=>{dragStart.current=null;}}
           onKeyDown={event=>{if(event.key==='ArrowRight'){event.preventDefault();goto('solar');}if(event.key==='ArrowLeft'){event.preventDefault();goto('health');}}}>
@@ -81,7 +89,7 @@ export default function App(){
             <div className="watch-center watch-center--solar" key="solar">
               <div className="watch-eyebrow watch-solar-kicker"><Sun size={12}/>{t('solar')}</div>
               <strong className="watch-solar-title">{model?t('watchForecastTitle'):t('noForecast')}</strong>
-              <p className="watch-solar-source">{model?model.model:forecastError?t('apiOffline'):t('solarModels')}</p>
+              <p className="watch-solar-source">{model?`${model.provider} · ${model.model}${model.forecast_horizon_day?` · ${model.forecast_horizon_day}/3`:''}`:forecastError?t('apiOffline'):t('solarModels')}</p>
               <div className="watch-solar-summary">
                 <div><span>A / {t('occurrence')}</span><strong>{formatSolarProbability(model?.occurrence_probability_percent,language)}</strong></div>
                 <div><span>B / {t('intensity')}</span><strong>{formatSolarFlux(model?.peak_proton_flux,model?.peak_proton_flux_unit,language)}</strong></div>
@@ -90,6 +98,7 @@ export default function App(){
               <p className="watch-solar-disclaimer">{t('fluxNotDose')}</p>
             </div>}
           {demo&&<OperationalNotice language={language} event={verification.data} stale={verification.isError}/>}
+          {solarNotice.notice}
           <div className="watch-screen-footer"><div className="watch-dots" aria-label={t('screens')}><span className={screen==='health'?'active':''}/><span className={screen==='solar'?'active':''}/></div><small>{screen==='health'?t('swipeSolar'):t('swipeHealth')}</small></div>
         </div><div className="watch-crown" aria-hidden="true"/></div><div className="watch-strap watch-strap--bottom" aria-hidden="true"/></div>
       <div className="watch-controls" role="group" aria-label={t('screens')}><button className="watch-nav-button" type="button" onClick={()=>goto('health')} disabled={screen==='health'} aria-label={t('watchPageHealth')}><ArrowLeft size={18}/></button><span>{screen==='health'?'01 / 02':'02 / 02'} — {screen==='health'?t('watchPageHealth'):t('watchPageSolar')}</span><button className="watch-nav-button" type="button" onClick={()=>goto('solar')} disabled={screen==='solar'} aria-label={t('watchPageSolar')}><ArrowRight size={18}/></button></div>

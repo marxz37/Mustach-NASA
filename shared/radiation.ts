@@ -75,4 +75,5 @@ export interface RadiologicalMeasurement {
   measured_at: string; quantity: string; value: number; unit: string; mission: string;
   region?: string | null; scope: 'ENVIRONMENTAL' | 'PERSONAL'; quality: 'VALID' | 'REVIEW_REQUIRED' | 'UNKNOWN';
   astronaut_id?: string | null; activity_id?: string | null; location?: string | null;
+  collected_at?: string | null; source_url?: string | null; details?: Record<string,unknown> | null;
 }

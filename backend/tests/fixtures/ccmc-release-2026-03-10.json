@@ -1,0 +1,12 @@
+{
+  "sep_forecast_submission": {
+    "model": {"short_name": "HESPERIA REleASE SOHO 30-min", "spase_id": "spase://CCMC/SimulationModel/HESPERIA_REleASE/v3"},
+    "issue_time": "2026-03-10T21:26:43Z",
+    "mode": "forecast",
+    "triggers": [{"particle_intensity": {"observatory": "SOHO", "instrument": "EPHIN", "last_data_time": "2026-03-10T21:21:04Z"}}],
+    "forecasts": [
+      {"energy_channel": {"min": "15.8", "max": "39.8", "units": "MeV"}, "species": "proton", "location": "L1", "prediction_window": {"start_time": "2026-03-10T21:51:04Z", "end_time": "2026-03-10T21:51:04Z"}, "peak_intensity": {"intensity": "0.000071988", "units": "MeV^-1*s^-1*cm^-2*sr^-1", "time": "2026-03-10T21:51:04Z"}, "all_clear": {"threshold": "0.1", "threshold_units": "MeV^-1*s^-1*cm^-2*sr^-1", "all_clear_boolean": true}},
+      {"energy_channel": {"min": "28.2", "max": "50.1", "units": "MeV"}, "species": "proton", "location": "L1", "prediction_window": {"start_time": "2026-03-10T21:51:04Z", "end_time": "2026-03-10T21:51:04Z"}, "peak_intensity": {"intensity": "0.000081622", "units": "MeV^-1*s^-1*cm^-2*sr^-1", "time": "2026-03-10T21:51:04Z"}, "all_clear": {"threshold": "0.1", "threshold_units": "MeV^-1*s^-1*cm^-2*sr^-1", "all_clear_boolean": true}}
+    ]
+  }
+}

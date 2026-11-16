@@ -7,14 +7,14 @@
 ```text
 Mustach Web — frontend/ (React + TypeScript + Vite, porta 5173)
               \
-               +--> FastAPI — backend/ (porta 8000) --> SQLite local (observações vazias; evidências da demonstração)
+               +--> FastAPI — backend/ (porta 8000) --> SQLite local (observações, previsões e demo separados)
               /
 Mustach Wearable — wearable/ (React + TypeScript + Vite, porta 5174)
 
 shared/ --> i18n EN/PT/ES, contratos solares, cálculo temporal e dados de demonstração
 ```
 
-Ambas as aplicações front-end são independentes e consomem a **mesma API**. A V2 refinada compartilha uma ocorrência pré-EVA e sua avaliação determinística de evidências estruturadas, calculada em `backend/app/operational.py`. O contrato original de medição foi centralizado em `backend/app/measurements.py`; a evidência demonstrativa fica separada da tabela de observações. O Web exibe o fluxo e o painel lateral; o Wearable apresenta apenas um aviso passivo dentro do relógio. Cenário, revisão e consulta ficam no SQLite, com polling de três segundos. O Wearable atual é **uma prévia web**, não uma aplicação instalada em um relógio físico. As séries sintéticas são locais ao navegador, separadas das respostas observadas da API e não gravadas no SQLite.
+Ambas as aplicações front-end são independentes e consomem a **mesma API**. `backend/app/science.py` valida respostas externas, `backend/app/collect.py` executa coleta explícita e `backend/app/db.py` armazena observações, previsões, avisos, eventos e falhas em tabelas separadas. O motor pré-EVA em `backend/app/operational.py` não usa essas séries ambientais como dose pessoal. O Wearable continua uma **prévia web**, não uma aplicação em relógio físico. Séries sintéticas ficam no navegador e não são gravadas como observações.
 
 ## 1. Tecnologias encontradas no código
 
@@ -35,7 +35,8 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. A
 | Back-end | Python 3.10+ + FastAPI (faixa `>=0.115,<1.0`) | **API local, contratos e verificação de evidências** | `backend/requirements.txt`, `backend/app/main.py` |
 | Servidor ASGI | Uvicorn com extras standard (faixa `>=0.34,<1.0`) | **Declarado** | `backend/requirements.txt`, scripts `.bat` |
 | Validação | Pydantic 2 (faixa `>=2.10,<3.0`) | **Usado** nos modelos da API | `backend/app/main.py` |
-| Banco local | SQLite | **Inicializado**, sem dados científicos carregados | `backend/app/db.py` |
+| Banco local | SQLite | **Persistência científica ativa**, migrações aditivas e backup/restauração | `backend/app/db.py`, `backend/app/backup.py` |
+| Coletores oficiais | Python `urllib` e JSON | **RadLab, NOAA GOES/probabilidades/alertas, CCMC REleASE, DONKI SEP**; execução manual | `backend/app/science.py`, `backend/app/collect.py` |
 | Testes JS | Vitest 3 | **Declarado** e possui testes unitários | `frontend/src/lib/*.test.ts`, `wearable/src/*.test.ts` |
 | Testes de navegação | Playwright | **Declarado**; testes E2E presentes | `frontend/e2e/`, `wearable/e2e/` |
 | Testes da API | Pytest + HTTPX | **Declarados** e testes presentes | `backend/requirements-dev.txt`, `backend/tests/` |
@@ -56,7 +57,7 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. A
 | Serviço Python gerenciado | Hospedar FastAPI de forma separada | **Provedor ainda a definir** |
 | Docker / Compose | Padronizar ambientes e serviços | **Opcional / não configurado** |
 | Sistema de autenticação/autorização | Dados pessoais de tripulantes e sensores | **Não implementado** |
-| Integrações NASA RadLab/NOAA/CCMC/DONKI | Obter medidas e eventos reais | **Não implementadas**; ver [fontes](FONTES-CIENTIFICAS.md) |
+| Mais instrumentos e modelos NASA/NOAA/CCMC | Ampliar cobertura de produtos científicos | **Pesquisa futura**; os subconjuntos implementados constam em [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md) |
 | Comunicação com smartwatch físico | Sincronizar dosimetria pessoal | **Não implementada**; heartbeat atual é apenas da prévia web |
 | Modelos radiobiológicos/órgãos | Cálculo físico de exposição por tecido | **Pesquisa futura**; nenhum limiar médico validado no código |
 
@@ -67,7 +68,7 @@ Mustach/
 ├── frontend/     React Web: visão geral, tripulantes, mapa, gráficos, EVA
 ├── wearable/     React: prévia de relógio independente, saúde/solar
 ├── shared/       Tipos e cálculos compartilhados, simulação e idiomas
-├── backend/      FastAPI, contratos vazios e SQLite local
+├── backend/      FastAPI, coletores científicos, persistência SQLite e demo EVA
 ├── docs/         Ciência, rastreabilidade, tecnologias e design
 ├── .github/      CI
 ├── iniciar-frontend.bat
@@ -112,5 +113,16 @@ npm run test:e2e
 4. **EVA real:** requer dosímetro associado à pessoa e sessão; um cronômetro ou dados da NOAA não resolvem.
 5. **Mapa corporal real:** depende de dados e modelos de exposição por órgão validados. Os gradientes atuais são demonstrativos e usam limiares sintéticos.
 6. **Segurança futura:** não expor chaves de API no front-end, usar cache/rate limits e validar entradas/redirecionamentos no servidor. Proteger dados de saúde e evitar coleta desnecessária.
-7. **Banco:** definir chaves de instrumento, local, missão, pessoa/sessão, grandeza, unidade, fonte e qualidade antes de persistir dados reais; nunca gravar séries sintéticas misturadas ao banco de observações.
-8. **Disponibilidade:** offline/reconexão podem ser requisitos futuros para missões; não afirmar suporte offline operacional agora.
+7. **Banco:** IDs determinísticos evitam duplicação; `measurements` guarda metadados originais e instante de coleta, enquanto previsões e demo têm tabelas próprias. O nome legado `sentinela.sqlite3` é mantido.
+8. **Disponibilidade:** dados previamente coletados seguem acessíveis sem internet externa, desde que a API local funcione. Não existe sincronização automática nem cache confiável se a API local cair.
+
+## Refinamentos das integrações
+
+- `backend/app/simulation.py`: relógio e curvas fictícias compartilhados, com SQLite, revisão otimista e controles. Sem dependência/framework novo.
+- `shared/simulation.ts`: contratos e traduções EN/PT/ES; não é um gerador de previsão independente.
+- `frontend/src/components/monitoring/SimulationControls.tsx`: controles compactos na interface atual; central/sino removidos.
+- `backend/app/solar_notices.py`: filtro SEP e limiares demonstrativos no servidor. `wearable/src/SolarNotice.tsx` e `notices.ts`: apresentação, reconhecimento e deduplicação local, com vibração experimental detectada e opcional.
+- Migração aditiva: `scientific_alerts.original_message`, `valid_until`, `product_id`; nova tabela `simulation_state` separada de dados científicos. Backup/restauração incluem ambas e mantêm o banco legado.
+- Testes: Pytest de cenário/relógio/cancelamento/unidade/persistência; Vitest de deduplicação/validade; Playwright de aviso, vibração, três idiomas/320px, modos e sincronização HTTP real opt-in. Nenhum pacote foi instalado para esses ajustes.
+
+Validação local em 15/11/2026: **79 Pytest, 20 Vitest Web, 7 Vitest Wearable, 23 Playwright Web, 17 Playwright Wearable e 3 E2E HTTP reais** aprovados. Os três testes live são ignorados nas suítes comuns e executados separadamente com `MUSTACH_LIVE_API=1`; não dependem de interceptações para provar comunicação. Typecheck, lint e builds aprovados. Avisos não bloqueantes: depreciação Starlette/httpx e bundle Web acima de 500 kB. Comparação por hash dos 22 registros RadLab antes/depois de encerrar e reiniciar uvicorn confirmou igualdade; SQLite retornou `integrity_check=ok`. As falhas de internet foram controladas nos testes, sem desligar a rede da máquina. Vibração foi validada por chamada simulada e fallback visual, **não por hardware físico**.

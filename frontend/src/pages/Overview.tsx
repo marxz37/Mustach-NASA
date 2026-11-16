@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Activity, Info, Radio, Sun, Zap } from 'lucide-react';
-import { demoSolarModel } from '@shared/demo';
 import { demonstrationBand } from '@shared/demoBands';
 import { formatSolarProbability } from '@shared/solar';
 import { equivalentDoseCoverage } from '@shared/radiation';
@@ -10,6 +9,7 @@ import { HeatmapBody, type BodyTarget } from '@/components/visualizations/Heatma
 import { OrganDetails } from '@/components/visualizations/OrganDetails';
 import { LiveRateChart } from '@/components/monitoring/LiveRateChart';
 import { DoseHistory } from '@/components/monitoring/DoseHistory';
+import { ScientificHistory } from '@/components/monitoring/ScientificHistory';
 import { EVAClock } from '@/components/monitoring/EVAClock';
 import { OperationalCheck } from '@/components/monitoring/OperationalCheck';
 import { useApp } from '@/context/AppContext';
@@ -17,8 +17,8 @@ import { useApp } from '@/context/AppContext';
 export function Overview(){
   const [selected,setSelected]=useState<BodyTarget|null>(null);
   const [bodyView,setBodyView]=useState<'corpo'|'orgaos'>('corpo');
-  const {t,mode,simulated,absorbedRate,latestEquivalent,now,language,totalDoseMicroSv,equivalentPoints}=useApp();
-  const model=simulated?demoSolarModel(now):null;
+  const {t,mode,simulated,absorbedRate,latestEquivalent,now,language,totalDoseMicroSv,equivalentPoints,simulation,simulationOffline}=useApp();
+  const model=simulated&&!simulationOffline?simulation?.solar_model:null;
   // Fictional display bands only. Real measurements cannot be assessed against these values.
   const tier=simulated?demonstrationBand(latestEquivalent):'unknown';
   const tierLabel=tier==='baseline'?t('statusNominal'):tier==='attention'?t('statusAttention'):tier==='high'?t('statusHighExposure'):t('unavailable');
@@ -63,7 +63,7 @@ export function Overview(){
         {simulated?<div className="body-legend body-legend--bands"><span className="band-mark band-mark--baseline"/>{t('statusNominal')}<span className="band-mark band-mark--attention"/>{t('statusAttention')}<span className="band-mark band-mark--high"/>{t('statusHighExposure')}</div>:<div className="body-legend"><span className="legend-swatch"/>{t('mapLegendEmpty')}</div>}
         <p className="heatmap-method-note">{simulated?t('demoBandsWarning'):t('heatmapEmpty')}</p>
       </section>
-      <div className="overview-support-stack"><DoseHistory/><EVAClock/></div>
+      <div className="overview-support-stack"><DoseHistory/>{mode==='real'&&<ScientificHistory/>}<EVAClock/></div>
     </div>
     <OrganDetails target={selected} onClose={()=>setSelected(null)}/>
   </div>;

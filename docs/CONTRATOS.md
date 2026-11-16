@@ -2,8 +2,8 @@
 
 ## Estado inicial
 
-- A **API/banco** inicia com zero medições, zero tripulantes reais e zero eventos solares integrados. **A interface inicia em Simulação por padrão**, preenchida com perfis fictícios e séries sintéticas locais ao navegador; o modo Dados reais continua vazio sem fonte externa.
-- Não existem sensores de voo conectados, alertas clínicos ou predições solares reais. O gráfico acompanha leituras novas no modo simulação a cada 2 segundos.
+- Um banco novo inicia com zero medições, sem tripulantes reais. **A interface inicia em Simulação por padrão**, com perfis fictícios; Dados reais exibe somente registros coletados na FastAPI.
+- Não existem sensores de voo conectados nem alertas clínicos. Previsões reais NOAA/CCMC podem ser carregadas por coleta explícita, mas não estimam dano individual. O gráfico demonstrativo acompanha amostras sintéticas a cada 2 segundos.
 - O mapa corporal 2D é **neutro em dados reais/sem dados**. Em Simulação, responde a faixas sintéticas de teste; não representa dose de órgão ou uma avaliação médica.
 
 ## Dados
@@ -26,6 +26,9 @@
 7. Alertas de saúde NÃO são diagnósticos médicos.
 8. A previsão SEP de `GET /api/v1/solar/forecast` contém registros separados por modelo, com provedor, fonte, emissão, janela de validade, probabilidade de ocorrência, fluxo máximo com unidade, energia e horários de início/pico/término. A resposta vazia usa `status: no_forecast` e `models: []`.
 9. Não combinar modelos com horizontes, unidades ou faixas de energia diferentes. Probabilidade de evento SEP não é probabilidade de dano à saúde, e fluxo de prótons não se converte diretamente em dose individual.
+9a. O JSON REleASE contém fluxo **diferencial** em `MeV^-1*s^-1*cm^-2*sr^-1`; não o converter em `pfu`. NOAA GOES contém fluxo **integral** em `pfu` por limiar energético. NOAA S1+ é um evento ≥10 MeV/≥10 pfu, não um diagnóstico.
+9b. RadLab DosTel1 histórico contém dose absorvida em µGy/h e fluxo em cm⁻² sr⁻¹ s⁻¹. `dose_equivalent_rate` nulo permanece nulo; não se cria dose equivalente nem acumulada a partir desses valores. Timestamps RadLab sem offset são interpretados como UTC e o original fica em `details`.
+9c. A API mostra previsões vigentes em `/solar/forecast` e as expiradas somente em `/solar/forecast/history`. Falhas de coleta não apagam registros. A indicação de fonte reflete a última tentativa, não conectividade externa contínua.
 
 ## Referências
 
@@ -126,4 +129,12 @@ As faixas `Normal / Atenção / Elevado` permanecem disponíveis somente na simu
 
 O acumulado e seu histórico integram apenas intervalos consecutivos compatíveis: até 310 s na série sintética e 60 s na série observada. Esses intervalos são regras de processamento do protótipo, **não critérios médicos ou de segurança**. A cobertura corresponde à duração integrada, recortada pela janela móvel; não extrapola as bordas nem preenche lacunas. O gráfico acumulado usa os mesmos intervalos do total e interrompe a linha nas lacunas.
 
-O histórico sintético conserva a grade de cinco minutos de sete dias, mais detalhes recentes de dois segundos. Amostras detalhadas desde o início de uma sessão EVA são preservadas até zerar ou mudar a origem, para não recalcular para menos uma dose já acumulada.
+O histórico sintético é reconstruído pela FastAPI: sete dias em grade de cinco minutos, dia em execução a cada 30 segundos e últimos 10 minutos a cada dois segundos, com pontos nas transições. A sessão EVA usa o relógio demonstrativo e intervalos compatíveis até 310 s; a janela máxima disponível é sete dias. Reiniciar o roteiro ou trocar origem limpa a sessão, sem reaproveitar um acumulado de outra execução. Nenhuma taxa absorvida é derivada da equivalente.
+
+## Refinamentos: simulação e avisos SEP
+
+`GET/POST /api/v1/demo/simulation` compartilha estado persistido em `simulation_state`. POST exige `expected_revision`; conflito retorna 409. Os quatro cenários e velocidades 1×/10×/60× são demonstrativos. Não escrevem em `measurements`, previsões científicas nem evidências pré-EVA. Se a API falhar, não existe gerador de fallback no navegador.
+
+`GET /api/v1/wearable/solar-notices` seleciona boletins oficiais NOAA e previsões elegíveis por regras **não clínicas**, documentadas em [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md). Apenas Wearable mostra esses avisos; não há central no Web. A classificação distingue aviso oficial, previsão e simulação. Reconhecimento e tentativas de vibração ficam no navegador, sem fila de push ou pareamento físico. Vibração é opt-in, experimental e nunca substitui o sinal visual.
+
+A ingestão real exige token e rejeita contexto incompatível de um ID existente, inclusive pessoa/atividade/qualidade. Valores ambientais não substituem leituras pessoais e não classificam órgãos reais.
