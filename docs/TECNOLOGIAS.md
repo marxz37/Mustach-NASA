@@ -14,7 +14,9 @@ Radiance Wearable — wearable/ (React + TypeScript + Vite, porta 5174)
 shared/ --> i18n EN/PT/ES, contratos solares, cálculo temporal e dados de demonstração
 ```
 
-Ambas as aplicações front-end são independentes e consomem a **mesma API**. `backend/app/science.py` valida respostas externas, `backend/app/collect.py` executa coleta explícita e `backend/app/db.py` armazena observações, previsões, avisos, eventos e falhas em tabelas separadas. O motor pré-EVA em `backend/app/operational.py` não usa essas séries ambientais como dose pessoal. O Wearable continua uma **prévia web**, não uma aplicação em relógio físico. Séries sintéticas ficam no navegador e não são gravadas como observações.
+Ambas as aplicações front-end são independentes e consomem a **mesma API**. `backend/app/science.py` valida respostas externas, `backend/app/collect.py` executa coleta manual explícita e `backend/app/db.py` armazena observações, previsões, avisos, eventos e falhas em tabelas separadas. O motor pré-EVA em `backend/app/operational.py` não usa essas séries ambientais como dose pessoal. O Wearable continua uma **prévia web**, não uma aplicação em relógio físico.
+
+`backend/app/simulation.py` é a autoridade da simulação: persiste em `simulation_state` o ID de execução, revisão, âncoras de tempo, velocidade e transições e reconstrói as séries nas consultas FastAPI. Web e Wearable consultam esse estado a cada segundo. `shared/simulation.ts` fornece contrato/transporte/traduções; `shared/demo.ts` mantém perfis fictícios, transformação das séries de perfil e auxiliares de teste, não um relógio runtime paralelo. Amostras sintéticas não entram em `measurements`; as evidências pré-EVA ficam em `demo_operational_event`, separadas também da simulação temporal.
 
 ## 1. Tecnologias encontradas no código
 
@@ -25,14 +27,14 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. `
 | Linguagem | TypeScript 5 | **Declarado e utilizado** nos dois front-ends | `*/tsconfig.json`, arquivos `.ts` / `.tsx` |
 | Ferramenta de desenvolvimento/build | Vite 7 + `@vitejs/plugin-react` | **Declarado e configurado** em portas 5173 / 5174 | `frontend/vite.config.ts`, `wearable/vite.config.ts` |
 | Estilos Web | Tailwind CSS 4 e plugin `@tailwindcss/vite` + CSS | **Declarado** no Web; customizações extensas em CSS | `frontend/package.json`, `frontend/src/index.css` |
-| Componentes Web | `components.json`, componentes locais e padrões shadcn/ui | **Estrutura configurada / componentes próprios**; `shadcn/ui` não é dependência runtime única | `frontend/components.json`, `frontend/src/components/ui/` |
+| Componentes Web | Componentes próprios; configuração shadcn/ui retida | `components.json` e helpers locais existem, mas isso não prova uso do gerador nem de uma biblioteca shadcn no dashboard ativo. Não cadastrar shadcn como integração científica ou pacote runtime | `frontend/components.json`, `frontend/src/components/ui/`, `frontend/src/App.tsx` |
 | Ícones | Lucide React | **Usado** em ambas as aplicações | `frontend/src/`, `wearable/src/` |
 | Gráficos | Apache ECharts 6 + `echarts-for-react` | **Usado** nos gráficos do Radiance Web | `frontend/package.json`, `frontend/src/components/monitoring/` |
 | Consultas e cache | TanStack Query 5 + Fetch | **Usado** nos dois front-ends | `frontend/src/context/AppContext.tsx`, `wearable/src/App.tsx`, `*/src/services/api.ts` |
 | Navegação Web | React Router 7 | **Usado** na navegação superior | `frontend/src/App.tsx` |
 | Estado | React Context / Hooks | **Usado** na seleção de origem, idioma, EVA, amostras | `frontend/src/context/AppContext.tsx` |
-| Utilitários de UI | `clsx`, `tailwind-merge`, `class-variance-authority` | **Declarados**; verificar uso efetivo por componente | `frontend/package.json`, `frontend/src/lib/` |
-| Back-end | Python 3.10+ + FastAPI (faixa `>=0.115,<1.0`) | **API local, contratos e verificação de evidências** | `backend/requirements.txt`, `backend/app/main.py` |
+| Utilitários de UI | `clsx`, `tailwind-merge`, `class-variance-authority` | **Declarados e referenciados em componentes retidos** (`ui/button`, `ui/card` e `lib/utils`); não confundir arquivos legados não montados com a interface ativa | `frontend/package.json`, `frontend/src/lib/utils.ts`, `frontend/src/components/ui/button.tsx` |
+| Back-end | Python + FastAPI (faixa `>=0.115,<1.0`) | Sintaxe Python 3.10+; **3.12 configurado no CI e recomendado**. Esta auditoria não certifica todos os releases posteriores | `backend/requirements.txt`, `backend/app/main.py`, `.github/workflows/checks.yml` |
 | Servidor ASGI | Uvicorn com extras standard (faixa `>=0.34,<1.0`) | **Declarado** | `backend/requirements.txt`, scripts `.bat` |
 | Validação | Pydantic 2 (faixa `>=2.10,<3.0`) | **Usado** nos modelos da API | `backend/app/main.py` |
 | Banco local | SQLite | **Persistência científica ativa**, migrações aditivas e backup/restauração | `backend/app/db.py`, `backend/app/backup.py` |
@@ -43,7 +45,10 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. `
 | Qualidade JS | ESLint 9 e plugins TypeScript/React Hooks | **Declarado e configurado** | `*/eslint.config.js` |
 | Qualidade CI | GitHub Actions | **Workflow existente** | `.github/workflows/checks.yml` |
 | Versionamento | Git + GitHub | **Adotado** pelo projeto; commits/push feitos pelo usuário | Repositório do projeto |
-| Localização | EN (padrão), PT e ES | **Implementado** para textos de interface | `shared/i18n.ts`, `shared/demoCopy.ts` |
+| Localização | EN (padrão), PT e ES | Dicionários implementados; ainda há rótulos fixos em português no histórico científico/arquivo solar, portanto não se declara tradução integral de toda a aplicação | `shared/i18n.ts`, `shared/demoCopy.ts`, `ScientificHistory.tsx`, `SolarActivityPanel.tsx` |
+| Fontes tipográficas externas | DM Sans e JetBrains Mono / Google Fonts | Referenciadas nos dois HTMLs; disponibilidade externa não é requisito para ler o banco local, pois há fontes de fallback | `frontend/index.html`, `wearable/index.html` |
+| Apoio de IA | OpenAI Codex; Claude declarado pela equipe; retratos fictícios de IA | Codex divulgado nas interfaces para código/testes/documentação. Claude consta da narrativa da equipe, sem modelo/versão ou tarefas identificados. Gerador dos retratos desconhecido; não atribuir dados científicos à IA | `shared/aiDisclosure.ts`, `frontend/src/pages/Crew.tsx`, `docs/Radiance_Documentacao_NASA_Space_Apps_2026.md` |
+| Apresentação | Figma Slides | Link de apresentação registrado pela equipe; não é integração runtime, automação de design nem prova de que a interface tenha sido gerada a partir do Figma. Conteúdo do arquivo externo não foi auditado | `docs/Radiance_Documentacao_NASA_Space_Apps_2026.md`, campo Project presentation |
 
 **Versões:** a tabela indica as **versões principais ou intervalos declarados no repositório**, não uma afirmação de que o último release do ecossistema esteja instalado. Para reproduzir a árvore exata use `npm ci` a partir dos arquivos `frontend/package-lock.json` e `wearable/package-lock.json`. Os pacotes Python são especificados em intervalos; para travar versões será necessário gerar lock/snapshot do ambiente.
 
@@ -52,7 +57,6 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. `
 | Tecnologia/serviço | Destino | Estado |
 |---|---|---|
 | PostgreSQL | Persistência relacional de séries, tripulantes, fontes, eventos e sessões EVA | **Planejado; não configurado** |
-| Figma | Layout, prototipagem, tokens de interface e componentes | **Referência no processo de design; não existe integração automatizada** |
 | Cloudflare Pages | Hospedar front-end estático | **Planejado; sem deploy configurado** |
 | Serviço Python gerenciado | Hospedar FastAPI de forma separada | **Provedor ainda a definir** |
 | Docker / Compose | Padronizar ambientes e serviços | **Opcional / não configurado** |
@@ -64,10 +68,10 @@ Ambas as aplicações front-end são independentes e consomem a **mesma API**. `
 ## 3. Organização de diretórios
 
 ```text
-Radiance/
+Mustach-NASA/     nome do repositório; produto público Radiance
 ├── frontend/     React Web: visão geral, tripulantes, mapa, gráficos, EVA
-├── wearable/     React: prévia de relógio independente, saúde/solar
-├── shared/       Tipos e cálculos compartilhados, simulação e idiomas
+├── wearable/     React: prévia independente, exposição simulada/leitura pessoal e solar
+├── shared/       Contratos, transporte, cálculo temporal, perfis fictícios e idiomas
 ├── backend/      FastAPI, coletores científicos, persistência SQLite e demo EVA
 ├── docs/         Ciência, rastreabilidade, tecnologias e design
 ├── .github/      CI
@@ -78,7 +82,7 @@ Radiance/
 
 ## 4. Executar e testar
 
-Na raiz, abra três terminais Windows e execute `iniciar-backend.bat`, `iniciar-frontend.bat` e `iniciar-wearable.bat` (cada um permanece aberto).
+Na raiz, abra três terminais PowerShell e execute `.\iniciar-backend.bat`, `.\iniciar-frontend.bat` e `.\iniciar-wearable.bat` (cada um permanece aberto). O launcher Python usa o interpretador do PATH ao criar `.venv` e executa instalação a cada início; os launchers JS só instalam quando falta `node_modules`. Para instalação reproduzível dos front-ends, use `npm ci` como abaixo.
 
 ```powershell
 # frontend/
@@ -105,6 +109,8 @@ npm run test:e2e
 - Wearable: `http://localhost:5174`
 - FastAPI e OpenAPI: `http://localhost:8000/docs`
 
+Playwright exige navegador instalado (`npx playwright install chromium` em cada front-end ou canal já instalado via `PLAYWRIGHT_CHANNEL`). Os testes HTTP live são opt-in com `$env:MUSTACH_LIVE_API = "1"` e exigem os serviços/dados indicados em cada teste. A auditoria documental conferiu comandos e configurações, **sem executar instalações, builds, testes ou coleta científica**.
+
 ## 5. Decisões arquiteturais e cuidados
 
 1. **Separar observação, previsão e simulação** por `provenance`; não usar fonte sintética como fallback silencioso do modo real.
@@ -125,4 +131,4 @@ npm run test:e2e
 - Migração aditiva: `scientific_alerts.original_message`, `valid_until`, `product_id`; nova tabela `simulation_state` separada de dados científicos. Backup/restauração incluem ambas e mantêm o banco legado.
 - Testes: Pytest de cenário/relógio/cancelamento/unidade/persistência; Vitest de deduplicação/validade; Playwright de aviso, vibração, três idiomas/320px, modos e sincronização HTTP real opt-in. Nenhum pacote foi instalado para esses ajustes.
 
-Validação local em 15/11/2026: **79 Pytest, 20 Vitest Web, 7 Vitest Wearable, 23 Playwright Web, 17 Playwright Wearable e 3 E2E HTTP reais** aprovados. Os três testes live são ignorados nas suítes comuns e executados separadamente com `MUSTACH_LIVE_API=1`; não dependem de interceptações para provar comunicação. Typecheck, lint e builds aprovados. Avisos não bloqueantes: depreciação Starlette/httpx e bundle Web acima de 500 kB. Comparação por hash dos 22 registros RadLab antes/depois de encerrar e reiniciar uvicorn confirmou igualdade; SQLite retornou `integrity_check=ok`. As falhas de internet foram controladas nos testes, sem desligar a rede da máquina. Vibração foi validada por chamada simulada e fallback visual, **não por hardware físico**.
+**Registro histórico de validação de 15/11/2026, não reexecutado nesta auditoria:** a revisão anterior relatou 79 Pytest, 20 Vitest Web, 7 Vitest Wearable, 23 Playwright Web, 17 Playwright Wearable e 3 E2E HTTP reais aprovados, além de typecheck/lint/builds, comparação dos 22 registros RadLab e integridade SQLite. Esses números não são contagens atuais garantidas nem um novo resultado certificado: os relatórios daquela execução não estão versionados. Os testes live presentes hoje são opt-in (`MUSTACH_LIVE_API=1`); sua quantidade pode ter mudado. O relato anterior também registrou avisos de Starlette/httpx e bundle acima de 500 kB, falhas de rede controladas por teste e vibração simulada, **não hardware físico**.

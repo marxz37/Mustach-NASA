@@ -37,8 +37,6 @@ The demonstration follows a fictional crew member preparing for an extravehicula
 
 The demonstration reading and crew profile are fictional. They do not represent a physical sensor, an astronaut’s medical record or a NASA operational threshold.
 
-Project presentation: 
-
 ## Scientific data and resources
 
 | Source | Use in Radiance | Interpretation |
@@ -49,7 +47,7 @@ Project presentation:
 | NASA CCMC SEP Scoreboard / REleASE | Solar energetic particle model forecasts | Forecast channels and units are kept separate |
 | NASA DONKI SEP | Historical event context | Solar energetic particle events |
 
-Data collection is explicit and reproducible; it is not represented as continuous live monitoring. Scientific observations, forecasts, notices, events and demonstration state are stored and presented separately. The source catalogue, collection evidence and data traceability are documented in the project repository.
+Data collection is manual and explicit; it is not represented as continuous live monitoring. Scientific observations, forecasts, notices, events and demonstration state are stored and presented separately. The Wearable shows eligible SEP notices; the Web has no notification center. The shared simulation clock is maintained by FastAPI with state persisted in SQLite, not by independent browser generators. The source catalogue, collection evidence and data traceability are documented in the project repository.
 
 ## Technical approach
 
@@ -83,7 +81,7 @@ Further development would require validated personal dosimetry, calibrated senso
 
 The team states that the project idea is original. NASA, NOAA and CCMC data, software libraries and other third-party materials used in the project are acknowledged as resources and should be cited in the submission.
 
-**AI tools used:** OpenAI Codex and Claude. The team reviewed the project materials and remains responsible for the submitted solution.
+**AI tools used (team declaration):** OpenAI Codex and Claude. Codex assistance with code, tests and documentation is disclosed in the interfaces. Claude's model/version and task-level contributions are not recorded. The fictional crew portraits are disclosed as AI-generated, but their generation model is unknown; it must not be inferred from this tool list. The team reviewed the project materials and remains responsible for the submitted solution.
 
 ## Team
 
@@ -103,3 +101,5 @@ The team states that the project idea is original. NASA, NOAA and CCMC data, sof
 - [Participant terms and conditions](https://www.spaceappschallenge.org/legal/)
 
 Additional technical references are available in the repository: [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md), [FONTES-CIENTIFICAS.md](FONTES-CIENTIFICAS.md), [RASTREABILIDADE-DADOS.md](RASTREABILIDADE-DADOS.md), [CONTRATOS.md](CONTRATOS.md) and [TECNOLOGIAS.md](TECNOLOGIAS.md).
+
+The form-ready [Submission Resources Inventory](RECURSOS-SUBMISSAO.md) separates integrated products, scientific references and development tools, with project evidence for each entry. The Figma presentation above is a team-provided link, not proof of a runtime integration; its external contents were not reviewed in the documentation audit. The official challenge page was located in the public index, but direct retrieval encountered certificate/gateway errors, so it is not certified accessible by this audit.

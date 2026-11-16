@@ -18,7 +18,7 @@ Interface azul profunda, com linhas finas, tipografia editorial e acentos em azu
 ## Tokens principais
 
 - Fundo: `#040d1b`
-- Texto: `#ecf8ff`
+- Texto-base: `#e8f4ff`; token claro auxiliar `--soft-white: #ecf8ff`
 - Texto secundário: `#8ba8bf`
 - Linha divisória: `#1d3955`
 - Acento da interface: `#64d9ff`
@@ -32,9 +32,9 @@ Interface azul profunda, com linhas finas, tipografia editorial e acentos em azu
 - Indicadores textuais em uma faixa superior, sem cards coloridos.
 - Corpo 2D interativo como elemento central da visão geral, com alternância entre `Corpo` e `Órgãos`.
 - Um único painel `Atividade solar` combina condição atual e previsão SEP; radiação e histórico ficam em painéis separados.
-- Tripulantes usa ficha horizontal com avatar, dados individuais e minigráfico em estado vazio.
+- Tripulantes usa ficha horizontal com retratos fictícios identificados como gerados por IA, dados demonstrativos e minibarras decorativas. Elas não representam uma série dosimétrica real; nos modos reais/sem dados não há perfis autorizados cadastrados.
 - Clique em um marcador abre painel lateral temporário com fundo desfocado, conexão visual ao ponto selecionado, ampliação circular do órgão e campos de exposição.
-- `Saúde do indivíduo` apresenta apenas um coração e o estado individual disponível; sem avaliação, mantém ícone e texto neutros.
+- O coração como painel isolado de `Saúde do indivíduo` foi uma direção histórica, não o estado atual. A visão geral usa faixa ambiental **somente demonstrativa** e verificação pré-EVA; Tripulantes mostra sinais vitais fictícios separados dessa avaliação. O Wearable prioriza taxa ambiental simulada e resume a evidência pessoal separadamente, sem diagnosticar saúde.
 
 ## Estados de dados
 
@@ -44,3 +44,10 @@ Interface azul profunda, com linhas finas, tipografia editorial e acentos em azu
 - As faixas demonstrativas não são critérios clínicos. As cores operacionais descrevem informação disponível, pendente ou a revisar.
 - `API local conectada` indica apenas a disponibilidade da FastAPI, não de uma fonte NASA/NOAA.
 - Dados observados, previstos e simulados devem manter rótulos e proveniência distintos.
+
+## Limites e histórico visual
+
+- O zoom esquemático do órgão permanece neutro e mostra taxa, dose, status e fonte sem medições; a cor demonstrativa do corpo não preenche esses campos.
+- Notificações SEP ficam exclusivamente no Wearable. Não existe central de notificações no Web nem banner persistente de pendência pré-EVA no relógio.
+- Há arquivos de componentes legados (por exemplo `Sidebar.tsx` e `TopBar.tsx`) que não são montados pelo `frontend/src/App.tsx`; sua presença não descreve a navegação atual.
+- As capturas do README foram fornecidas pelo usuário; algumas preservam o nome anterior Mustach. São registro visual de simulação, não prova de telemetria real nem substituição da marca Radiance atual.

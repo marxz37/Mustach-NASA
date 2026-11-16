@@ -1,5 +1,7 @@
 # Radiance — Refinamento funcional da V2
 
+> **Registro histórico da etapa V2**, preservado na auditoria documental de 15/11/2026. Resultados e limitações abaixo descrevem aquela execução; não são uma revalidação da `main` atual. Os relatórios completos não estão versionados e nenhum teste foi reexecutado nesta auditoria. O estado posterior está explicitado ao final e em [CONTRATOS.md](CONTRATOS.md).
+
 ## Correção principal
 
 A avaliação pré-EVA agora utiliza evidências radiológicas estruturadas, com associação à tripulante fictícia Maya Bennett e à atividade EVA-01. Fonte, instrumento, valor/unidade, grandeza, horário, missão/local, proveniência e qualidade sustentam a verificação. Os antigos booleanos são apenas resumos derivados.
@@ -78,3 +80,12 @@ Para regenerar as fixtures no diretório `backend`, usando o ambiente já instal
 - Eventos remotos e previsões solares não são dose individual. Não há cálculo de risco biológico, imunidade, dano ou prognóstico.
 - A lógica independe de acesso à Terra, mas requer a API local. Não há fila offline, pareamento físico, autenticação, auditoria completa ou sincronização instantânea. O intervalo normal de consulta é três segundos.
 - A utilidade humano-sistema ainda é uma hipótese de protótipo; faltam teste de compreensão com usuários e validação operacional especializada.
+
+## Estado posterior verificado na main — auditoria documental
+
+- A simulação temporal agora vem de `backend/app/simulation.py`, com estado em SQLite e polling dos dois front-ends a cada segundo. O relógio real da avaliação pré-EVA permanece separado do relógio demonstrativo dos gráficos.
+- Na simulação atual, a primeira tela do Wearable apresenta a taxa ambiental fictícia compartilhada e uma linha independente de leitura pessoal. Portanto, a descrição histórica acima não deve ser lida como se toda a tela atual apresentasse uma dose pessoal. O banner persistente `Pre-EVA review pending` foi removido; a consulta da evidência pessoal continua.
+- Avisos SEP oficiais, de previsão e simulados ficam somente no Wearable; não existe central no Web. Reconhecimento e vibração opt-in são locais ao navegador, sem conexão com hardware ou push.
+- A limitação de transporte relatada nesta etapa não prova uma falha atual do projeto. Houve relato posterior de validação HTTP em [TECNOLOGIAS.md](TECNOLOGIAS.md), também histórico e não reexecutado nesta auditoria. Contagens antigas de testes não são tratadas como resultados atuais.
+- Os coletores manuais RadLab DosTel1, GOES, probabilidades/boletins SWPC, HESPERIA REleASE e DONKI SEP têm implementação, testes e registros de coleta descritos em [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md). Nenhum deles alimenta automaticamente a evidência pessoal pré-EVA ou o mapa real por órgão.
+- PostgreSQL, publicação Cloudflare, smartwatch físico e modelos radiobiológicos permanecem não implementados. O nome público é Radiance; `Mustach-NASA` continua sendo o nome do repositório.

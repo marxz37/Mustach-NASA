@@ -3,7 +3,7 @@
 ## Estado inicial
 
 - Um banco novo inicia com zero medições, sem tripulantes reais. **A interface inicia em Simulação por padrão**, com perfis fictícios; Dados reais exibe somente registros coletados na FastAPI.
-- Não existem sensores de voo conectados nem alertas clínicos. Previsões reais NOAA/CCMC podem ser carregadas por coleta explícita, mas não estimam dano individual. O gráfico demonstrativo acompanha amostras sintéticas a cada 2 segundos.
+- Não existem sensores de voo conectados nem alertas clínicos. Previsões reais NOAA/CCMC podem ser carregadas por coleta manual explícita, mas não estimam dano individual. `backend/app/simulation.py` reconstrói as séries fictícias; Web e Wearable consultam o mesmo estado pela FastAPI a cada segundo, sem geradores de relógio independentes nos navegadores.
 - O mapa corporal 2D é **neutro em dados reais/sem dados**. Em Simulação, responde a faixas sintéticas de teste; não representa dose de órgão ou uma avaliação médica.
 
 ## Dados
@@ -19,7 +19,7 @@
 
 1. Cada medida deverá ter `measured_at`, `instrument`, `quantity`, `unit`, `source`, `provenance`, `mission`.
 2. A tabela `measurements` não recebe exemplos falsos apresentados como observação. A ocorrência demonstrativa persiste evidências explicitamente `SIMULATED` em seu próprio registro.
-3. Quando uma origem real não fornecer medição, a interface exibirá ausência de dados, sem fallback silencioso. A **interface inicia em “Simulação”** com uma série sintética histórica gerada localmente (7 dias para demonstrar gráficos) e amostras de atualização contínua. Esse histórico fictício nunca é gravado no banco como observação.
+3. Quando uma origem real não fornecer medição, a interface exibirá ausência de dados, sem fallback silencioso. A **interface inicia em “Simulação”** com sete dias de amostras reconstruídos no back-end. SQLite persiste o estado em `simulation_state` (execução, revisão, âncoras temporais, velocidade e transições), não uma tabela de observações sintéticas. `shared/demo.ts` mantém perfis, transformações pessoais fictícias e utilitários usados por testes; não é a autoridade do relógio em produção.
 4. Dose absorvida (Gy) e equivalente (Sv) não são intercambiáveis.
 5. Uma integração temporal de taxa de dose só pode ocorrer com série dosimétrica homogênea e interpretação correta das lacunas.
 6. Para a visualização **real** de exposição por órgão, nenhum valor numérico nem cor de risco é exibido sem dados e critérios validados. **Somente a simulação** usa faixas fictícias de cores, identificadas como demonstração.
@@ -28,7 +28,8 @@
 9. Não combinar modelos com horizontes, unidades ou faixas de energia diferentes. Probabilidade de evento SEP não é probabilidade de dano à saúde, e fluxo de prótons não se converte diretamente em dose individual.
 9a. O JSON REleASE contém fluxo **diferencial** em `MeV^-1*s^-1*cm^-2*sr^-1`; não o converter em `pfu`. NOAA GOES contém fluxo **integral** em `pfu` por limiar energético. NOAA S1+ é um evento ≥10 MeV/≥10 pfu, não um diagnóstico.
 9b. RadLab DosTel1 histórico contém dose absorvida em µGy/h e fluxo em cm⁻² sr⁻¹ s⁻¹. `dose_equivalent_rate` nulo permanece nulo; não se cria dose equivalente nem acumulada a partir desses valores. Timestamps RadLab sem offset são interpretados como UTC e o original fica em `details`.
-9c. A API mostra previsões vigentes em `/solar/forecast` e as expiradas somente em `/solar/forecast/history`. Falhas de coleta não apagam registros. A indicação de fonte reflete a última tentativa, não conectividade externa contínua.
+9c. A API exclui emissões futuras e previsões expiradas de `/solar/forecast`; `/solar/forecast/history` permite consultar registros arquivados, inclusive os expirados. Falhas de coleta não apagam registros. A indicação de fonte reflete a última tentativa, não conectividade externa contínua.
+9d. O snapshot demonstrativo tem `provenance: SIMULATED`, mas seu objeto `solar_model` reutiliza o contrato solar com `provenance: FORECAST`. A origem `RADIANCE SYNTHETIC FIXTURE` e o modo de simulação identificam a natureza fictícia: o campo aninhado não torna o exemplo uma previsão científica observada/coletada.
 
 ## Referências
 
@@ -127,9 +128,13 @@ Indisponibilidade da avaliação na API local não significa problema de comunic
 
 As faixas `Normal / Atenção / Elevado` permanecem disponíveis somente na simulação, conforme os cortes fictícios de `shared/demoBands.ts`. A informação de simulação fica no topo de cada aplicativo. Nos modos reais/sem dados, esses cortes não classificam medições nem preenchem o corpo com cores.
 
+O índice demonstrativo é `taxa_sintética × escala`: menor que `0,45` resulta em `baseline`; de `0,45` até antes de `0,58`, `attention`; a partir de `0,58`, `high`. Ausência, valor negativo ou não finito resulta em `unknown`. As escalas visuais são cabeça `1,14`, tórax `1,19`, abdômen `1,03`, braços `0,91` e pernas `0,86`. São parâmetros arbitrários de aparência, não coeficientes de absorção, percentuais de exposição ou limites NASA. O painel de órgão não recebe medições numéricas dessas cores.
+
 O acumulado e seu histórico integram apenas intervalos consecutivos compatíveis: até 310 s na série sintética e 60 s na série observada. Esses intervalos são regras de processamento do protótipo, **não critérios médicos ou de segurança**. A cobertura corresponde à duração integrada, recortada pela janela móvel; não extrapola as bordas nem preenche lacunas. O gráfico acumulado usa os mesmos intervalos do total e interrompe a linha nas lacunas.
 
-O histórico sintético é reconstruído pela FastAPI: sete dias em grade de cinco minutos, dia em execução a cada 30 segundos e últimos 10 minutos a cada dois segundos, com pontos nas transições. A sessão EVA usa o relógio demonstrativo e intervalos compatíveis até 310 s; a janela máxima disponível é sete dias. Reiniciar o roteiro ou trocar origem limpa a sessão, sem reaproveitar um acumulado de outra execução. Nenhuma taxa absorvida é derivada da equivalente.
+O histórico sintético é reconstruído pela FastAPI: sete dias em grade de cinco minutos, dia em execução a cada 30 segundos e últimos 10 minutos a cada dois segundos, com pontos nas transições. A sessão EVA usa o relógio demonstrativo e intervalos compatíveis até 310 s; a janela máxima disponível é sete dias. Reiniciar a simulação (novo `run_id`) ou trocar origem limpa a sessão, sem reaproveitar um acumulado de outra execução. Trocar apenas a fixture pré-EVA não equivale a reiniciar esse relógio. Nenhuma taxa absorvida é derivada da equivalente.
+
+`integrateEquivalentDose`, `equivalentDoseCoverage` e `cumulativeEquivalentDose`, em `shared/radiation.ts`, usam os mesmos intervalos válidos: integração trapezoidal com recorte nas bordas, cobertura em duração efetiva e quebra da linha onde não há cobertura. µSv é convertido em mSv por divisão por 1000 apenas na apresentação. Não se extrapola uma leitura isolada. No modo real, `AppContext.tsx` seleciona uma série ambiental por fonte/instrumento/missão, aceita apenas `dose_equivalent_rate` em µSv/h (ou mSv/h convertido), e não usa leituras pessoais para o total ambiental. A API geral retorna no máximo 500 medições por padrão; portanto não se deve prometer cobertura completa de 24 h/7 dias. O histórico instrumental RadLab é separado e marca lacunas maiores que 10 min; sua cobertura entre pontos não é dose integrada.
 
 ## Refinamentos: simulação e avisos SEP
 
