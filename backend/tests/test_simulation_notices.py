@@ -132,3 +132,25 @@ def test_restart_preserves_forecast_event_alert_and_backup_integrity(tmp_path):
         assert db.get_alerts()==before
         with sqlite3.connect(db.database_path()) as conn:
             assert conn.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
+
+
+@pytest.mark.parametrize('speed', (1,10,60))
+def test_simulation_grids_stay_anchored_and_chronological_across_speed_changes(speed):
+    at=int(AT.timestamp()*1000)
+    state=simulation.initial(at)
+    state['elapsed_ms']=1800000
+    state['speed']=speed
+    first=simulation.snapshot(state,at+1234)
+    second=simulation.snapshot(state,at+2345)
+    for result in (first,second):
+        times=[p['at'] for p in result['points']]
+        assert times==sorted(set(times))
+        assert times[-1]==result['now']
+        assert all(t<=result['now'] for t in times)
+    # All ordinary day-grid points in the overlap keep exactly the same timestamp/value.
+    first_grid={p['at']:p['value'] for p in first['points'] if 0<(p['at']-at)<1500000 and (p['at']-at)%30000==0}
+    second_grid={p['at']:p['value'] for p in second['points'] if p['at'] in first_grid}
+    assert first_grid==second_grid
+    state['elapsed_ms']=second['elapsed_ms'];state['anchor_at']=at+2345;state['speed']=1
+    changed=simulation.snapshot(state,at+3345)
+    assert changed['now']==second['now']+1000

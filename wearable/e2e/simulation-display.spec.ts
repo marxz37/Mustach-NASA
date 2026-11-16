@@ -1,0 +1,30 @@
+import {test,expect} from '@playwright/test';
+import {simulationFixture} from '../../shared/testing/simulationFixture';
+import events from '../../shared/testing/operational-events.json' with {type:'json'};
+
+test('first screen follows ambient simulation even with missing personal evidence; API outage never keeps a live synthetic value',async({page})=>{
+  let state=simulationFixture(Date.now());
+  let offline=false;
+  await page.route('**/api/v1/demo/operational-event',r=>r.fulfill({json:events.missing_personal}));
+  await page.route('**/api/v1/demo/simulation',r=>offline?r.abort():r.fulfill({json:state}));
+  await page.goto('/');
+  await expect(page.getByTestId('watch-simulation-rate')).toContainText('0.380');
+  await expect(page.locator('.watch-personal-status')).toHaveText('Missing');
+  state={...state,now:state.now+60000,rate:1.7,scenario:'ongoing',speed:60,revision:2};
+  await expect(page.getByTestId('watch-simulation-rate')).toContainText('1.700');
+  await expect(page.locator('.watch-main-title')).toHaveText('Event in progress');
+  await expect(page.locator('.watch-main-desc')).toContainText('60× · r2');
+  state={...state,running:false};
+  await expect(page.locator('.watch-main-desc')).toContainText('Paused');
+  const clock=await page.getByTestId('watch-simulation-time').innerText();
+  await page.waitForTimeout(1200);
+  await expect(page.getByTestId('watch-simulation-time')).toHaveText(clock);
+  await page.screenshot({path:'test-results/watch-live-simulation.png',fullPage:true});
+  offline=true;
+  await expect(page.getByTestId('watch-simulation-rate')).toContainText('—',{timeout:7000});
+  await expect(page.locator('.watch-main-title')).toHaveText('Unavailable');
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('real');
+  await expect(page.getByTestId('watch-simulation-rate')).toHaveCount(0);
+  await page.getByRole('combobox',{name:'Data source'}).selectOption('none');
+  await expect(page.getByTestId('watch-simulation-rate')).toHaveCount(0);
+});

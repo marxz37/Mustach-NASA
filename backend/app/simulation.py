@@ -39,10 +39,15 @@ def snapshot(state, at):
     now = state['base_at'] + offset
     # A fictional baseline week, 30-second current day and 2-second recent detail.
     # Old samples use a 5-minute grid; boundary points avoid bridging a scenario transition.
-    times = set(range(int(offset-7*86400000), int(offset-86400000), 300000))
-    times.update(range(int(max(0, offset-86400000)), int(offset), 30000))
-    times.update(range(int(max(0, offset-600000)), int(offset), 2000))
-    times.update(range(int(offset-86400000), min(0, int(offset)), 300000))
+    # Anchor each grid to the run, not to a moving window edge. Otherwise every poll
+    # resamples the same wave at a different phase, especially visible at 60x.
+    def grid(start, end, step):
+        return range(math.ceil(start/step)*step, math.ceil(end), step)
+    times = set(grid(offset-7*86400000, offset-86400000, 300000))
+    times.update(grid(max(0, offset-86400000), offset, 30000))
+    times.update(grid(max(0, offset-600000), offset, 2000))
+    times.update(grid(offset-86400000, min(0, offset), 300000))
+    times.update((offset-7*86400000, offset-86400000))
     times.add(offset)
     for segment in state['segments']:
         if offset-7*86400000 <= segment['start'] <= offset:

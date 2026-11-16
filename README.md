@@ -106,6 +106,12 @@ A coleta não ocorre automaticamente ao iniciar a API. Na pasta `backend/`, com 
 
 ### Como testar os refinamentos
 
+**Ajustes visuais dos gráficos e relógio:** a taxa simulada abre nos últimos 15 minutos, dentro do histórico de 24h. Scroll/pinça aproxima e arraste navega; a barra inferior também ajusta a janela. `Live view / Vista ao vivo` retoma o acompanhamento. O histórico acumulado tem o mesmo zoom. O zoom manual não é desfeito pelo polling. A grade simulada é ancorada à execução; o ECharts usa amostragem visual LTTB, sem reduzir os dados usados para calcular dose.
+
+A legenda do acumulado aparece **somente em Simulação**. Seus cortes ilustrativos são 0,45 e 0,58 µSv/h multiplicados por 24h ou 168h (10,8/13,92 µSv diários; 75,6/97,44 µSv semanais). Não são limites clínicos, recomendações nem padrões NASA. A cobertura indicada continua necessária para interpretar uma janela parcial. Dados reais e Sem dados não recebem essa classificação de cor.
+
+No Wearable em Simulação, a primeira tela mostra taxa **ambiental fictícia**, cenário, velocidade, revisão e horário com segundos do estado compartilhado. A evidência pessoal pré-EVA continua em uma linha secundária separada: sua ausência não congela a simulação nem é preenchida pela taxa ambiental. O aviso pré-EVA e o resumo solar continuam preservados. `frontend/e2e/chart-live.spec.ts` verifica 1×/10×/60× com as duas aplicações e API reais.
+
 1. **Offline externo:** colete as fontes, mantenha FastAPI e front-ends ligados, desconecte apenas a internet externa e selecione Dados reais. No histórico instrumental consulte 01/04/2022 23:00–23:20 UTC. Recarregar continua consultando SQLite, sem renovar datas antigas. Previsões expiradas ficam no arquivo. Uma tentativa de coleta externa falha e é registrada em `/api/v1/science/ingestion-runs`, sem apagar dados. Testes automatizados bloqueiam a chamada externa de modo controlado, sem desligar a rede da máquina.
 2. **API local desligada:** pare somente FastAPI. As telas devem indicar falha de comunicação; a simulação não continua gerando dados e gravações pré-EVA ficam indisponíveis. Isso difere de ficar sem internet externa.
 3. **Quatro cenários:** abra Web (5173) e Wearable (5174) em Simulação. No controle do Web, escolha Normal, Previsto, Em andamento e Recuperação. Inicie/retome, use 10×/60×, pause e reinicie. Compare cenário, relógio e A/B/C; observe gráficos, acumulado e mapa fictício. EVA ativa acompanha tempo demonstrativo; reiniciar cenário ou trocar origem limpa sua sessão. O seletor pré-EVA continua independente.

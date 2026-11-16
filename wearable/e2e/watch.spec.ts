@@ -69,15 +69,15 @@ test('unknown review state produces an unavailable notice rather than silently c
 test('independent English watch preview shows health and solar by buttons',async({page})=>{
   await page.goto('/');
   await expect(page).toHaveTitle('Radiance Wearable');
-  await expect(page.getByRole('region',{name:'Screens: PERSONAL EXPOSURE'})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Screens: EXPOSURE MONITOR'})).toBeVisible();
   await expect(page.getByText('READING TIME')).toBeVisible();
   await page.getByRole('button',{name:'SOLAR ACTIVITY'}).click();
   await expect(page.getByRole('region',{name:'Screens: SOLAR ACTIVITY'})).toBeVisible();
   await expect(page.getByText('A / OCCURRENCE')).toBeVisible();
   await expect(page.getByText('B / INTENSITY')).toBeVisible();
   await expect(page.getByText('C / Estimated peak')).toBeVisible();
-  await page.getByRole('button',{name:'PERSONAL EXPOSURE'}).click();
-  await expect(page.getByRole('region',{name:'Screens: PERSONAL EXPOSURE'})).toBeVisible();
+  await page.getByRole('button',{name:'EXPOSURE MONITOR'}).click();
+  await expect(page.getByRole('region',{name:'Screens: EXPOSURE MONITOR'})).toBeVisible();
 });
 
 test('wearable language selector switches to Portuguese and Spanish',async({page})=>{
@@ -90,7 +90,7 @@ test('wearable language selector switches to Portuguese and Spanish',async({page
 
 test('watch swipe and keyboard navigate between pages',async({page})=>{
   await page.goto('/');
-  const screen=page.getByRole('region',{name:'Screens: PERSONAL EXPOSURE'});
+  const screen=page.getByRole('region',{name:'Screens: EXPOSURE MONITOR'});
   const box=await screen.boundingBox();expect(box).not.toBeNull();if(!box)return;
   await page.mouse.move(box.x+box.width*.8,box.y+box.height*.5);
   await page.mouse.down();await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5,{steps:5});await page.mouse.up();
@@ -143,11 +143,12 @@ test('individual summary uses the same received measurement, timestamp and revis
   let event={...events.missing_personal};
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({json:event}));
   await page.goto('/');
-  await expect(page.locator('.watch-main-title')).toHaveText('Missing');
-  await expect(page.locator('.watch-health-stats')).not.toContainText('0.47');
+  await expect(page.locator('.watch-personal-status')).toHaveText('Missing');
+  await expect(page.locator('.watch-personal-reading')).not.toContainText('0.47');
+  await expect(page.getByTestId('watch-simulation-rate')).toContainText('0.380');
   event={...events.personal_received};
-  await expect(page.locator('.watch-main-title')).toHaveText('Usable',{timeout:7000});
-  await expect(page.locator('.watch-health-stats')).toContainText('0.470');
+  await expect(page.locator('.watch-personal-status')).toHaveText('Usable',{timeout:7000});
+  await expect(page.locator('.watch-personal-reading')).toContainText('0.470');
   await expect(page.locator('.watch-operational-notice')).toContainText('Review remote event');
   await expect(page.locator('.watch-operational-notice')).toContainText('Pre-EVA review pending');
 });
@@ -155,7 +156,7 @@ test('individual summary uses the same received measurement, timestamp and revis
 test('outdated reading stays unavailable even when a local environmental sample could be normal',async({page})=>{
   await page.route('**/api/v1/demo/operational-event',route=>route.fulfill({json:events.stale_personal}));
   await page.goto('/');
-  await expect(page.locator('.watch-main-title')).toHaveText('Outdated');
+  await expect(page.locator('.watch-personal-status')).toHaveText('Outdated');
   await expect(page.locator('.watch-operational-notice')).toContainText('Check a recent individual reading');
-  await expect(page.locator('.watch-health-stats')).toContainText('—');
+  await expect(page.locator('.watch-personal-reading')).toContainText('—');
 });
