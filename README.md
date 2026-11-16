@@ -8,7 +8,25 @@ Radiance brings together space radiation measurements, solar particle observatio
 
 The project emphasizes scientific traceability, local data persistence, and clear separation between observed, forecast, and simulated information.
 
-![Radiance Dashboard](docs/preview-dashboard.png)
+## Interface Preview
+
+The screenshots below show the prototype in Simulation mode. Some captures retain the earlier Mustach branding.
+
+### Web Dashboard
+
+![Web dashboard — mission readings, pre-EVA verification and solar activity](docs/screenshots/dashboard-overview.png)
+
+![Web dashboard — illustrative body map, environmental history and EVA session](docs/screenshots/dashboard-body-history.png)
+
+### Wearable Preview
+
+![Radiance Wearable — simulated exposure monitor](docs/screenshots/wearable-preview.png)
+
+### Crew Monitoring
+
+![Crew monitoring — fictional profiles and individual readings](docs/screenshots/crew-overview.png)
+
+![Crew monitoring — personal dose history and EVA session](docs/screenshots/crew-history-eva.png)
 
 ## Quick Start
 
