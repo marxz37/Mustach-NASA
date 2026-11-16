@@ -204,14 +204,17 @@ def parse_noaa_alerts(payload: list, collected_at: datetime) -> list[dict]:
     result = []
     for raw in payload:
         message = raw.get('message', '')
-        headline = next((line.strip() for line in message.splitlines() if line.startswith(('ALERT:', 'WATCH:', 'WARNING:'))), None)
+        headline = next((line.strip() for line in message.splitlines() if re.match(r'^(?:CANCEL |CONTINUED )?(ALERT|WATCH|WARNING):',line.strip())), None)
         if not headline:
             continue
         issued = utc_timestamp(raw['issue_datetime'], radlab=True)
+        validity = re.search(r'Valid To:\s*(\d{4} \w{3} \d{1,2} \d{4}) UTC', message)
+        valid_until = datetime.strptime(validity.group(1), '%Y %b %d %H%M').replace(tzinfo=timezone.utc).isoformat() if validity else None
         result.append({'id': record_id('noaa-alert', str(raw.get('product_id')), issued.isoformat()),
             'source': 'NOAA SWPC', 'issued_at': issued.isoformat(),
             'kind': headline.split(':', 1)[0], 'message': headline,
-            'collected_at': collected_at.isoformat(), 'source_url': NOAA_ALERTS_URL})
+            'collected_at': collected_at.isoformat(), 'source_url': NOAA_ALERTS_URL,
+            'original_message': message, 'valid_until': valid_until, 'product_id': raw.get('product_id')})
     return result
 
 

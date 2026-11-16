@@ -55,6 +55,10 @@ def init_db() -> None:
             id TEXT PRIMARY KEY, source TEXT NOT NULL, kind TEXT NOT NULL,
             event_at TEXT NOT NULL, payload_json TEXT NOT NULL, collected_at TEXT NOT NULL,
             source_url TEXT NOT NULL)''')
+        alert_columns = {row[1] for row in conn.execute('PRAGMA table_info(scientific_alerts)')}
+        for column in ('original_message', 'valid_until', 'product_id'):
+            if column not in alert_columns:
+                conn.execute(f'ALTER TABLE scientific_alerts ADD COLUMN {column} TEXT')
         conn.execute('''CREATE TABLE IF NOT EXISTS ingestion_runs (
             id INTEGER PRIMARY KEY AUTOINCREMENT, source TEXT NOT NULL, attempted_at TEXT NOT NULL,
             status TEXT NOT NULL, records_added INTEGER NOT NULL DEFAULT 0, error TEXT)''')
@@ -117,10 +121,11 @@ def save_measurements(items: list[Measurement]) -> int:
         for item in items:
             identity = (item.source, item.provenance, item.instrument, item.measured_at.isoformat(),
                         item.quantity, item.value, item.unit, item.mission, item.region, item.scope)
-            existing = conn.execute('''SELECT source,provenance,instrument,measured_at,quantity,value,unit,mission,region,scope
+            context = (item.astronaut_id, item.activity_id, item.location, item.quality)
+            existing = conn.execute('''SELECT source,provenance,instrument,measured_at,quantity,value,unit,mission,region,scope,astronaut_id,activity_id,location,quality
                 FROM measurements WHERE id = ?''', (item.id,)).fetchone()
             if existing is not None:
-                if tuple(existing) != identity:
+                if tuple(existing) != (*identity,*context):
                     raise ValueError(f'Conflicting measurement ID: {item.id}')
                 continue
             conn.execute('''INSERT OR IGNORE INTO measurements
@@ -165,12 +170,15 @@ def get_ingestion_runs(limit: int = 30) -> list[dict]:
 
 def save_alerts(alerts: list[dict]) -> int:
     with closing(sqlite3.connect(database_path())) as conn, conn:
-        before = conn.total_changes
+        added = 0
         for alert in alerts:
-            conn.execute('''INSERT OR IGNORE INTO scientific_alerts
+            cursor = conn.execute('''INSERT OR IGNORE INTO scientific_alerts
                 (id,source,issued_at,kind,message,collected_at,source_url) VALUES (?,?,?,?,?,?,?)''',
                 tuple(alert[key] for key in ('id', 'source', 'issued_at', 'kind', 'message', 'collected_at', 'source_url')))
-        return conn.total_changes - before
+            added += cursor.rowcount
+            conn.execute('UPDATE scientific_alerts SET original_message=?, valid_until=?, product_id=? WHERE id=?',
+                         (alert.get('original_message'), alert.get('valid_until'), alert.get('product_id'), alert['id']))
+        return added
 
 
 def get_alerts(limit: int = 30) -> list[dict]:

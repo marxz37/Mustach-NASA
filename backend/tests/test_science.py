@@ -195,6 +195,8 @@ def test_ingest_requires_token_and_validates_scope_and_unit(monkeypatch):
         assert client.post('/api/v1/science/measurements',json=body,headers=headers).json()['inserted'] is True
         assert client.post('/api/v1/science/measurements',json=body,headers=headers).json()['inserted'] is False
         assert client.post('/api/v1/science/measurements',json=dict(body,value=2.4),headers=headers).status_code == 409
+        assert client.post('/api/v1/science/measurements',json=dict(body,astronaut_id='other-person'),headers=headers).status_code == 409
+        assert client.post('/api/v1/science/measurements',json=dict(body,mission=''),headers=headers).status_code == 422
         assert client.post('/api/v1/science/measurements',json=dict(body,unit='µSv/h'),headers=headers).status_code == 422
         rejected = db.get_ingestion_runs()[0]
         assert rejected['source'] == 'local-measurement' and rejected['status'] == 'ERROR'

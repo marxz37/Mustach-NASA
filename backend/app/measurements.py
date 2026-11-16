@@ -9,10 +9,10 @@ class Measurement(BaseModel):
     provenance: Literal['OBSERVED', 'FORECAST', 'SIMULATED']
     instrument: str = Field(min_length=1)
     measured_at: AwareDatetime
-    quantity: str
+    quantity: str = Field(min_length=1)
     value: float = Field(ge=0, allow_inf_nan=False)
-    unit: str
-    mission: str
+    unit: str = Field(min_length=1)
+    mission: str = Field(min_length=1)
     region: str | None = None
     scope: Literal['ENVIRONMENTAL', 'PERSONAL'] = 'ENVIRONMENTAL'
     astronaut_id: str | None = None
