@@ -73,8 +73,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 .watch-sep-notice{flex:none;display:flex;flex-direction:column;gap:3px;margin:2px 14px 4px;padding:5px 7px;border-left:2px solid #d5b45b;background:#6a531c25;color:#f0d594;font-size:9px;line-height:1.25;min-width:0}
 .watch-sep-notice strong{font-size:10px}.watch-sep-notice span{font-size:8px}.watch-sep-notice small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}
 .watch-sep-notice button{align-self:flex-start;padding:2px 0;background:none;border:0;color:#a4e5ff;font:inherit;cursor:pointer}
-.watch-screen--sep .watch-main-icon{display:none}.watch-screen--sep .watch-operational-notice{padding:4px 6px;margin-block:1px;font-size:8px}
-.watch-screen--sep .watch-operational-notice strong{font-size:9px}.watch-screen--sep .watch-operational-notice span{font-size:8px}
+.watch-screen--sep .watch-main-icon{display:none}
 .watch-screen--sep .watch-main-desc{margin:3px 0;font-size:8px}.watch-screen--sep .watch-main-title{font-size:17px}.watch-screen--sep .watch-health-stats{padding-top:5px}
 .watch-screen--sep .watch-solar-summary>div{padding:4px 0}.watch-screen--sep .watch-solar-source{font-size:8px;margin:2px 0 4px}
 .watch-screen--sep .watch-solar-title,.watch-screen--sep .watch-solar-kicker{display:none}
@@ -119,11 +118,7 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 .wearable-header h1{margin:13px 0 7px}
 .wearable-footer{gap:0}
 @media(max-width:420px){.watch-solar-summary>div{grid-template-columns:minmax(0,1fr) auto}.watch-solar-summary strong{max-width:112px;font-size:12px}.watch-screen-top{padding:17px 16px 3px}}
-/* Pre-EVA is a passive glance, on both watch pages. All review controls stay on board. */
-.watch-operational-notice{display:flex;align-items:center;gap:7px;flex:none;margin:3px 17px 5px;padding:7px 8px;border:1px solid #997b3b85;border-radius:6px;background:#59431c25;color:#f0cb83;line-height:1.35}
-.watch-operational-notice>svg{flex:none}
-.watch-operational-notice strong{display:block;font:500 11px/1.4 'DM Sans',sans-serif}
-.watch-operational-notice span{display:block;margin-top:2px;font-size:9px;color:#b5c4cd}
+/* Compact layout is reserved for an eligible SEP notice, never a persistent pre-EVA banner. */
 .watch-screen--notice .watch-main-icon{width:49px;height:49px;margin-bottom:6px;box-shadow:0 0 0 5px #57c57a0d}
 .watch-screen--notice .watch-main-icon svg{width:33px;height:33px}
 .watch-screen--notice .watch-main-title{font-size:21px}
@@ -140,14 +135,11 @@ button:focus-visible, [tabindex]:focus-visible { outline: 2px solid #64d9ff; out
 .watch-screen--notice .watch-solar-source{margin:3px 0 6px}
 .watch-screen--notice .watch-solar-disclaimer{margin-top:6px;font-size:8px}
 .watch-screen--notice .watch-screen-footer{padding-bottom:10px;gap:4px}
-@media(max-width:420px){.watch-operational-notice{margin-left:14px;margin-right:14px;padding:6px 7px}.watch-screen--notice .watch-main-icon{width:42px;height:42px}.watch-screen--notice .watch-solar-summary strong{font-size:11px;max-width:107px}}
+@media(max-width:420px){.watch-screen--notice .watch-main-icon{width:42px;height:42px}.watch-screen--notice .watch-solar-summary strong{font-size:11px;max-width:107px}}
 .watch-screen.watch-screen--sep .watch-solar-summary>div{padding:3px 0}
 .watch-screen.watch-screen--sep .watch-solar-source{margin:2px 0 3px;font-size:8px}
 .watch-screen.watch-screen--sep .watch-main-title{font-size:17px}
 .watch-screen.watch-screen--sep .watch-main-desc{margin:3px 0;font-size:8px}
-.watch-screen.watch-screen--sep .watch-operational-notice{padding:4px 6px;margin-block:3px}
-.watch-screen.watch-screen--sep .watch-operational-notice strong{font-size:9px}
-.watch-screen.watch-screen--sep .watch-operational-notice span{font-size:8px}
 .watch-center--simulation .watch-main-title{font:500 17px/1.2 'DM Sans',sans-serif;max-width:210px}
 .watch-center--simulation .watch-demo-rate{font:500 32px/1.2 'DM Sans',sans-serif;margin-top:7px;color:#9de7fa;font-variant-numeric:tabular-nums}
 .watch-demo-rate small{font-size:11px;font-weight:400}.watch-center--simulation .watch-health-stats{grid-template-columns:1fr;padding-top:6px}

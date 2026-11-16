@@ -1,4 +1,17 @@
+import type {SimulationState} from '@shared/simulation';
+import type {Language} from '@shared/i18n';
+import {isForecastCurrent,formatSolarProbability,formatSolarFlux} from '@shared/solar';
+
 export interface SolarNoticeRecord {id:string;kind:'OFFICIAL'|'FORECAST'|'SIMULATED';source:string;issued_at:string;valid_until:string;code:'proton_observed'|'proton_warning'|'forecast_attention';detail:string;provenance:'OBSERVED'|'FORECAST'|'SIMULATED';}
+
+/** Uses the shared demo clock, not wall-clock time. No personal or clinical classification. */
+export function simulatedSolarNotices(simulation:SimulationState|undefined,language:Language):SolarNoticeRecord[]{
+  if(!simulation||!['predicted','ongoing'].includes(simulation.scenario)||!isForecastCurrent(simulation.solar_model,simulation.now))return [];
+  const model=simulation.solar_model;
+  return [{id:model.id,kind:'SIMULATED',source:model.provider,issued_at:model.issued_at,valid_until:model.valid_until!,
+    code:simulation.scenario==='ongoing'?'proton_observed':'forecast_attention',provenance:'SIMULATED',
+    detail:`${model.model} · ${formatSolarProbability(model.occurrence_probability_percent,language)} · ${formatSolarFlux(model.peak_proton_flux,model.peak_proton_flux_unit,language)}`}];
+}
 /** Mark every arrival, even with haptics off, before attempting the optional hardware API. */
 export function consumeArrival(id:string,seen:Set<string>,acknowledged:Set<string>):boolean {
   if(seen.has(id)||acknowledged.has(id))return false;

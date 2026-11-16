@@ -137,4 +137,6 @@ O histórico sintético é reconstruído pela FastAPI: sete dias em grade de cin
 
 `GET /api/v1/wearable/solar-notices` seleciona boletins oficiais NOAA e previsões elegíveis por regras **não clínicas**, documentadas em [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md). Apenas Wearable mostra esses avisos; não há central no Web. A classificação distingue aviso oficial, previsão e simulação. Reconhecimento e tentativas de vibração ficam no navegador, sem fila de push ou pareamento físico. Vibração é opt-in, experimental e nunca substitui o sinal visual.
 
+O banner `Pre-EVA review pending` foi removido do Wearable: a pendência do roteiro persistido não comprova uma sessão de preparação ativa no relógio. O Web mantém a revisão e o motor operacional inalterados; a linha de evidência pessoal do relógio continua consultando a API, sem convertê-la em aviso solar. O relógio reserva notificações aos SEP elegíveis. Em Simulação, Previsto/Em andamento notificam somente com emissão/validade coerentes com o relógio demonstrativo; Normal/Recuperação não geram aviso SEP.
+
 A ingestão real exige token e rejeita contexto incompatível de um ID existente, inclusive pessoa/atividade/qualidade. Valores ambientais não substituem leituras pessoais e não classificam órgãos reais.
