@@ -129,4 +129,12 @@ As faixas `Normal / Atenção / Elevado` permanecem disponíveis somente na simu
 
 O acumulado e seu histórico integram apenas intervalos consecutivos compatíveis: até 310 s na série sintética e 60 s na série observada. Esses intervalos são regras de processamento do protótipo, **não critérios médicos ou de segurança**. A cobertura corresponde à duração integrada, recortada pela janela móvel; não extrapola as bordas nem preenche lacunas. O gráfico acumulado usa os mesmos intervalos do total e interrompe a linha nas lacunas.
 
-O histórico sintético conserva a grade de cinco minutos de sete dias, mais detalhes recentes de dois segundos. Amostras detalhadas desde o início de uma sessão EVA são preservadas até zerar ou mudar a origem, para não recalcular para menos uma dose já acumulada.
+O histórico sintético é reconstruído pela FastAPI: sete dias em grade de cinco minutos, dia em execução a cada 30 segundos e últimos 10 minutos a cada dois segundos, com pontos nas transições. A sessão EVA usa o relógio demonstrativo e intervalos compatíveis até 310 s; a janela máxima disponível é sete dias. Reiniciar o roteiro ou trocar origem limpa a sessão, sem reaproveitar um acumulado de outra execução. Nenhuma taxa absorvida é derivada da equivalente.
+
+## Refinamentos: simulação e avisos SEP
+
+`GET/POST /api/v1/demo/simulation` compartilha estado persistido em `simulation_state`. POST exige `expected_revision`; conflito retorna 409. Os quatro cenários e velocidades 1×/10×/60× são demonstrativos. Não escrevem em `measurements`, previsões científicas nem evidências pré-EVA. Se a API falhar, não existe gerador de fallback no navegador.
+
+`GET /api/v1/wearable/solar-notices` seleciona boletins oficiais NOAA e previsões elegíveis por regras **não clínicas**, documentadas em [DADOS-NASA-UTILIZADOS.md](DADOS-NASA-UTILIZADOS.md). Apenas Wearable mostra esses avisos; não há central no Web. A classificação distingue aviso oficial, previsão e simulação. Reconhecimento e tentativas de vibração ficam no navegador, sem fila de push ou pareamento físico. Vibração é opt-in, experimental e nunca substitui o sinal visual.
+
+A ingestão real exige token e rejeita contexto incompatível de um ID existente, inclusive pessoa/atividade/qualidade. Valores ambientais não substituem leituras pessoais e não classificam órgãos reais.

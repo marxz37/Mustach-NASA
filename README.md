@@ -86,6 +86,8 @@ As portas 5173 e 5174 encaminham `/api` para a FastAPI local na porta 8000. Em o
 
 ### Coletar dados oficiais, consultar offline e fazer backup
 
+O Web não tem sino/central de notificações. Avisos SEP ficam exclusivamente no Wearable, separados da informação pré-EVA. Os quatro cenários compartilham o estado da FastAPI, sem gerador independente no relógio. Fontes e critérios demonstrativos estão em [Dados NASA utilizados](docs/DADOS-NASA-UTILIZADOS.md).
+
 A coleta não ocorre automaticamente ao iniciar a API. Na pasta `backend/`, com o ambiente virtual ativo:
 
 ```powershell
@@ -100,16 +102,24 @@ A coleta não ocorre automaticamente ao iniciar a API. Na pasta `backend/`, com 
 
 `app.collect all` tenta todas as fontes de modo independente; falhas são registradas em `ingestion_runs`. Para o DONKI, configure `NASA_API_KEY` no ambiente se a chave pública `DEMO_KEY` atingir sua cota. Nunca grave a chave no Git. Para restauração, **pare a API**, execute `python -m app.backup restore <arquivo> --force`; uma cópia `.pre-restore` é criada antes da substituição. O nome legado `sentinela.sqlite3` e `SENTINELA_DATABASE_PATH` continuam aceitos. Para importações locais, `POST /api/v1/science/measurements` exige `MUSTACH_INGEST_TOKEN` no servidor e cabeçalho `X-Mustach-Ingest-Token`; sem token configurado, a escrita fica desativada.
 
+### Como testar os refinamentos
+
+1. **Offline externo:** colete as fontes, mantenha FastAPI e front-ends ligados, desconecte apenas a internet externa e selecione Dados reais. No histórico instrumental consulte 01/04/2022 23:00–23:20 UTC. Recarregar continua consultando SQLite, sem renovar datas antigas. Previsões expiradas ficam no arquivo. Uma tentativa de coleta externa falha e é registrada em `/api/v1/science/ingestion-runs`, sem apagar dados. Testes automatizados bloqueiam a chamada externa de modo controlado, sem desligar a rede da máquina.
+2. **API local desligada:** pare somente FastAPI. As telas devem indicar falha de comunicação; a simulação não continua gerando dados e gravações pré-EVA ficam indisponíveis. Isso difere de ficar sem internet externa.
+3. **Quatro cenários:** abra Web (5173) e Wearable (5174) em Simulação. No controle do Web, escolha Normal, Previsto, Em andamento e Recuperação. Inicie/retome, use 10×/60×, pause e reinicie. Compare cenário, relógio e A/B/C; observe gráficos, acumulado e mapa fictício. EVA ativa acompanha tempo demonstrativo; reiniciar cenário ou trocar origem limpa sua sessão. O seletor pré-EVA continua independente.
+4. **Avisos/háptica:** ative Vibração experimental no Wearable **antes** de selecionar Previsto/Em andamento no Web. Um aviso SIMULADO traz origem e horário; polling não repete vibração. Reconhecer/silenciar persiste nesse navegador. Em Dados reais só aparecem avisos elegíveis; não é garantido haver algum agora. Sem suporte/permissão, o aviso visual continua. Não há pareamento físico.
+5. **Sincronização real:** testes comuns usam fixtures HTTP isoladas; `MUSTACH_LIVE_API=1` habilita testes contra FastAPI real. Para `frontend/e2e/simulation-live.spec.ts`, mantenha também Wearable em 5174. O teste altera apenas o roteiro demonstrativo.
+
 ## V0.5 — Refinamento visual com dados demonstrativos
 
 - **Idiomas:** inglês (padrão), português e espanhol. Selecione o idioma no cabeçalho do Web ou Wearable. Cada aplicativo guarda a preferência no próprio navegador, sem depender de cookies ou login.
 - **Origem dos dados:** o Web inicia em `Simulation / Simulação` para permitir uma demonstração visual completa. `Real data / Dados reais` continua consultando somente a API existente; `No data / Sem dados` mostra a ausência real de dados. Nunca ocorre fallback automático de dados reais para dados sintéticos.
 - **Tripulantes fictícios:** quatro perfis ilustrativos com retratos criados para esta demonstração (Maya Bennett, Alex Kim, Elena Reyes e Amir Haddad). A seleção troca a série sintética pessoal, o resumo do perfil e os indicadores exibidos; esses perfis não representam astronautas reais.
-- **Séries radiológicas:** o simulador local gera uma **janela sintética de 7 dias com amostras de cinco em cinco minutos** e acrescenta uma amostra sintética a cada 2 segundos. Isso existe exclusivamente para validar o layout e o gráfico, não é telemetria histórica da NASA. Mudanças de origem reinicializam a sessão e evitam misturar dados.
+- **Séries radiológicas:** a FastAPI mantém relógio e roteiro em `simulation_state`, separados das tabelas científicas. A janela fictícia de 7 dias tem base de cinco minutos, detalhe de 30 segundos no dia em execução e 2 segundos nos últimos 10 minutos. Web/Wearable não mantêm geradores independentes. Mudanças de origem reinicializam a sessão EVA, sem misturar dados.
 - **Histórico:** `Last 24 hours / Últimas 24 horas` e `Last 7 days / Últimos 7 dias` indicam janelas móveis. Em modo real, apenas medições compatíveis podem ser acumuladas; lacunas permanecem visíveis sem extrapolação. Em simulação, a série sintética cobre o período demonstrativo.
 - **Saúde (histórico V0.5):** havia um painel de indicadores ilustrativos no dashboard, mas **na versão atual os dados específicos dos tripulantes ficam exclusivamente na aba Tripulantes**. Não são avaliação médica nem indicador validado de segurança radiológica.
 - **EVA:** mantém cronômetro independente, controles de pausa e reset e cálculo sintético de dose da sessão quando possível. Adicionamos um registro de EVA anterior **100% fictício** apenas para preencher a experiência de demonstração.
-- **Atividade solar:** no modo simulação, A/B/C são preenchidos com **um único cenário solar fictício** local, com sinalização explícita `SYNTHETIC FIXTURE`. Nenhum prognóstico da NOAA, CCMC ou NASA foi inventado como dado real.
+- **Atividade solar:** em Simulação A/B/C vêm do cenário fictício compartilhado da FastAPI, identificado como `SYNTHETIC FIXTURE`. Nenhum prognóstico da NOAA, CCMC ou NASA foi inventado como dado real.
 - **Mustach Wearable (histórico V0.5):** a primeira versão da prévia mostrava perfis fictícios. Na V0.6, o relógio passou a mostrar uma faixa sintética ambiental. Na V2 refinada, a primeira tela acompanha a leitura pessoal associada à atividade e a avaliação compartilhada; a segunda resume o clima solar. Não existe conexão com smartwatch físico.
 - **Conexão:** os horários de última consulta à API e última medição são distintos. O Wearable continua enviando batimentos de presença da **prévia web** para a API, e isso não representa um relógio físico pareado.
 - **Três idiomas:** inglês (padrão), português e espanhol, inclusive os textos novos dos estados demonstrativos. Cada aplicativo guarda sua preferência no próprio navegador.

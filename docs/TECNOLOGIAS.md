@@ -115,3 +115,14 @@ npm run test:e2e
 6. **Segurança futura:** não expor chaves de API no front-end, usar cache/rate limits e validar entradas/redirecionamentos no servidor. Proteger dados de saúde e evitar coleta desnecessária.
 7. **Banco:** IDs determinísticos evitam duplicação; `measurements` guarda metadados originais e instante de coleta, enquanto previsões e demo têm tabelas próprias. O nome legado `sentinela.sqlite3` é mantido.
 8. **Disponibilidade:** dados previamente coletados seguem acessíveis sem internet externa, desde que a API local funcione. Não existe sincronização automática nem cache confiável se a API local cair.
+
+## Refinamentos das integrações
+
+- `backend/app/simulation.py`: relógio e curvas fictícias compartilhados, com SQLite, revisão otimista e controles. Sem dependência/framework novo.
+- `shared/simulation.ts`: contratos e traduções EN/PT/ES; não é um gerador de previsão independente.
+- `frontend/src/components/monitoring/SimulationControls.tsx`: controles compactos na interface atual; central/sino removidos.
+- `backend/app/solar_notices.py`: filtro SEP e limiares demonstrativos no servidor. `wearable/src/SolarNotice.tsx` e `notices.ts`: apresentação, reconhecimento e deduplicação local, com vibração experimental detectada e opcional.
+- Migração aditiva: `scientific_alerts.original_message`, `valid_until`, `product_id`; nova tabela `simulation_state` separada de dados científicos. Backup/restauração incluem ambas e mantêm o banco legado.
+- Testes: Pytest de cenário/relógio/cancelamento/unidade/persistência; Vitest de deduplicação/validade; Playwright de aviso, vibração, três idiomas/320px, modos e sincronização HTTP real opt-in. Nenhum pacote foi instalado para esses ajustes.
+
+Validação local em 15/11/2026: **79 Pytest, 20 Vitest Web, 7 Vitest Wearable, 23 Playwright Web, 17 Playwright Wearable e 3 E2E HTTP reais** aprovados. Os três testes live são ignorados nas suítes comuns e executados separadamente com `MUSTACH_LIVE_API=1`; não dependem de interceptações para provar comunicação. Typecheck, lint e builds aprovados. Avisos não bloqueantes: depreciação Starlette/httpx e bundle Web acima de 500 kB. Comparação por hash dos 22 registros RadLab antes/depois de encerrar e reiniciar uvicorn confirmou igualdade; SQLite retornou `integrity_check=ok`. As falhas de internet foram controladas nos testes, sem desligar a rede da máquina. Vibração foi validada por chamada simulada e fallback visual, **não por hardware físico**.

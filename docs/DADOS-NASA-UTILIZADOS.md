@@ -8,7 +8,7 @@ Registro da coleta local de **15/11/2026**. Os resultados abaixo descrevem a amo
 | Fluxo integral GOES-18 / NOAA SWPC | [JSON GOES](https://services.swpc.noaa.gov/json/goes/primary/integral-protons-6-hour.json) | **210 medições**, 70 por canal ≥10, ≥50 e ≥100 MeV | 2026-11-15 17:00–22:45 UTC | `measurements`; série observada dentro do painel solar |
 | Probabilidades de 3 dias / NOAA SWPC | [JSON](https://services.swpc.noaa.gov/json/solar_probabilities.json) e [previsão textual](https://services.swpc.noaa.gov/text/3-day-forecast.txt) | **3 horizontes**; 5% em cada dia nesta emissão | dias 15, 16 e 17/11/2026; emissão 15/11 12:30 UTC | `scientific_forecasts`; A do Web e Wearable |
 | REleASE SOHO 30-min / NASA CCMC (modelo HESPERIA) | [redirecionamento ISWA](https://iswa.ccmc.gsfc.nasa.gov/api/redirect?dataID=1215) | **2 canais energéticos** | emissão 15/11/2026 22:04:14 UTC; janela pontual 22:27:34 UTC | `scientific_forecasts`; B/C do Web enquanto válido; arquivo após expiração |
-| Avisos oficiais / NOAA SWPC | [JSON de alertas](https://services.swpc.noaa.gov/products/alerts.json) | **41 alertas/avisos** aceitos | 2026-10-17 20:14:23–2026-11-15 13:34:32 UTC | `scientific_alerts`; avisos recentes no cabeçalho |
+| Avisos oficiais / NOAA SWPC | [JSON de alertas](https://services.swpc.noaa.gov/products/alerts.json) | **41 alertas/avisos** aceitos | 2026-10-17 20:14:23–2026-11-15 13:34:32 UTC | `scientific_alerts`; somente avisos SEP elegíveis no Wearable |
 | Catálogo SEP / NASA DONKI | [API DONKI SEP](https://api.nasa.gov/) | **14 eventos históricos** | 2024-05-09 13:59–2024-05-13 18:07 UTC | `scientific_events`; `/api/v1/solar-events`, sem inferência causal |
 
 ## RadLab
@@ -32,8 +32,8 @@ https://visualization.osdr.nasa.gov/radlab/api/?instrument_id=DosTel1&timestamp%
 - **Agência/produto:** NOAA Space Weather Prediction Center. [GOES Proton Flux](https://www.swpc.noaa.gov/products/goes-proton-flux), [serviço JSON](https://services.swpc.noaa.gov/json/goes/primary/), [previsão oficial](https://services.swpc.noaa.gov/text/3-day-forecast.txt).
 - **GOES observado:** campos `time_tag`, `satellite`, `energy`, `flux`; canais integrais ≥10/≥50/≥100 MeV separados, unidade `pfu` (prótons cm⁻² s⁻¹ sr⁻¹ acima do limiar energético). Registro original preservado. Sem conversão para dose.
 - **Previsão:** os campos `10mev_protons_1_day`, `_2_day`, `_3_day` são ligados à emissão `:Issued:` da previsão textual de três dias. Nesta coleta, a previsão textual apresentou **S1 ou maior 5%** em cada um dos três dias. [NOAA define o limiar S1](https://www.swpc.noaa.gov/noaa-scales-explanation) como fluxo de prótons ≥10 MeV de pelo menos 10 pfu; isso não é probabilidade de dano pessoal. O JSON não fornece intensidade máxima nem horários de início/pico/término; esses campos ficam nulos.
-- **Avisos:** `product_id`, `issue_datetime` e linha `ALERT`/`WATCH`/`WARNING` são armazenados em `scientific_alerts`. O cabeçalho apresenta apenas os recentes; outros ficam no arquivo. Avisos geomagnéticos ou de elétrons não são tratados como dose humana.
-- **Implementação:** `backend/app/science.py`, `collect.py`, `db.py`; `/api/v1/measurements`, `/api/v1/solar/forecast`, `/api/v1/solar/alerts`; `SolarActivityPanel.tsx` e `NotificationCenter.tsx`.
+- **Avisos:** `product_id`, `issue_datetime`, mensagem original, linha `ALERT`/`WATCH`/`WARNING` (incluindo continuação/cancelamento) e `Valid To` quando informado são armazenados em `scientific_alerts`. Apenas os elegíveis pelo filtro SEP são apresentados no **Wearable**; não existe central/sino no Web. Avisos geomagnéticos ou de elétrons não são tratados como dose humana.
+- **Implementação:** `backend/app/science.py`, `collect.py`, `db.py`, `solar_notices.py`; `/api/v1/measurements`, `/api/v1/solar/forecast`, `/api/v1/solar/alerts`, `/api/v1/wearable/solar-notices`; `SolarActivityPanel.tsx` e `wearable/src/SolarNotice.tsx`.
 - **Condições de uso:** serviços públicos NOAA/SWPC, com atribuição ao produto/agência; confirmar termos vigentes antes de redistribuição. Valores e disponibilidade são os da emissão, não garantia de atualidade após a coleta.
 
 ## CCMC SEP Scoreboard
@@ -70,3 +70,33 @@ Invoke-RestMethod 'http://127.0.0.1:8000/api/v1/measurements?source=NASA%20OSDR%
 ```
 
 O primeiro comando é idempotente para o mesmo intervalo; os demais consultam produtos que podem mudar, então quantidades não são garantidas. `GET /api/v1/science/ingestion-runs` mostra sucesso/erro de cada tentativa. `SENTINELA_DATABASE_PATH` permite usar um banco separado para reproduzir sem tocar o banco atual. O SQLite é a única persistência offline; a API local deve permanecer disponível. Não há agendamento automático de coleta nem verificação contínua de conectividade externa.
+
+## Revalidação dos refinamentos — 15/11/2026 (horário local)
+
+`python -m app.collect all` e nova consulta DONKI de 09–13/05/2024 responderam sem erro. RadLab, NOAA de três dias, CCMC e DONKI repetidos não duplicaram registros. O total persistido GOES chegou a **246 pontos (82 por canal)** de 15/11 17:00 a 23:45 UTC, por acumulação de consultas de janela móvel; não é o tamanho garantido de uma única resposta de seis horas. Permanecem 22 medições RadLab (11 timestamps), 3 horizontes NOAA, 2 canais CCMC, 41 boletins NOAA e 14 eventos históricos DONKI. O período corrente DONKI segue sem novos SEP nesta consulta.
+
+As previsões CCMC pontuais já expiraram e ficam no arquivo, não na previsão vigente. Campos A/B/C ausentes continuam nulos. Fluxo GOES e REleASE não alimentam dose individual, dose absorvida nem cores reais por órgão. As verificações incluem unidade, canal, emissão futura, expiração, cancelamento de boletim, duplicação, contexto de identidade, reinício e integridade SQLite. Nenhuma nova API científica foi adicionada.
+
+### Política experimental dos avisos SEP (não clínica)
+
+- Base científica: [boletins SWPC](https://www.swpc.noaa.gov/products/alerts-watches-and-warnings) e [escalas NOAA](https://www.swpc.noaa.gov/noaa-scales-explanation). G1–G5 são geomagnéticas; S1–S5 são radiativas. Não são intercambiáveis.
+- `OFFICIAL`: só boletins NOAA cuja **linha principal** menciona prótons/SEP/tempestade de radiação solar. `ALERT` é evento reportado; `WATCH`/`WARNING` são aviso/previsão, nunca perigo pessoal confirmado. Texto original é mantido em inglês para não mudar seu significado; rótulos, ações e resumo são EN/PT/ES.
+- `Valid To` limita a validade quando existe. Sem prazo explícito, usa-se janela local conservadora de **1 hora da emissão**, sem alegar duração do evento. Nenhum boletim com mais de 24h é notificado. Produtos substituídos, cancelados, encerrados, futuros ou expirados são excluídos; continuam no arquivo.
+- `FORECAST`: corte **demonstrativo de atenção**, nunca crítico: NOAA com probabilidade >=50%, emissão <=24h e horizonte ainda válido. O aviso mostra um horizonte elegível, sem média/máximo agregado entre os três dias. Uma emissão tem ID estável, evitando três vibrações.
+- CCMC REleASE: corte demonstrativo >=0,1 em `MeV^-1*s^-1*cm^-2*sr^-1`, somente canais 15,8–39,8 ou 28,2–50,1 MeV, emissão <=24h e validade não expirada. Cada modelo/canal fica separado. Esse corte demonstra a interface: **não** é S1 nem critério operacional validado e nunca é convertido para pfu. Outros modelos/unidades não geram avisos por suposição.
+- Elegibilidade é calculada no back-end. Avisos não usam RadLab nem leituras ambientais/pessoais para determinar saúde. Não há push. Reconhecimento e tentativas hápticas ficam neste navegador; apagar seu armazenamento remove o histórico. Vibração começa desativada, depende do suporte e políticas do navegador e pode ser recusada mesmo com a função presente.
+
+### Roteiro fictício compartilhado
+
+`backend/app/simulation.py` é a autoridade; `shared/simulation.ts` contém contrato, transporte e traduções. `simulation_state` guarda execução, revisão, relógio, velocidade e transições manuais. Taxa equivalente e fluxo solar são **grandezas sintéticas independentes**, não conversão uma da outra. Não se infere taxa absorvida da taxa equivalente.
+
+| Cenário | Taxa equivalente fictícia (µSv/h) | Probabilidade fictícia | Fluxo máximo fictício (pfu) | Aviso |
+|---|---|---|---|---|
+| Normal | 0,35 + onda de ±0,025 | 18% | 2,4 | Nenhum SEP |
+| Previsto | 0,52 + onda de ±0,025 | 65% | 12 | Previsão SIMULADA |
+| Em andamento | 1,6 + onda entre 0 e 0,3 | 100% | 35 | Evento SIMULADO |
+| Recuperação | 0,35 + 1,2 × exp(-segundos/600) | 15% | 4 | Nenhum novo SEP |
+
+Os cortes de `shared/demoBands.ts` continuam fictícios. As transições são manuais; tempo e curvas evoluem dentro de cada cenário. Pausa congela o relógio; 10×/60× aceleram tempo e integração EVA. Reiniciar gera novo ID e limpa a sessão EVA do Web, sem apagar histórico científico. Evidências pré-EVA e métricas clínicas fictícias não mudam automaticamente.
+
+Os front-ends consultam o estado a cada segundo; pode haver diferença de até um ciclo de polling. Sem FastAPI, a simulação não avança nos navegadores e os controles ficam indisponíveis. Utilitários antigos de `shared/demo.ts` continuam para fixtures e transformação de perfis fictícios, mas não geram a previsão das telas em produção.
